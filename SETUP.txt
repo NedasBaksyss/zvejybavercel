@@ -9,6 +9,8 @@ MongoDB Compass : https://www.mongodb.com/products/tools/compass (Recommended)
 
 MongoDB : npm install mongodb
 
+MongoDB Server : https://www.mongodb.com/try/download/community
+
 Docker Desktop : https://www.docker.com/products/docker-desktop/ (Recommended)
 
 Docker : winget install Docker.sbx (run in powershell)
