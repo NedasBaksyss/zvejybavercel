@@ -1,0 +1,27 @@
+Install these technologies (or if already installed update to latest version) before running the project
+
+
+Latest install of NodeJS : https://nodejs.org/en/download
+
+Latest install of ExpressJS : npm install express
+
+MongoDB Compass : https://www.mongodb.com/products/tools/compass (Recommended)
+
+MongoDB : npm install mongodb
+
+Docker Desktop : https://www.docker.com/products/docker-desktop/ (Recommended)
+
+Docker : winget install Docker.sbx (run in powershell)
+
+PixiJS : npm install pixi.js
+
+
+
+These following commands should return without any errors : 
+
+npm --version
+node --version
+npm list express
+mongod --version
+docker --version
+npm list pixi.js
