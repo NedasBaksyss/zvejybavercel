@@ -1,0 +1,16 @@
+{
+  "_id": "first_fish",
+
+  "name": "First Catch",
+
+  "description": "Catch your first fish",
+
+  "requirement": {
+    "type": "fishCaught",
+    "amount": 1
+  },
+
+  "reward": {
+    "coins": 10
+  }
+}
