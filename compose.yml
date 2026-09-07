@@ -13,6 +13,10 @@ services:
     container_name: api
     ports:
       - "3000:3000"
+    environment:
+        - MONGO_URI=mongodb://mongodb:27017/zvejyba
+    depends_on:
+        - mongodb
 
   mongodb:
     image: mongo:8
