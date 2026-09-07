@@ -1,0 +1,16 @@
+services:
+  front:
+    build:
+      context: front
+    ports:
+      - "5173:5173"
+    
+    depends_on:
+      - api
+  
+  api:
+    build:
+      context: api
+    ports:
+      - "3000:3000"
+
