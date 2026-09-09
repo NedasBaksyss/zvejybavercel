@@ -254,6 +254,7 @@ const CSS = `
    ========================================================================== */
 const T = {
   LT: {
+    title: 'ŽUVIS IR JAUKAS',
     sub: 'TYLUS EŽERAS',
     play: 'Nauja kelionė', cont: 'Tęsti', account: 'Žvejo kortelė',
     settings: 'Nustatymai', credits: 'Apie', quit: 'Išeiti',
@@ -284,6 +285,7 @@ const T = {
       'Per stipriai sukant valą, jis trūksta. Leisk žuviai pavargti.']
   },
   EN: {
+    title: "FISH N' BAIT",
     sub: 'THE QUIET LAKE',
     play: 'New trip', cont: 'Continue', account: 'Angler card',
     settings: 'Settings', credits: 'About', quit: 'Quit',
@@ -337,7 +339,7 @@ function startMenu(root) {
   /* ---- 2. SETTINGS STORE -------------------------------------------------
      Values are stored as CODES ("high", "integer"), never as display text. */
   const Store = (() => {
-    const defaults = { music: 6, sfx: 9, quality: 'high', scaling: 'integer', lang: 'LT' }
+    const defaults = { music: 6, sfx: 9, quality: 'high', scaling: 'integer', lang: 'EN' }
     let mem = { ...defaults }
     const KEY = 'zvejyba.settings'
     return {
@@ -505,7 +507,6 @@ function startMenu(root) {
       x.fillRect(0, baseY - 1, BASE_W + 40, band - baseY + 1)
     })
   }
-  seed = 4242; const farTrees = treeline(52, '#2a2545', 16, 30, 5, 56)
   seed = 909; const nearTrees = treeline(60, '#141227', 24, 46, 7, 64)
   const treeMirror = flip(nearTrees)
 
@@ -657,7 +658,6 @@ function startMenu(root) {
 
     ctx.clearRect(0, 0, BASE_W, BASE_H)
     ctx.drawImage(skyLayer, -10 + off(2, 'x'), off(1.5, 'y'))
-    ctx.drawImage(farTrees, -20 + off(4, 'x'), 40 + off(2, 'y'))
     drawMist(m)
     ctx.drawImage(nearTrees, -20 + off(7, 'x'), 86 + off(3, 'y'))
     drawWater(m)
@@ -737,7 +737,7 @@ function startMenu(root) {
       b.addEventListener('click', () => { b.disabled ? Sound.deny() : (sel = i, choose(m.id)) })
       menuEl.appendChild(b)
     })
-    $('logo-word').textContent = '\u017DVEJYBA'
+    $('logo-word').textContent = L.title
     $('logo-sub').textContent = L.sub
     whoEl.hidden = !player
     if (player) {
@@ -788,7 +788,7 @@ function startMenu(root) {
     { key: 'sfx', label: 'sfx', type: 'slider' },
     { key: 'quality', label: 'quality', type: 'cycle', values: ['low', 'med', 'high'], text: v => t()['q_' + v] },
     { key: 'scaling', label: 'scaling', type: 'cycle', values: ['integer', 'stretch'], text: v => v === 'integer' ? t().sc_int : t().sc_str },
-    { key: 'lang', label: 'lang', type: 'cycle', values: ['LT', 'EN'], text: v => v }
+    { key: 'lang', label: 'lang', type: 'cycle', values: ['EN', 'LT'], text: v => v }
   ]
   let optSel = 0
   const optsEl = $('opts')
