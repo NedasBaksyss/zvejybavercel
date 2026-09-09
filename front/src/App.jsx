@@ -166,7 +166,7 @@ function App() {
           </section>
 
         </div>
-        <span id="build">v0.2.0</span>
+        <span id="build">v0.3.0</span>
       </div>
     </div>
   )
@@ -189,23 +189,26 @@ const CSS = `
   --bad:#d4574e;
   --scale:1;
   --tsc:1;
+  --face:'Pixelify Sans',ui-monospace,'DejaVu Sans Mono',monospace;
 
   position:fixed;inset:0;z-index:0;
   background:#07060f;
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;
   text-align:left;
-  font-family:'Pixelify Sans',ui-monospace,'DejaVu Sans Mono',monospace;
+  font-family:var(--face);
   color:var(--pale);
 }
+/* Set the face on everything, not just the root. Form controls do not
+   inherit font by default, and one missed element is a visible seam. */
+.zv,.zv *{font-family:var(--face)}
 .zv *{box-sizing:border-box;margin:0;padding:0}
 
 /* Glyph guard: if the pixel face cannot draw Z/e/u with Lithuanian
    diacritics, the whole UI swaps to a monospace face that can. */
 /* Two ways to end up on the plain face: the pixel font failed to load
    (nopix, set by the glyph guard) or the player asked for it (plain). */
-.zv.nopix,.zv.plain,
-.zv.nopix #logo .word,.zv.plain #logo .word{font-family:ui-monospace,'DejaVu Sans Mono','Courier New',monospace}
+.zv.nopix,.zv.plain{--face:ui-monospace,'DejaVu Sans Mono','Courier New',monospace}
 /* The fallback face reads smaller and thinner than the pixel one at the
    same px value, so it gets a little more weight. The size difference is
    handled in JS, by PLAIN_BOOST. */
@@ -259,17 +262,17 @@ const CSS = `
 
 .zv .panel{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:288px;max-height:250px;
+  width:288px;max-height:calc(100% - 14px);overflow:hidden;
   background:rgba(13,11,24,.9);border:2px solid #3b3350;
   padding:9px 12px 11px;
 }
 .zv .panel h2{
-  font-size:calc(12px * var(--tsc));font-weight:700;color:var(--gold);
+  font-size:calc(12px * var(--tsc));font-weight:700;line-height:1.25;color:var(--gold);
   margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid #3b3350;
 }
 .zv .row{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:4px 0;font-size:calc(11px * var(--tsc));font-weight:500;color:#ddd0ea;
+  padding:3px 0;font-size:calc(11px * var(--tsc));font-weight:500;line-height:1.25;color:#ddd0ea;
 }
 .zv .row.focused{color:var(--gold)}
 .zv .row .label{white-space:nowrap}
@@ -282,8 +285,8 @@ const CSS = `
 .zv .cycle{
   display:flex;align-items:center;gap:7px;
   background:#221d33;border:1px solid #3b3350;
-  padding:2px 6px;font-size:calc(11px * var(--tsc));color:var(--pale);
-  cursor:pointer;font-family:inherit;
+  padding:2px 6px;font-size:calc(11px * var(--tsc));font-weight:500;line-height:1.25;color:var(--pale);
+  cursor:pointer;
 }
 .zv .cycle .arw{color:var(--dim);font-size:calc(9px * var(--tsc))}
 .zv .cycle .val{min-width:96px;text-align:center}
@@ -389,10 +392,10 @@ const T = {
 
 
     gameLine:"Čia bus ežeras.", gameWho:o=>`Žvejys: ${o}`, hintGame:"Esc – pauzė",
-    pauseTitle:"Pauzė", resume:"Grįžti į žvejybą", toMenu:"Į titulinį", delTrip:"Ištrinti kelionę",
-    confTitle:"Ištrinti kelionę",
-    confBody:"Slotas dings visam laikui, o titulinis meniu vėl siūlys naują kelionę.",
-    yes:"Taip, ištrinti", no:"Ne, grįžti",
+    pauseTitle:"Pauzė", resume:"Grįžti į žvejybą", toMenu:"Į titulinį",
+    confTitle:"Atsijungti",
+    confBody:"Būsi atjungtas, o ši kelionė uždaryta. Titulinis meniu vėl siūlys naują kelionę.",
+    yes:"Taip, atsijungti", no:"Ne, grįžti",
     font: 'Šriftas', f_pixel: 'Pikselinis', f_plain: 'Paprastas',
     textSize: 'Teksto dydis', ts_sm: 'Mažas', ts_md: 'Vidutinis', ts_lg: 'Didelis',
     q_low: 'Žema', q_med: 'Vidutinė', q_high: 'Aukšta',
@@ -435,10 +438,10 @@ const T = {
 
 
     gameLine:"The lake goes here.", gameWho:o=>`Angler: ${o}`, hintGame:"Esc — pause",
-    pauseTitle:"Paused", resume:"Back to fishing", toMenu:"Main menu", delTrip:"Delete this trip",
-    confTitle:"Delete this trip",
-    confBody:"The slot goes for good, and the title menu will offer a new trip again.",
-    yes:"Yes, delete", no:"No, go back",
+    pauseTitle:"Paused", resume:"Back to fishing", toMenu:"Main menu",
+    confTitle:"Sign out",
+    confBody:"You will be signed out and this trip closed. The title menu will offer a new trip again.",
+    yes:"Yes, sign out", no:"No, go back",
     font: 'Font', f_pixel: 'Pixel', f_plain: 'Plain',
     textSize: 'Text size', ts_sm: 'Small', ts_md: 'Normal', ts_lg: 'Large',
     q_low: 'Low', q_med: 'Medium', q_high: 'High',
@@ -478,7 +481,7 @@ function startMenu(root) {
      component's own <style> is only fetched after that stylesheet is parsed,
      which is late enough that the first paint — and the glyph check below —
      can run before the face exists. That is why the pixel text never showed. */
-  const FONT_HREF = 'https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap'
+  const FONT_HREF = 'https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap'
   if (!document.querySelector('link[data-zv-font]')) {
     const l = document.createElement('link')
     l.rel = 'stylesheet'
@@ -903,7 +906,6 @@ function startMenu(root) {
   const MENU = [
     { id: 'play', key: 'play', hidden: () => !!slot },   // gone once a trip exists
     { id: 'continue', key: 'cont', off: () => !slot },   // lights up once one does
-    { id: 'account', key: 'account' },
     { id: 'settings', key: 'settings' },
     { id: 'credits', key: 'credits' },
     { id: 'quit', key: 'quit' }
@@ -956,7 +958,6 @@ function startMenu(root) {
     Sound.confirm()
     if (id === 'play') startTrip()
     else if (id === 'continue') resumeTrip()
-    else if (id === 'account') UI.go('auth')
     else if (id === 'settings') { settingsBack = 'title'; UI.go('settings') }
     else if (id === 'credits') UI.go('credits')
     else if (id === 'quit') quit()
@@ -1097,7 +1098,7 @@ function startMenu(root) {
       pauseList.set([
         { text: L.resume, run: () => UI.go('game') },
         { text: L.settings, run: () => { settingsBack = 'pause'; UI.go('settings') } },
-        { text: L.delTrip, run: () => UI.go('confirm') },
+        { text: L.btnOut, run: () => UI.go('confirm') },
         { text: L.toMenu, run: () => UI.go('title') }
       ])
     }, key: e => pauseList.key(e)
@@ -1113,8 +1114,11 @@ function startMenu(root) {
         { text: L.no, run: () => UI.go('pause') },
         {
           text: L.yes, run: () => {
-            slot = null; sel = 0
-            Hooks.emit('deleteTrip')
+            /* Signing out closes the trip with it: the slot belongs to whoever
+               was signed in, so leaving it behind would hand it to the next
+               person to open the page. */
+            player = null; slot = null; sel = 0
+            Hooks.emit('signOut')
             paintMenu()
             UI.go('title')
           }
@@ -1370,18 +1374,23 @@ function startMenu(root) {
      it, so checking straight after fonts.ready returns false for a face that
      is perfectly available — and the UI got pinned to the fallback. Ask for
      the face first, then check, then check again once everything settles. */
+  /* Every weight is checked, not just one. Asking Google for the discrete list
+     400;500;600;700 returns four separate font files; if some arrive and others
+     do not, the UI ends up in two different faces at once. The URL now asks for
+     the variable range instead, so it is one file, and the guard treats "not all
+     weights present" as a failure and falls back wholesale. */
   const PIX = '"Pixelify Sans"'
   const GLYPHS = '\u017D\u0117\u0173'
+  const WEIGHTS = [400, 500, 600, 700]
   async function glyphGuard() {
     if (!alive || !document.fonts) return          // no Font Loading API: trust the CSS stack
     try {
-      await Promise.all([
-        document.fonts.load('700 34px ' + PIX, GLYPHS),
-        document.fonts.load('400 15px ' + PIX, GLYPHS)
-      ])
+      await Promise.all(WEIGHTS.map(w => document.fonts.load(w + ' 15px ' + PIX, GLYPHS)))
     } catch (e) { /* offline, blocked, or no such family */ }
     if (!alive) return
-    const ok = document.fonts.check ? document.fonts.check('700 34px ' + PIX, GLYPHS) : true
+    const ok = document.fonts.check
+      ? WEIGHTS.every(w => document.fonts.check(w + ' 15px ' + PIX, GLYPHS))
+      : true
     root.classList.toggle('nopix', !ok)
     applyTextSize()               // falling back changes the face, so re-size
   }
