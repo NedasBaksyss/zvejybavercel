@@ -1,0 +1,17 @@
+{
+  "_id": "salmon",
+
+  "name": "Salmon",
+
+  "rarity": "common",
+
+  "minWeight": 1.0,
+
+  "maxWeight": 5.0,
+
+  "baseValue": 10,
+
+  "experienceReward": 5,
+
+  "coin_value": 10
+}
