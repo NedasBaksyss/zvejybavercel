@@ -76,6 +76,80 @@ function App() {
             <p className="hint" id="hint-cred" />
           </section>
 
+          <section className="screen" id="s-ask">
+            <svg className="rod" viewBox="0 0 480 270" aria-hidden="true">
+          <g transform="translate(46 258) rotate(-34.3)">
+            <rect className="grip" x="-74" y="-7" width="62" height="14" rx="3"/>
+            <rect className="seat" x="-12" y="-5" width="24" height="10" rx="2"/>
+            <circle className="reel" cx="0" cy="14" r="12"/>
+            <circle className="hub" cx="0" cy="14" r="4"/>
+            <polygon className="blank" points="0,-5 418,-1 418,1 0,5"/>
+            <circle className="guide" cx="120" cy="8" r="5"/>
+            <circle className="guide" cx="205" cy="7" r="4.4"/>
+            <circle className="guide" cx="278" cy="6" r="3.8"/>
+            <circle className="guide" cx="340" cy="5.4" r="3.2"/>
+            <circle className="guide" cx="392" cy="5" r="2.6"/>
+          </g>
+          <path className="line" d="M391 22 Q 472 96 446 264"/>
+        </svg>
+            <div className="panel wide">
+              <div className="phead">
+                <h2 id="ask-title" />
+                <button className="x" id="ask-x" type="button">✕</button>
+              </div>
+              <div className="cards">
+                  <button className="card" id="card-guest" type="button" aria-selected="true">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <rect x="11" y="1" width="2" height="5" fill="var(--pale)"/>
+                      <path d="M5 13a7 7 0 0 1 14 0z" fill="var(--pale)"/>
+                      <path d="M19 13a7 7 0 0 1-14 0z" fill="var(--ember)"/>
+                    </svg>
+                    <span className="cap" />
+                    <span className="cdesc" />
+                  </button>
+                  <button className="card" id="card-account" type="button" aria-selected="false">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <rect x="2" y="5" width="20" height="14" rx="2" fill="none" stroke="var(--pale)" strokeWidth="2"/>
+                      <rect x="5" y="9" width="6" height="6" fill="var(--gold)"/>
+                      <rect x="13" y="9" width="6" height="2" fill="var(--mist)"/>
+                      <rect x="13" y="13" width="6" height="2" fill="var(--mist)"/>
+                    </svg>
+                    <span className="cap" />
+                    <span className="cdesc" />
+                  </button>
+        </div>
+              <div className="pfoot">
+                <button className="btn slim" id="ask-go" type="button" />
+                <button className="link" id="ask-cancel" type="button" />
+              </div>
+            </div>
+            <p className="hint" id="hint-ask" />
+          </section>
+
+          <section className="screen" id="s-game">
+            <div className="hud">
+              <p className="line" id="game-line" />
+              <p className="who" id="game-who" />
+            </div>
+            <p className="hint" id="hint-game" />
+          </section>
+
+          <section className="screen" id="s-pause">
+            <div className="panel">
+              <h2 id="pause-title" />
+              <div className="choices" id="pause-list" />
+            </div>
+            <p className="hint" id="hint-pause" />
+          </section>
+
+          <section className="screen" id="s-confirm">
+            <div className="panel">
+              <h2 id="conf-title" />
+              <p className="note" id="conf-body" />
+              <div className="choices" id="conf-list" />
+            </div>
+          </section>
+
           <section className="screen" id="loading">
             <div className="box">
               <p className="what" id="load-what" />
@@ -104,8 +178,6 @@ function App() {
    cannot fight with Vite's default index.css / App.css.
    ========================================================================== */
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap');
-
 .zv{
   --ink:#0d0b18;
   --pale:#ffdca8;
@@ -116,6 +188,7 @@ const CSS = `
   --ok:#7fbf7f;
   --bad:#d4574e;
   --scale:1;
+  --tsc:1;
 
   position:fixed;inset:0;z-index:0;
   background:#07060f;
@@ -129,7 +202,14 @@ const CSS = `
 
 /* Glyph guard: if the pixel face cannot draw Z/e/u with Lithuanian
    diacritics, the whole UI swaps to a monospace face that can. */
-.zv.nopix,.zv.nopix #logo .word{font-family:ui-monospace,'DejaVu Sans Mono','Courier New',monospace}
+/* Two ways to end up on the plain face: the pixel font failed to load
+   (nopix, set by the glyph guard) or the player asked for it (plain). */
+.zv.nopix,.zv.plain,
+.zv.nopix #logo .word,.zv.plain #logo .word{font-family:ui-monospace,'DejaVu Sans Mono','Courier New',monospace}
+/* The fallback face reads smaller and thinner than the pixel one at the
+   same px value, so it gets a little more weight. The size difference is
+   handled in JS, by PLAIN_BOOST. */
+.zv.nopix .item,.zv.plain .item{font-weight:700}
 
 .zv #stage{
   position:relative;
@@ -155,11 +235,12 @@ const CSS = `
 }
 .zv #logo .sub{margin-top:6px;font-size:9px;letter-spacing:5px;color:var(--mist);opacity:.8}
 
-.zv #menu{position:absolute;left:46px;bottom:44px;display:flex;flex-direction:column;gap:3px}
+.zv #menu{position:absolute;left:46px;bottom:30px;display:flex;flex-direction:column;gap:3px}
 .zv .item{
   position:relative;display:flex;align-items:center;gap:8px;
-  font-size:15px;line-height:1;padding:3px 6px 3px 0;
-  color:#c9bcd6;background:none;border:0;font-family:inherit;cursor:pointer;text-align:left;
+  font-size:calc(15px * var(--tsc));line-height:1;padding:2px 6px 2px 0;
+  font-weight:600;color:#e7dbf2;text-shadow:1px 1px 0 rgba(7,6,15,.85);
+  background:none;border:0;font-family:inherit;cursor:pointer;text-align:left;
 }
 .zv .item .bob{
   width:7px;height:7px;background:var(--ember);
@@ -173,7 +254,7 @@ const CSS = `
 .zv .item[disabled] .bob{background:#4a4257;box-shadow:0 -3px 0 0 #4a4257}
 .zv .item:focus-visible{outline:2px solid var(--pale);outline-offset:2px}
 
-.zv #who{position:absolute;left:46px;bottom:22px;font-size:9px;color:var(--mist)}
+.zv #who{position:absolute;left:46px;bottom:12px;font-size:calc(9px * var(--tsc));font-weight:500;color:#a8c0dd;text-shadow:1px 1px 0 rgba(7,6,15,.85);}
 .zv #who b{color:var(--gold);font-weight:500}
 
 .zv .panel{
@@ -183,12 +264,12 @@ const CSS = `
   padding:9px 12px 11px;
 }
 .zv .panel h2{
-  font-size:12px;font-weight:600;color:var(--gold);
+  font-size:calc(12px * var(--tsc));font-weight:700;color:var(--gold);
   margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid #3b3350;
 }
 .zv .row{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:4px 0;font-size:11px;color:#c9bcd6;
+  padding:4px 0;font-size:calc(11px * var(--tsc));font-weight:500;color:#ddd0ea;
 }
 .zv .row.focused{color:var(--gold)}
 .zv .row .label{white-space:nowrap}
@@ -201,51 +282,90 @@ const CSS = `
 .zv .cycle{
   display:flex;align-items:center;gap:7px;
   background:#221d33;border:1px solid #3b3350;
-  padding:2px 6px;font-size:11px;color:var(--pale);
+  padding:2px 6px;font-size:calc(11px * var(--tsc));color:var(--pale);
   cursor:pointer;font-family:inherit;
 }
-.zv .cycle .arw{color:var(--dim);font-size:9px}
+.zv .cycle .arw{color:var(--dim);font-size:calc(9px * var(--tsc))}
 .zv .cycle .val{min-width:96px;text-align:center}
 
 .zv .tabs{display:flex;gap:4px;margin-bottom:7px}
 .zv .tab{
-  flex:1;font-family:inherit;font-size:10px;padding:3px;cursor:pointer;
-  background:#221d33;border:1px solid #3b3350;color:#8d82a3;
+  flex:1;font-family:inherit;font-size:calc(10px * var(--tsc));padding:3px;cursor:pointer;
+  font-weight:500;background:#221d33;border:1px solid #3b3350;color:#a598bd;
 }
 .zv .tab[aria-selected="true"]{background:#3b3350;color:var(--pale)}
 .zv .field{margin-bottom:5px}
-.zv .field span{display:block;font-size:8px;color:var(--mist);margin-bottom:2px}
+.zv .field span{display:block;font-size:calc(9px * var(--tsc));font-weight:500;color:#a8c0dd;margin-bottom:2px}
 .zv .field input{
-  width:100%;font-family:inherit;font-size:11px;padding:3px 6px;
+  width:100%;font-family:inherit;font-size:calc(11px * var(--tsc));padding:3px 6px;
   background:#0f0d1c;color:var(--pale);border:1px solid #3b3350;
 }
 .zv .field input:focus{outline:none;border-color:var(--gold)}
-.zv .msg{font-size:8px;min-height:12px;margin:3px 0 5px;color:var(--bad);line-height:1.4}
+.zv .msg{font-size:calc(9px * var(--tsc));font-weight:500;min-height:13px;margin:3px 0 5px;color:var(--bad);line-height:1.4}
 .zv .msg.ok{color:var(--ok)}
 .zv .btn{
-  width:100%;font-family:inherit;font-size:11px;padding:4px;cursor:pointer;
-  background:var(--ember);color:#1a0f14;border:0;border-bottom:3px solid #7a2e3a;
+  width:100%;font-family:inherit;font-size:calc(11px * var(--tsc));padding:4px;cursor:pointer;
+  font-weight:600;background:var(--ember);color:#1a0f14;border:0;border-bottom:3px solid #7a2e3a;
 }
 .zv .btn:active{transform:translateY(1px);border-bottom-width:2px}
 .zv .btn[disabled]{background:#4a4257;border-bottom-color:#2b2639;color:#8d82a3;cursor:default}
 .zv .btn.ghost{background:#221d33;color:#c9bcd6;border-bottom-color:#3b3350;margin-top:5px}
 
-.zv .hint{position:absolute;bottom:8px;left:22px;font-size:9px;color:var(--dim);text-align:left}
+.zv .hint{position:absolute;bottom:8px;left:22px;font-size:calc(9px * var(--tsc));font-weight:500;color:#8a789b;text-align:left}
 .zv kbd{font-family:inherit;color:var(--mist);border:1px solid #3b3350;padding:0 3px}
 
-.zv .credits p{font-size:11px;line-height:1.75;color:#c9bcd6}
+.zv .credits p{font-size:calc(11px * var(--tsc));font-weight:500;line-height:1.75;color:#ddd0ea}
 .zv .credits .who{color:var(--gold)}
 
+/* Backdrop for the chooser: a rod laid across the panel, butt at the bottom
+   left and tip at the top right. Decoration only — aria-hidden, no pointer
+   events, and faint enough that the panel still reads first. */
+.zv .rod{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.14}
+.zv .rod .blank,.rod .seat,.rod .reel{fill:var(--pale)}
+.zv .rod .grip{fill:var(--ember)}
+.zv .rod .hub{fill:var(--ink)}
+.zv .rod .guide{fill:none;stroke:var(--pale);stroke-width:1.5}
+.zv .rod .line{fill:none;stroke:var(--pale);stroke-width:1}
+/* The chooser is a modal: header with a close box, two option cards side by
+   side, then a footer with the confirm button and a plain-text way out. */
+.zv .panel.wide{width:342px}
+.zv .phead{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #3b3350}
+.zv .phead h2{margin:0;padding:0;border:0}
+.zv .x{font-family:inherit;font-size:calc(11px * var(--tsc));line-height:1;padding:1px 5px;
+  background:#221d33;border:1px solid #3b3350;color:#a598bd;cursor:pointer}
+.zv .x:hover{color:var(--pale);border-color:var(--gold)}
+.zv .cards{display:flex;gap:8px;margin-bottom:9px}
+.zv .card{flex:1;min-width:0;padding:9px 9px 10px;cursor:pointer;text-align:left;
+  font-family:inherit;color:#c9bcd6;background:#171327;border:2px solid #3b3350}
+.zv .card[aria-selected="true"]{border-color:var(--gold);background:#241a33}
+.zv .card svg{display:block;width:24px;height:24px}
+.zv .card .cap{display:block;margin-top:7px;font-size:calc(11px * var(--tsc));
+  font-weight:600;color:var(--pale)}
+.zv .card[aria-selected="true"] .cap{color:var(--gold)}
+.zv .card .cdesc{display:block;margin-top:4px;font-size:calc(8px * var(--tsc));
+  font-weight:500;line-height:1.55;color:#a8c0dd}
+.zv .pfoot{display:flex;align-items:center;gap:12px;padding-top:7px;border-top:1px solid #3b3350}
+.zv .btn.slim{width:auto;padding:4px 14px}
+.zv .link{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;
+  font-size:calc(10px * var(--tsc));font-weight:500;color:#a598bd;text-decoration:underline}
+.zv .link:hover{color:var(--pale)}
+.zv .note{font-size:calc(10px * var(--tsc));font-weight:500;line-height:1.65;color:#ddd0ea;margin-bottom:8px}
+.zv .choices{display:flex;flex-direction:column;gap:1px}
+.zv .choices .item{font-size:calc(12px * var(--tsc));padding:3px 6px 3px 0}
+.zv .hud{position:absolute;left:46px;top:38px}
+.zv .hud .line{font-size:calc(13px * var(--tsc));font-weight:600;color:var(--pale);text-shadow:1px 1px 0 rgba(7,6,15,.85)}
+.zv .hud .who{margin-top:6px;font-size:calc(10px * var(--tsc));font-weight:500;color:#a8c0dd;text-shadow:1px 1px 0 rgba(7,6,15,.85)}
 .zv #loading .box{position:absolute;left:50%;bottom:54px;transform:translateX(-50%);width:264px;text-align:center}
-.zv #loading .what{font-size:11px;color:var(--pale);margin-bottom:8px;min-height:13px}
+.zv #loading .what{font-size:calc(11px * var(--tsc));font-weight:600;color:var(--pale);margin-bottom:8px;min-height:13px}
 .zv .bar{height:9px;background:#221d33;border:1px solid #3b3350}
 .zv .bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .18s steps(6)}
-.zv #loading .tip{margin-top:10px;font-size:9px;color:var(--mist);line-height:1.6}
+.zv #loading .tip{margin-top:10px;font-size:calc(9px * var(--tsc));font-weight:500;color:#a8c0dd;line-height:1.6}
 
 .zv #s-bye .panel{text-align:center}
-.zv #s-bye p{font-size:11px;line-height:1.8;color:#c9bcd6}
+.zv #s-bye p{font-size:calc(11px * var(--tsc));line-height:1.8;color:#c9bcd6}
 
-.zv #build{position:absolute;right:7px;bottom:6px;font-size:8px;color:#4a4257;z-index:3}
+.zv #build{position:absolute;right:7px;bottom:6px;font-size:calc(8px * var(--tsc));color:#4a4257;z-index:3}
 @media (prefers-reduced-motion:reduce){.zv .item .bob{transition:none}}
 `
 
@@ -260,6 +380,21 @@ const T = {
     settings: 'Nustatymai', credits: 'Apie', quit: 'Išeiti',
     signedIn: 'Prisijungęs:',
     music: 'Muzika', sfx: 'Garsai', quality: 'Kokybė', scaling: 'Vaizdo mastelis', lang: 'Kalba',
+    guest:"Svečias",
+    askTitle:"Nauja kelionė",
+    askLogin:"Prisijungti", askCancel:"Atšaukti",
+    guestDesc:"Žvejok iš karto. Kelionė dings uždarius langą.",
+    acctDesc:"Prisijunk, ir kelionė liks tavo kortelėje.",
+    startBtn:"Pradėti kelionę",
+
+
+    gameLine:"Čia bus ežeras.", gameWho:o=>`Žvejys: ${o}`, hintGame:"Esc – pauzė",
+    pauseTitle:"Pauzė", resume:"Grįžti į žvejybą", toMenu:"Į titulinį", delTrip:"Ištrinti kelionę",
+    confTitle:"Ištrinti kelionę",
+    confBody:"Slotas dings visam laikui, o titulinis meniu vėl siūlys naują kelionę.",
+    yes:"Taip, ištrinti", no:"Ne, grįžti",
+    font: 'Šriftas', f_pixel: 'Pikselinis', f_plain: 'Paprastas',
+    textSize: 'Teksto dydis', ts_sm: 'Mažas', ts_md: 'Vidutinis', ts_lg: 'Didelis',
     q_low: 'Žema', q_med: 'Vidutinė', q_high: 'Aukšta',
     sc_int: 'Sveiki kartotiniai', sc_str: 'Per visą ekraną',
     authTitle: 'Žvejo kortelė', setTitle: 'Nustatymai', credTitle: 'Apie', byeTitle: 'Iki',
@@ -291,6 +426,21 @@ const T = {
     settings: 'Settings', credits: 'About', quit: 'Quit',
     signedIn: 'Signed in:',
     music: 'Music', sfx: 'Sound', quality: 'Quality', scaling: 'Scaling', lang: 'Language',
+    guest:"Guest",
+    askTitle:"New trip",
+    askLogin:"Sign in", askCancel:"Cancel",
+    guestDesc:"Fish right away. The trip goes when you close the window.",
+    acctDesc:"Sign in and the trip stays on your card.",
+    startBtn:"Start the trip",
+
+
+    gameLine:"The lake goes here.", gameWho:o=>`Angler: ${o}`, hintGame:"Esc — pause",
+    pauseTitle:"Paused", resume:"Back to fishing", toMenu:"Main menu", delTrip:"Delete this trip",
+    confTitle:"Delete this trip",
+    confBody:"The slot goes for good, and the title menu will offer a new trip again.",
+    yes:"Yes, delete", no:"No, go back",
+    font: 'Font', f_pixel: 'Pixel', f_plain: 'Plain',
+    textSize: 'Text size', ts_sm: 'Small', ts_md: 'Normal', ts_lg: 'Large',
     q_low: 'Low', q_med: 'Medium', q_high: 'High',
     sc_int: 'Whole multiples', sc_str: 'Fill the screen',
     authTitle: 'Angler card', setTitle: 'Settings', credTitle: 'About', byeTitle: 'Goodbye',
@@ -324,6 +474,19 @@ const T = {
    Returns a cleanup function.
    ========================================================================== */
 function startMenu(root) {
+  /* The webfont has to be requested from <head>. An @import inside the
+     component's own <style> is only fetched after that stylesheet is parsed,
+     which is late enough that the first paint — and the glyph check below —
+     can run before the face exists. That is why the pixel text never showed. */
+  const FONT_HREF = 'https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap'
+  if (!document.querySelector('link[data-zv-font]')) {
+    const l = document.createElement('link')
+    l.rel = 'stylesheet'
+    l.href = FONT_HREF
+    l.setAttribute('data-zv-font', '')
+    document.head.appendChild(l)
+  }
+
   let alive = true
   let raf = 0
   const timers = new Set()
@@ -339,7 +502,10 @@ function startMenu(root) {
   /* ---- 2. SETTINGS STORE -------------------------------------------------
      Values are stored as CODES ("high", "integer"), never as display text. */
   const Store = (() => {
-    const defaults = { music: 6, sfx: 9, quality: 'high', scaling: 'integer', lang: 'EN' }
+    const defaults = {
+      music: 6, sfx: 9, quality: 'high', scaling: 'integer',
+      font: 'pixel', textSize: 'md', lang: 'EN'
+    }
     let mem = { ...defaults }
     const KEY = 'zvejyba.settings'
     return {
@@ -357,6 +523,21 @@ function startMenu(root) {
     }
   })()
   Store.load()
+
+  /* Text face and text size. Both are UI-only; the canvas never uses them. */
+  const TSC = { sm: .85, md: 1, lg: 1.1 }
+  const PLAIN_BOOST = 1.08     // the fallback face needs this to match by eye
+  /* "plain" covers both cases: the player chose it, or the pixel font failed
+     to load and the glyph guard fell back to it. Either way the same face is
+     on screen, so it gets the same size compensation. */
+  const onPlainFace = () =>
+    Store.get('font') === 'plain' || root.classList.contains('nopix')
+  const applyTextSize = () =>
+    root.style.setProperty('--tsc', TSC[Store.get('textSize')] * (onPlainFace() ? PLAIN_BOOST : 1))
+  const applyFont = () => {
+    root.classList.toggle('plain', Store.get('font') === 'plain')
+    applyTextSize()
+  }
 
   const QP = {
     low: { stars: 0, mist: 0, reflect: false, birds: false, roadStep: 3, crestStep: 7, vignette: false, sunGlow: false },
@@ -709,27 +890,45 @@ function startMenu(root) {
   let player = null
   let authMode = 'login'
 
+  /* One trip slot. In memory only, deliberately: the account store above is an
+     in-memory stub too, so a slot that survived a reload would outlive the
+     account that owns it. Persist both together when the server lands. */
+  let slot = null             // {owner, at} or null
+  let pendingOwner = null     // who the trip being loaded belongs to
+  let settingsBack = 'title'  // Esc out of settings returns here
+  let askMode = 'new'         // which entry opened the chooser: 'new' or 'continue'
+  const tripOwner = () => !slot ? '' : (slot.owner === 'guest' ? t().guest : slot.owner)
+
   /* ---- 8. TITLE ---------------------------------------------------------- */
   const MENU = [
-    { id: 'play', key: 'play' },
-    { id: 'continue', key: 'cont', needsPlayer: true },
+    { id: 'play', key: 'play', hidden: () => !!slot },   // gone once a trip exists
+    { id: 'continue', key: 'cont', off: () => !slot },   // lights up once one does
     { id: 'account', key: 'account' },
     { id: 'settings', key: 'settings' },
     { id: 'credits', key: 'credits' },
     { id: 'quit', key: 'quit' }
   ]
+  const isOff = m => !!(m.off && m.off())
+  let vis = MENU.slice()
   let sel = 0
   const menuEl = $('menu')
   const whoEl = $('who')
 
   function paintMenu() {
     const L = t()
+    vis = MENU.filter(m => !m.hidden || !m.hidden())
+    if (sel >= vis.length) sel = vis.length - 1
+    if (sel < 0) sel = 0
+    if (vis[sel] && isOff(vis[sel])) {            // never leave the cursor on a dead row
+      const k = vis.findIndex(m => !isOff(m))
+      if (k >= 0) sel = k
+    }
     menuEl.innerHTML = ''
-    MENU.forEach((m, i) => {
+    vis.forEach((m, i) => {
       const b = document.createElement('button')
       b.className = 'item'; b.type = 'button'
       b.setAttribute('aria-selected', i === sel)
-      if (m.needsPlayer && !player) b.disabled = true
+      if (isOff(m)) b.disabled = true
       const bob = document.createElement('span'); bob.className = 'bob'
       const lab = document.createElement('span'); lab.textContent = L[m.key]
       b.append(bob, lab)
@@ -749,15 +948,16 @@ function startMenu(root) {
   }
   function moveSel(d) {
     let i = sel, guard = 0
-    do { i = (i + d + MENU.length) % MENU.length; guard++ }
-    while (MENU[i].needsPlayer && !player && guard < 20)
+    do { i = (i + d + vis.length) % vis.length; guard++ }
+    while (isOff(vis[i]) && guard < 20)
     if (i !== sel) { sel = i; paintMenu(); Sound.move() }
   }
   function choose(id) {
     Sound.confirm()
-    if (id === 'play' || id === 'continue') startLoading()
+    if (id === 'play') startTrip()
+    else if (id === 'continue') resumeTrip()
     else if (id === 'account') UI.go('auth')
-    else if (id === 'settings') UI.go('settings')
+    else if (id === 'settings') { settingsBack = 'title'; UI.go('settings') }
     else if (id === 'credits') UI.go('credits')
     else if (id === 'quit') quit()
   }
@@ -765,7 +965,7 @@ function startMenu(root) {
     el: 's-title', enter: paintMenu, key(e) {
       if (e.key === 'ArrowUp' || e.key === 'w') moveSel(-1)
       if (e.key === 'ArrowDown' || e.key === 's') moveSel(1)
-      if (e.key === 'Enter' || e.key === ' ') choose(MENU[sel].id)
+      if (e.key === 'Enter' || e.key === ' ') choose(vis[sel].id)
     }
   })
 
@@ -776,10 +976,151 @@ function startMenu(root) {
     later(() => { if (!document.hidden) UI.go('bye') }, 160)
   }
   UI.register('bye', {
-    el: 's-bye', enter() {
+    el: 's-bye', back: 'title', enter() {
       $('bye-title').textContent = t().byeTitle
       $('bye-body').innerText = t().byeBody
     }, key() {}
+  })
+
+
+  /* ========================================================================
+     8b. THE TRIP: asking, the game page, pausing, deleting
+     ======================================================================== */
+
+  /* One small keyboard list, shared by the three panels below. */
+  function ChoiceList(elId) {
+    let items = [], i = 0
+    return {
+      set(list) { items = list; i = 0; this.paint() },
+      paint() {
+        const box = $(elId)
+        box.innerHTML = ''
+        items.forEach((it, n) => {
+          const b = document.createElement('button')
+          b.className = 'item'; b.type = 'button'
+          b.setAttribute('aria-selected', n === i)
+          const bob = document.createElement('span'); bob.className = 'bob'
+          const lab = document.createElement('span'); lab.textContent = it.text
+          b.append(bob, lab)
+          b.addEventListener('pointerenter', () => { if (i !== n) { i = n; this.paint(); Sound.move() } })
+          b.addEventListener('click', () => { i = n; Sound.confirm(); it.run() })
+          box.appendChild(b)
+        })
+      },
+      key(e) {
+        if (!items.length) return
+        if (e.key === 'ArrowUp' || e.key === 'w') { i = (i - 1 + items.length) % items.length; this.paint(); Sound.move() }
+        if (e.key === 'ArrowDown' || e.key === 's') { i = (i + 1) % items.length; this.paint(); Sound.move() }
+        if (e.key === 'Enter' || e.key === ' ') { Sound.confirm(); items[i].run() }
+      }
+    }
+  }
+  const pauseList = ChoiceList('pause-list')
+  const confList = ChoiceList('conf-list')
+
+  /* Both entries land here when nobody is signed in: you pick an account or
+     carry on as a guest. Signed in, there is nothing to ask, so we skip it. */
+  function startTrip() {
+    if (player) loadTrip(player.user)
+    else { askMode = 'new'; UI.go('ask') }
+  }
+  function resumeTrip() {
+    if (player) UI.go('game')
+    else { askMode = 'continue'; UI.go('ask') }
+  }
+  function loadTrip(owner) { pendingOwner = owner; startLoading() }
+
+  /* The chooser. Two cards, arrows or a click to pick, the footer button to
+     commit. The card shells live in the markup so the icons stay real SVG
+     instead of a string of innerHTML. */
+  const ASK_CARDS = [
+    { id: 'guest', el: 'card-guest', cap: L => L.guest, desc: L => L.guestDesc },
+    { id: 'account', el: 'card-account', cap: L => L.account, desc: L => L.acctDesc }
+  ]
+  let askPick = 0
+
+  function paintAsk() {
+    const L = t(), isNew = askMode === 'new'
+    $('ask-title').textContent = isNew ? L.askTitle : L.cont
+    ASK_CARDS.forEach((c, i) => {
+      const el = $(c.el)
+      el.setAttribute('aria-selected', i === askPick)
+      el.querySelector('.cap').textContent = c.cap(L)
+      el.querySelector('.cdesc').textContent = c.desc(L)
+    })
+    $('ask-go').textContent = isNew ? L.startBtn : L.cont
+    $('ask-cancel').textContent = L.askCancel
+  }
+  function askMove(d) {
+    askPick = (askPick + d + ASK_CARDS.length) % ASK_CARDS.length
+    paintAsk(); Sound.move()
+  }
+  function askConfirm() {
+    Sound.confirm()
+    if (ASK_CARDS[askPick].id === 'account') { UI.go('auth'); return }
+    if (askMode === 'new') loadTrip('guest'); else UI.go('game')
+  }
+  ASK_CARDS.forEach((c, i) => {
+    $(c.el).addEventListener('click', () => {
+      if (askPick !== i) { askPick = i; paintAsk(); Sound.move() }
+      else askConfirm()                        // click the live card again to commit
+    })
+  })
+  $('ask-go').addEventListener('click', askConfirm)
+  $('ask-cancel').addEventListener('click', () => { Sound.back(); UI.go('title') })
+  $('ask-x').addEventListener('click', () => { Sound.back(); UI.go('title') })
+
+  UI.register('ask', {
+    el: 's-ask', back: 'title', enter() { askPick = 0; paintAsk() }, key(e) {
+      if (['ArrowLeft', 'a', 'ArrowUp', 'w'].includes(e.key)) askMove(-1)
+      if (['ArrowRight', 'd', 'ArrowDown', 's'].includes(e.key)) askMove(1)
+      if (e.key === 'Enter' || e.key === ' ') askConfirm()
+    }
+  })
+  /* The game page. A placeholder for now — three.js takes the "start" hook. */
+  function paintGame() {
+    const L = t()
+    $('game-line').textContent = L.gameLine
+    $('game-who').textContent = L.gameWho(tripOwner())
+  }
+  UI.register('game', {
+    el: 's-game', back: 'pause', enter() {
+      paintGame()
+      Hooks.emit('start', { slot, player, settings: Store.all() })
+    }, key() {}
+  })
+
+  UI.register('pause', {
+    el: 's-pause', back: 'game', enter() {
+      const L = t()
+      $('pause-title').textContent = L.pauseTitle
+      pauseList.set([
+        { text: L.resume, run: () => UI.go('game') },
+        { text: L.settings, run: () => { settingsBack = 'pause'; UI.go('settings') } },
+        { text: L.delTrip, run: () => UI.go('confirm') },
+        { text: L.toMenu, run: () => UI.go('title') }
+      ])
+    }, key: e => pauseList.key(e)
+  })
+
+  /* "No" sits first so the safe answer is the one already under the cursor. */
+  UI.register('confirm', {
+    el: 's-confirm', back: 'pause', enter() {
+      const L = t()
+      $('conf-title').textContent = L.confTitle
+      $('conf-body').textContent = L.confBody
+      confList.set([
+        { text: L.no, run: () => UI.go('pause') },
+        {
+          text: L.yes, run: () => {
+            slot = null; sel = 0
+            Hooks.emit('deleteTrip')
+            paintMenu()
+            UI.go('title')
+          }
+        }
+      ])
+    }, key: e => confList.key(e)
   })
 
   /* ---- 9. SETTINGS ------------------------------------------------------- */
@@ -788,6 +1129,10 @@ function startMenu(root) {
     { key: 'sfx', label: 'sfx', type: 'slider' },
     { key: 'quality', label: 'quality', type: 'cycle', values: ['low', 'med', 'high'], text: v => t()['q_' + v] },
     { key: 'scaling', label: 'scaling', type: 'cycle', values: ['integer', 'stretch'], text: v => v === 'integer' ? t().sc_int : t().sc_str },
+    { key: 'font', label: 'font', type: 'cycle', values: ['pixel', 'plain'],
+      text: v => v === 'pixel' ? t().f_pixel : t().f_plain },
+    { key: 'textSize', label: 'textSize', type: 'cycle', values: ['sm', 'md', 'lg'],
+      text: v => t()['ts_' + v] },
     { key: 'lang', label: 'lang', type: 'cycle', values: ['EN', 'LT'], text: v => v }
   ]
   let optSel = 0
@@ -836,13 +1181,15 @@ function startMenu(root) {
       Store.set(o.key, vs[(vs.indexOf(Store.get(o.key)) + d + vs.length) % vs.length])
       Sound.move()
       if (o.key === 'scaling') fit()
+      if (o.key === 'font') applyFont()
+      if (o.key === 'textSize') applyTextSize()
       if (o.key === 'quality') rebake()
       if (o.key === 'lang') applyLang()
     }
     paintOpts()
   }
   UI.register('settings', {
-    el: 's-settings', enter: paintOpts, key(e) {
+    el: 's-settings', back: () => settingsBack, enter: paintOpts, key(e) {
       if (e.key === 'ArrowUp' || e.key === 'w') { optSel = (optSel - 1 + OPTIONS.length) % OPTIONS.length; paintOpts(); Sound.move() }
       if (e.key === 'ArrowDown' || e.key === 's') { optSel = (optSel + 1) % OPTIONS.length; paintOpts(); Sound.move() }
       if (e.key === 'ArrowLeft' || e.key === 'a') cycle(-1)
@@ -909,14 +1256,14 @@ function startMenu(root) {
     i.addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth() }))
 
   UI.register('auth', {
-    el: 's-auth', enter() {
+    el: 's-auth', back: 'title', enter() {
       applyLang()
       later(() => $('f-user').focus(), 30)
     }, key() {}
   })
 
   UI.register('credits', {
-    el: 's-credits', enter() {
+    el: 's-credits', back: 'title', enter() {
       const L = t()
       $('cred-title').textContent = L.credTitle
       $('cred-body').innerText = L.credBody
@@ -939,7 +1286,10 @@ function startMenu(root) {
         bar.style.width = '100%'
         what.textContent = L.ready
         Sound.confirm()
-        Hooks.emit('start', { player, settings: Store.all() })
+        slot = { owner: pendingOwner || 'guest', at: Date.now() }
+        Hooks.emit('newTrip', { slot, settings: Store.all() })
+        sel = 0                             // "New trip" is gone; land on "Continue"
+        later(() => { paintMenu(); UI.go('title') }, 760)
         return
       }
       what.textContent = L.steps[i]
@@ -971,15 +1321,23 @@ function startMenu(root) {
     $('hint-set').textContent = L.hintSet
     $('bye-title').textContent = L.byeTitle
     $('bye-body').innerText = L.byeBody
+    $('hint-ask').textContent = L.hintBack
+    $('hint-pause').textContent = L.hintBack
+    $('hint-game').textContent = L.hintGame
     paintMenu()
-    if (UI.now() === 'settings') paintOpts()
+    const n = UI.now()
+    if (n === 'settings') paintOpts()
+    if (n === 'game') paintGame()
+    if (n === 'ask' || n === 'pause' || n === 'confirm') Screens[n].enter()
   }
 
   /* ---- 13. INPUT --------------------------------------------------------- */
   function onKey(e) {
     const s = Screens[UI.now()]
     if (e.key === 'Escape') {
-      if (UI.now() !== 'title' && UI.now() !== 'loading') { Sound.back(); UI.go('title') }
+      if (!s || s.back === undefined) return     // title and loading swallow it
+      Sound.back()
+      UI.go(typeof s.back === 'function' ? s.back() : s.back)
       return
     }
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)
@@ -1001,21 +1359,37 @@ function startMenu(root) {
     show: () => { root.style.display = 'flex'; UI.go('title') },
     hide: () => { root.style.display = 'none' },
     settings: () => Store.all(),
-    player: () => player
+    player: () => player,
+    slot: () => slot
   }
   Hooks.on('start', d => console.log('[menu] start →', d))
 
-  /* ---- 15. BOOT, including the glyph guard for Ž ------------------------- */
-  function glyphGuard() {
+  /* ---- 15. BOOT, including the glyph guard for Ž -------------------------
+     document.fonts.check() answers "is this face loaded right now", not "can
+     it be loaded". A webfont is not fetched until something on the page needs
+     it, so checking straight after fonts.ready returns false for a face that
+     is perfectly available — and the UI got pinned to the fallback. Ask for
+     the face first, then check, then check again once everything settles. */
+  const PIX = '"Pixelify Sans"'
+  const GLYPHS = '\u017D\u0117\u0173'
+  async function glyphGuard() {
+    if (!alive || !document.fonts) return          // no Font Loading API: trust the CSS stack
+    try {
+      await Promise.all([
+        document.fonts.load('700 34px ' + PIX, GLYPHS),
+        document.fonts.load('400 15px ' + PIX, GLYPHS)
+      ])
+    } catch (e) { /* offline, blocked, or no such family */ }
     if (!alive) return
-    const ok = document.fonts && document.fonts.check
-      ? document.fonts.check('700 34px "Pixelify Sans"', '\u017D\u0117\u0173')
-      : true
+    const ok = document.fonts.check ? document.fonts.check('700 34px ' + PIX, GLYPHS) : true
     root.classList.toggle('nopix', !ok)
+    applyTextSize()               // falling back changes the face, so re-size
   }
+  glyphGuard()
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(glyphGuard)
-  else addEventListener('load', glyphGuard)
 
+  applyFont()
+  applyTextSize()
   fit()
   applyLang()
   UI.go('title')
