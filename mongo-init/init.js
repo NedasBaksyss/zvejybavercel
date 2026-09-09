@@ -41,14 +41,11 @@ db.users.insertOne({
   googleId: null,
   isGuest: false,
 
-  coins: 10,
-  level: 1,
-  experience: 0,
-
   stats: {
     totalFishCaught: 0,
-    gamesPlayed: 0,
-    gamesWon: 0,
+    coins: 10,
+    level: 1,
+    experience: 0
   },
 
   createdAt: new Date(),
