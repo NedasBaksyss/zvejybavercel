@@ -34,7 +34,7 @@ db.fishing_spots.insertOne({
   possibleFish: ["salmon", "carp", "trout"],
 });
 
-db.Users.insertOne({
+db.users.insertOne({
   _id: new ObjectId(),
   username: "test",
   passwordHash: "...",
