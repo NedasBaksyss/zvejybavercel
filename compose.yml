@@ -6,6 +6,14 @@ services:
       - "5173:5173"
     depends_on:
       - api
+    
+  admin:
+    build: admin
+    container_name: admin
+    ports:
+      - "81:81"
+    depends_on:
+      - api
 
   api:
     build: api

@@ -1,0 +1,1 @@
+# Removed per user request — delete this file from the repository if you want it gone entirely.

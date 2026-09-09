@@ -1,0 +1,13 @@
+services:
+  admin:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    # For production keep the source in the image (no volume).
+    # For development uncomment the volume and command lines below:
+    # volumes:
+    #   - ./:/app:cached
+    # command: npm run dev
+    restart: unless-stopped
