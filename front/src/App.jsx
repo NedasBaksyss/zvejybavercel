@@ -7,6 +7,7 @@ import { createAccountApi } from "./accountApi";
 import { createScene } from "./components/scene";
 import { createSettingsController } from "./components/settingsController";
 import { createAuthController } from "./authController";
+import { createChoiceList } from "./components/choiceList";
 import "./App.css";
 
 function App() {
@@ -258,64 +259,16 @@ function startMenu(root) {
     key() {},
   });
 
-  function ChoiceList(elId) {
-    let items = [],
-      i = 0;
-    return {
-      set(list) {
-        items = list;
-        i = 0;
-        this.paint();
-      },
-      paint() {
-        const box = $(elId);
-        box.innerHTML = "";
-        items.forEach((it, n) => {
-          const b = document.createElement("button");
-          b.className = "item";
-          b.type = "button";
-          b.setAttribute("aria-selected", n === i);
-          const bob = document.createElement("span");
-          bob.className = "bob";
-          const lab = document.createElement("span");
-          lab.textContent = it.text;
-          b.append(bob, lab);
-          b.addEventListener("pointerenter", () => {
-            if (i !== n) {
-              i = n;
-              this.paint();
-              Sound.move();
-            }
-          });
-          b.addEventListener("click", () => {
-            i = n;
-            Sound.confirm();
-            it.run();
-          });
-          box.appendChild(b);
-        });
-      },
-      key(e) {
-        if (!items.length) return;
-        if (e.key === "ArrowUp" || e.key === "w") {
-          i = (i - 1 + items.length) % items.length;
-          this.paint();
-          Sound.move();
-        }
-        if (e.key === "ArrowDown" || e.key === "s") {
-          i = (i + 1) % items.length;
-          this.paint();
-          Sound.move();
-        }
-        if (e.key === "Enter" || e.key === " ") {
-          Sound.confirm();
-          items[i].run();
-        }
-      },
-    };
-  }
-  const pauseList = ChoiceList("pause-list");
-  const confList = ChoiceList("conf-list");
+  const pauseList = createChoiceList({
+    $,
+    sound: Sound,
+    elementId: "pause-list",
+  });
+  const confList = createChoiceList({
+    $,
+    sound: Sound,
+    elementId: "conf-list",
+  });
 
   function startTrip() {
     if (player) loadTrip(player.user);
