@@ -26,7 +26,7 @@ import {
   setOpenSidenav,
 } from "@/context";
 
-import { UserInfo } from ".";
+// import { UserInfo } from ".";
 
 export function DashboardNavbar() {
   const [controller, dispatch] = useMaterialTailwindController();
@@ -85,7 +85,7 @@ export function DashboardNavbar() {
           >
             <Bars3Icon strokeWidth={3} className="h-6 w-6 text-blue-gray-500" />
           </IconButton>
-          <UserInfo />
+          {/* <UserInfo /> */}
           <Menu>
             <MenuHandler>
               <IconButton variant="text" color="blue-gray">

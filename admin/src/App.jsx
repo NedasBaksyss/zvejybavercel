@@ -59,19 +59,19 @@ function App() {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, token, setToken }}>
+    // <AuthContext.Provider value={{ user, setUser, token, setToken }}>
       <AlertContext.Provider
         value={{ alerts, setAlerts, addAlert, hideAllAlerts }}
       >
         <Routes>
           <Route path="/admin/*" element={<Dashboard />} />
-          <Route path="/auth/*" element={<Auth />} />
+          {/* <Route path="/auth/*" element={<Auth />} /> */}
           <Route path="/demo/*" element={<Demo />} />
           <Route path="*" element={<Navigate to="/admin/home" replace />} />
         </Routes>
         <AlertList />
       </AlertContext.Provider>
-    </AuthContext.Provider>
+    // </AuthContext.Provider>
   );
 }
 

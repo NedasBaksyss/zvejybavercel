@@ -14,7 +14,7 @@ export function Profile() {
   const [passwordNew, setPasswordNew] = useState("");
   const [passwordRepeat, setPasswordRepeat] = useState("");
 
-  const { user, setUser, token, setToken } = useContext(AuthContext);
+  // const { user, setUser, token, setToken } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
   const handleSubmit = async (e) => {
@@ -89,13 +89,13 @@ export function Profile() {
             <div className="flex items-center gap-6">
               <div>
                 <Typography variant="h5" color="blue-gray" className="mb-1">
-                  {user.userName}
+                  {/* {user.userName} */}
                 </Typography>
                 <Typography
                   variant="small"
                   className="font-normal text-blue-gray-600"
                 >
-                  {user.roleTitle}
+                  {/* {user.roleTitle} */}
                 </Typography>
               </div>
             </div>
