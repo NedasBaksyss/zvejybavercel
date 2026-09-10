@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import heroImg from "./assets/hero.png";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "./assets/vite.svg";
+import { T } from "./translations";
+import MenuView from "./MenuView";
 import "./App.css";
 
 /* ==========================================================================
@@ -16,236 +18,7 @@ function App() {
     return stop;
   }, []);
 
-  return (
-    <div className="zv" ref={rootRef}>
-      <div id="stage">
-        <canvas id="scene" width="480" height="270" />
-
-        <div id="ui">
-          <section className="screen active" id="s-title">
-            <div id="logo">
-              <div className="word" id="logo-word" />
-              <div className="sub" id="logo-sub" />
-            </div>
-            <nav id="menu" />
-            <p id="who" hidden />
-          </section>
-
-          <section className="screen" id="s-auth">
-            <div className="panel">
-              <h2 id="auth-title" />
-              <div className="tabs">
-                <button
-                  className="tab"
-                  type="button"
-                  data-mode="login"
-                  aria-selected="true"
-                />
-                <button
-                  className="tab"
-                  type="button"
-                  data-mode="register"
-                  aria-selected="false"
-                />
-              </div>
-              <div className="field">
-                <span id="lbl-user" />
-                <input id="f-user" autoComplete="username" maxLength={20} />
-              </div>
-              <div className="field">
-                <span id="lbl-pass" />
-                <input
-                  id="f-pass"
-                  type="password"
-                  autoComplete="current-password"
-                  maxLength={40}
-                />
-              </div>
-              <div className="field" id="f-mail-wrap" hidden>
-                <span id="lbl-mail" />
-                <input
-                  id="f-mail"
-                  type="email"
-                  autoComplete="email"
-                  maxLength={60}
-                />
-              </div>
-              <p className="msg" id="auth-msg" />
-              <button className="btn" type="button" id="auth-go" />
-              <button
-                className="btn ghost"
-                type="button"
-                id="auth-out"
-                hidden
-              />
-            </div>
-            <p className="hint" id="hint-auth" />
-          </section>
-
-          <section className="screen" id="s-settings">
-            <div className="panel">
-              <h2 id="set-title" />
-              <div id="opts" />
-            </div>
-            <p className="hint" id="hint-set" />
-          </section>
-
-          <section className="screen" id="s-credits">
-            <div className="panel credits">
-              <h2 id="cred-title" />
-              <p id="cred-body" />
-            </div>
-            <p className="hint" id="hint-cred" />
-          </section>
-
-          <section className="screen" id="s-ask">
-            <svg className="rod" viewBox="0 0 480 270" aria-hidden="true">
-              <g transform="translate(46 258) rotate(-34.3)">
-                <rect
-                  className="grip"
-                  x="-74"
-                  y="-7"
-                  width="62"
-                  height="14"
-                  rx="3"
-                />
-                <rect
-                  className="seat"
-                  x="-12"
-                  y="-5"
-                  width="24"
-                  height="10"
-                  rx="2"
-                />
-                <circle className="reel" cx="0" cy="14" r="12" />
-                <circle className="hub" cx="0" cy="14" r="4" />
-                <polygon className="blank" points="0,-5 418,-1 418,1 0,5" />
-                <circle className="guide" cx="120" cy="8" r="5" />
-                <circle className="guide" cx="205" cy="7" r="4.4" />
-                <circle className="guide" cx="278" cy="6" r="3.8" />
-                <circle className="guide" cx="340" cy="5.4" r="3.2" />
-                <circle className="guide" cx="392" cy="5" r="2.6" />
-              </g>
-              <path className="line" d="M391 22 Q 472 96 446 264" />
-            </svg>
-            <div className="panel wide">
-              <div className="phead">
-                <h2 id="ask-title" />
-                <button className="x" id="ask-x" type="button">
-                  ✕
-                </button>
-              </div>
-              <div className="cards">
-                <button
-                  className="card"
-                  id="card-guest"
-                  type="button"
-                  aria-selected="true"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <rect
-                      x="11"
-                      y="1"
-                      width="2"
-                      height="5"
-                      fill="var(--pale)"
-                    />
-                    <path d="M5 13a7 7 0 0 1 14 0z" fill="var(--pale)" />
-                    <path d="M19 13a7 7 0 0 1-14 0z" fill="var(--ember)" />
-                  </svg>
-                  <span className="cap" />
-                  <span className="cdesc" />
-                </button>
-                <button
-                  className="card"
-                  id="card-account"
-                  type="button"
-                  aria-selected="false"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <rect
-                      x="2"
-                      y="5"
-                      width="20"
-                      height="14"
-                      rx="2"
-                      fill="none"
-                      stroke="var(--pale)"
-                      strokeWidth="2"
-                    />
-                    <rect x="5" y="9" width="6" height="6" fill="var(--gold)" />
-                    <rect
-                      x="13"
-                      y="9"
-                      width="6"
-                      height="2"
-                      fill="var(--mist)"
-                    />
-                    <rect
-                      x="13"
-                      y="13"
-                      width="6"
-                      height="2"
-                      fill="var(--mist)"
-                    />
-                  </svg>
-                  <span className="cap" />
-                  <span className="cdesc" />
-                </button>
-              </div>
-              <div className="pfoot">
-                <button className="btn slim" id="ask-go" type="button" />
-                <button className="link" id="ask-cancel" type="button" />
-              </div>
-            </div>
-            <p className="hint" id="hint-ask" />
-          </section>
-
-          <section className="screen" id="s-game">
-            <div className="hud">
-              <p className="line" id="game-line" />
-              <p className="who" id="game-who" />
-            </div>
-            <p className="hint" id="hint-game" />
-          </section>
-
-          <section className="screen" id="s-pause">
-            <div className="panel">
-              <h2 id="pause-title" />
-              <div className="choices" id="pause-list" />
-            </div>
-            <p className="hint" id="hint-pause" />
-          </section>
-
-          <section className="screen" id="s-confirm">
-            <div className="panel">
-              <h2 id="conf-title" />
-              <p className="note" id="conf-body" />
-              <div className="choices" id="conf-list" />
-            </div>
-          </section>
-
-          <section className="screen" id="loading">
-            <div className="box">
-              <p className="what" id="load-what" />
-              <div className="bar">
-                <i id="load-bar" />
-              </div>
-              <p className="tip" id="load-tip" />
-            </div>
-          </section>
-
-          <section className="screen" id="s-bye">
-            <div className="panel">
-              <h2 id="bye-title" />
-              <p id="bye-body" />
-            </div>
-          </section>
-        </div>
-        <span id="build">v0.3.0</span>
-      </div>
-    </div>
-  );
+  return <MenuView rootRef={rootRef} />;
 }
 
 /* ==========================================================================
@@ -254,189 +27,203 @@ function App() {
    cannot fight with Vite's default index.css / App.css.
    ========================================================================== */
 const CSS = `
+.zv{
+  --ink:#0d0b18;
+  --pale:#ffdca8;
+  --gold:#f2b45c;
+  --ember:#e0765a;
+  --mist:#8fa8c8;
+  --dim:#6b5a7a;
+  --ok:#7fbf7f;
+  --bad:#d4574e;
+  --scale:1;
+  --tsc:1;
+  --face:'Pixelify Sans',ui-monospace,'DejaVu Sans Mono',monospace;
 
+  position:fixed;inset:0;z-index:0;
+  background:#07060f;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  text-align:left;
+  font-family:var(--face);
+  color:var(--pale);
+}
+/* Set the face on everything, not just the root. Form controls do not
+   inherit font by default, and one missed element is a visible seam. */
+.zv,.zv *{font-family:var(--face)}
+.zv *{box-sizing:border-box;margin:0;padding:0}
+
+/* Glyph guard: if the pixel face cannot draw Z/e/u with Lithuanian
+   diacritics, the whole UI swaps to a monospace face that can. */
+/* Two ways to end up on the plain face: the pixel font failed to load
+   (nopix, set by the glyph guard) or the player asked for it (plain). */
+.zv.nopix,.zv.plain{--face:ui-monospace,'DejaVu Sans Mono','Courier New',monospace}
+/* The fallback face reads smaller and thinner than the pixel one at the
+   same px value, so it gets a little more weight. The size difference is
+   handled in JS, by PLAIN_BOOST. */
+.zv.nopix .item,.zv.plain .item{font-weight:700}
+
+.zv #stage{
+  position:relative;
+  width:480px;height:270px;
+  transform:scale(var(--scale));
+  transform-origin:center center;
+  image-rendering:pixelated;
+  box-shadow:0 0 0 1px #241f33;
+  overflow:hidden;
+}
+.zv #stage.stretch{image-rendering:auto}
+.zv canvas{position:absolute;inset:0;width:480px;height:270px;image-rendering:pixelated;display:block}
+
+.zv #ui{position:absolute;inset:0;z-index:2}
+.zv .screen{position:absolute;inset:0;display:none;padding:18px 22px}
+.zv .screen.active{display:block}
+
+.zv #logo{position:absolute;top:32px;left:0;right:0;text-align:center;pointer-events:none}
+.zv #logo .word{
+  font-size:34px;font-weight:700;line-height:1;letter-spacing:2px;
+  color:var(--pale);
+  text-shadow:0 3px 0 var(--ember),0 4px 0 #7a2e3a;
+}
+.zv #logo .sub{margin-top:6px;font-size:9px;letter-spacing:5px;color:var(--mist);opacity:.8}
+
+.zv #menu{position:absolute;left:46px;bottom:30px;display:flex;flex-direction:column;gap:3px}
+.zv .item{
+  position:relative;display:flex;align-items:center;gap:8px;
+  font-size:calc(15px * var(--tsc));line-height:1;padding:2px 6px 2px 0;
+  font-weight:600;color:#e7dbf2;text-shadow:1px 1px 0 rgba(7,6,15,.85);
+  background:none;border:0;font-family:inherit;cursor:pointer;text-align:left;
+}
+.zv .item .bob{
+  width:7px;height:7px;background:var(--ember);
+  box-shadow:0 -3px 0 0 var(--pale);
+  opacity:0;transform:translateX(-3px);
+  transition:opacity .09s steps(2),transform .09s steps(2);
+}
+.zv .item[aria-selected="true"]{color:var(--gold)}
+.zv .item[aria-selected="true"] .bob{opacity:1;transform:translateX(0)}
+.zv .item[disabled]{color:#4a4257;cursor:default}
+.zv .item[disabled] .bob{background:#4a4257;box-shadow:0 -3px 0 0 #4a4257}
+.zv .item:focus-visible{outline:2px solid var(--pale);outline-offset:2px}
+
+.zv #who{position:absolute;left:46px;bottom:12px;font-size:calc(9px * var(--tsc));font-weight:500;color:#a8c0dd;text-shadow:1px 1px 0 rgba(7,6,15,.85);}
+.zv #who b{color:var(--gold);font-weight:500}
+
+.zv .panel{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:288px;max-height:calc(100% - 14px);overflow:hidden;
+  background:rgba(13,11,24,.9);border:2px solid #3b3350;
+  padding:9px 12px 11px;
+}
+.zv .panel h2{
+  font-size:calc(12px * var(--tsc));font-weight:700;line-height:1.25;color:var(--gold);
+  margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid #3b3350;
+}
+.zv .row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:3px 0;font-size:calc(11px * var(--tsc));font-weight:500;line-height:1.25;color:#ddd0ea;
+}
+.zv .row.focused{color:var(--gold)}
+.zv .row .label{white-space:nowrap}
+
+.zv .slider{display:flex;gap:2px;cursor:pointer}
+.zv .slider i{width:8px;height:10px;background:#332c46;display:block}
+.zv .slider i.on{background:var(--gold)}
+.zv .slider i.on:nth-child(n+9){background:var(--ember)}
+
+.zv .cycle{
+  display:flex;align-items:center;gap:7px;
+  background:#221d33;border:1px solid #3b3350;
+  padding:2px 6px;font-size:calc(11px * var(--tsc));font-weight:500;line-height:1.25;color:var(--pale);
+  cursor:pointer;
+}
+.zv .cycle .arw{color:var(--dim);font-size:calc(9px * var(--tsc))}
+.zv .cycle .val{min-width:96px;text-align:center}
+
+.zv .tabs{display:flex;gap:4px;margin-bottom:7px}
+.zv .tab{
+  flex:1;font-family:inherit;font-size:calc(10px * var(--tsc));padding:3px;cursor:pointer;
+  font-weight:500;background:#221d33;border:1px solid #3b3350;color:#a598bd;
+}
+.zv .tab[aria-selected="true"]{background:#3b3350;color:var(--pale)}
+.zv .field{margin-bottom:5px}
+.zv .field span{display:block;font-size:calc(9px * var(--tsc));font-weight:500;color:#a8c0dd;margin-bottom:2px}
+.zv .field input{
+  width:100%;font-family:inherit;font-size:calc(11px * var(--tsc));padding:3px 6px;
+  background:#0f0d1c;color:var(--pale);border:1px solid #3b3350;
+}
+.zv .field input:focus{outline:none;border-color:var(--gold)}
+.zv .msg{font-size:calc(9px * var(--tsc));font-weight:500;min-height:13px;margin:3px 0 5px;color:var(--bad);line-height:1.4}
+.zv .msg.ok{color:var(--ok)}
+.zv .btn{
+  width:100%;font-family:inherit;font-size:calc(11px * var(--tsc));padding:4px;cursor:pointer;
+  font-weight:600;background:var(--ember);color:#1a0f14;border:0;border-bottom:3px solid #7a2e3a;
+}
+.zv .btn:active{transform:translateY(1px);border-bottom-width:2px}
+.zv .btn[disabled]{background:#4a4257;border-bottom-color:#2b2639;color:#8d82a3;cursor:default}
+.zv .btn.ghost{background:#221d33;color:#c9bcd6;border-bottom-color:#3b3350;margin-top:5px}
+
+.zv .hint{position:absolute;bottom:8px;left:22px;font-size:calc(9px * var(--tsc));font-weight:500;color:#8a789b;text-align:left}
+.zv kbd{font-family:inherit;color:var(--mist);border:1px solid #3b3350;padding:0 3px}
+
+.zv .credits p{font-size:calc(11px * var(--tsc));font-weight:500;line-height:1.75;color:#ddd0ea}
+.zv .credits .who{color:var(--gold)}
+
+/* Backdrop for the chooser: a rod laid across the panel, butt at the bottom
+   left and tip at the top right. Decoration only — aria-hidden, no pointer
+   events, and faint enough that the panel still reads first. */
+.zv .rod{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.14}
+.zv .rod .blank,.rod .seat,.rod .reel{fill:var(--pale)}
+.zv .rod .grip{fill:var(--ember)}
+.zv .rod .hub{fill:var(--ink)}
+.zv .rod .guide{fill:none;stroke:var(--pale);stroke-width:1.5}
+.zv .rod .line{fill:none;stroke:var(--pale);stroke-width:1}
+/* The chooser is a modal: header with a close box, two option cards side by
+   side, then a footer with the confirm button and a plain-text way out. */
+.zv .panel.wide{width:342px}
+.zv .phead{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #3b3350}
+.zv .phead h2{margin:0;padding:0;border:0}
+.zv .x{font-family:inherit;font-size:calc(11px * var(--tsc));line-height:1;padding:1px 5px;
+  background:#221d33;border:1px solid #3b3350;color:#a598bd;cursor:pointer}
+.zv .x:hover{color:var(--pale);border-color:var(--gold)}
+.zv .cards{display:flex;gap:8px;margin-bottom:9px}
+.zv .card{flex:1;min-width:0;padding:9px 9px 10px;cursor:pointer;text-align:left;
+  font-family:inherit;color:#c9bcd6;background:#171327;border:2px solid #3b3350}
+.zv .card[aria-selected="true"]{border-color:var(--gold);background:#241a33}
+.zv .card svg{display:block;width:24px;height:24px}
+.zv .card .cap{display:block;margin-top:7px;font-size:calc(11px * var(--tsc));
+  font-weight:600;color:var(--pale)}
+.zv .card[aria-selected="true"] .cap{color:var(--gold)}
+.zv .card .cdesc{display:block;margin-top:4px;font-size:calc(8px * var(--tsc));
+  font-weight:500;line-height:1.55;color:#a8c0dd}
+.zv .pfoot{display:flex;align-items:center;gap:12px;padding-top:7px;border-top:1px solid #3b3350}
+.zv .btn.slim{width:auto;padding:4px 14px}
+.zv .link{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;
+  font-size:calc(10px * var(--tsc));font-weight:500;color:#a598bd;text-decoration:underline}
+.zv .link:hover{color:var(--pale)}
+.zv .note{font-size:calc(10px * var(--tsc));font-weight:500;line-height:1.65;color:#ddd0ea;margin-bottom:8px}
+.zv .choices{display:flex;flex-direction:column;gap:1px}
+.zv .choices .item{font-size:calc(12px * var(--tsc));padding:3px 6px 3px 0}
+.zv .hud{position:absolute;left:46px;top:38px}
+.zv .hud .line{font-size:calc(13px * var(--tsc));font-weight:600;color:var(--pale);text-shadow:1px 1px 0 rgba(7,6,15,.85)}
+.zv .hud .who{margin-top:6px;font-size:calc(10px * var(--tsc));font-weight:500;color:#a8c0dd;text-shadow:1px 1px 0 rgba(7,6,15,.85)}
+.zv #loading .box{position:absolute;left:50%;bottom:54px;transform:translateX(-50%);width:264px;text-align:center}
+.zv #loading .what{font-size:calc(11px * var(--tsc));font-weight:600;color:var(--pale);margin-bottom:8px;min-height:13px}
+.zv .bar{height:9px;background:#221d33;border:1px solid #3b3350}
+.zv .bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .18s steps(6)}
+.zv #loading .tip{margin-top:10px;font-size:calc(9px * var(--tsc));font-weight:500;color:#a8c0dd;line-height:1.6}
+
+.zv #s-bye .panel{text-align:center}
+.zv #s-bye p{font-size:calc(11px * var(--tsc));line-height:1.8;color:#c9bcd6}
+
+.zv #build{position:absolute;right:7px;bottom:6px;font-size:calc(8px * var(--tsc));color:#4a4257;z-index:3}
+@media (prefers-reduced-motion:reduce){.zv .item .bob{transition:none}}
 `;
 
 /* ==========================================================================
    1. TEXT — every visible string lives here, in both languages.
    ========================================================================== */
-const T = {
-  LT: {
-    title: "ŽUVIS IR JAUKAS",
-    sub: "TYLUS EŽERAS",
-    play: "Nauja kelionė",
-    cont: "Tęsti",
-    account: "Žvejo kortelė",
-    settings: "Nustatymai",
-    credits: "Apie",
-    quit: "Išeiti",
-    signedIn: "Prisijungęs:",
-    music: "Muzika",
-    sfx: "Garsai",
-    quality: "Kokybė",
-    scaling: "Vaizdo mastelis",
-    lang: "Kalba",
-    guest: "Svečias",
-    askTitle: "Nauja kelionė",
-    askLogin: "Prisijungti",
-    askCancel: "Atšaukti",
-    guestDesc: "Žvejok iš karto. Kelionė dings uždarius langą.",
-    acctDesc: "Prisijunk, ir kelionė liks tavo kortelėje.",
-    startBtn: "Pradėti kelionę",
-
-    gameLine: "Čia bus ežeras.",
-    gameWho: (o) => `Žvejys: ${o}`,
-    hintGame: "Esc – pauzė",
-    pauseTitle: "Pauzė",
-    resume: "Grįžti į žvejybą",
-    toMenu: "Į titulinį",
-    confTitle: "Atsijungti",
-    confBody:
-      "Būsi atjungtas, o ši kelionė uždaryta. Titulinis meniu vėl siūlys naują kelionę.",
-    yes: "Taip, atsijungti",
-    no: "Ne, grįžti",
-    font: "Šriftas",
-    f_pixel: "Pikselinis",
-    f_plain: "Paprastas",
-    textSize: "Teksto dydis",
-    ts_sm: "Mažas",
-    ts_md: "Vidutinis",
-    ts_lg: "Didelis",
-    q_low: "Žema",
-    q_med: "Vidutinė",
-    q_high: "Aukšta",
-    sc_int: "Sveiki kartotiniai",
-    sc_str: "Per visą ekraną",
-    authTitle: "Žvejo kortelė",
-    setTitle: "Nustatymai",
-    credTitle: "Apie",
-    byeTitle: "Iki",
-    tabLogin: "Prisijungti",
-    tabReg: "Registruotis",
-    fUser: "Slapyvardis",
-    fPass: "Slaptažodis",
-    fMail: "El. paštas",
-    btnLogin: "Prisijungti",
-    btnReg: "Sukurti paskyrą",
-    btnOut: "Atsijungti",
-    working: "Palauk…",
-    hintBack: "Esc grįžti",
-    hintSet: "↑↓ rinktis · ←→ keisti · Esc grįžti",
-    credBody:
-      "3JS-3 komandos kursinis darbas.\nŽvejybos simuliatorius trijų matmenų ežere.\n\nVariklis: three.js\nServeris: Node · MongoDB\nGrafika: piešta ranka, 480×270",
-    byeBody:
-      "Naršyklė neleidžia programai uždaryti kortelės, kurios ji pati neatidarė.\nUždaryk ją ranka: Ctrl+W.\n\nAčiū, kad žvejojai.",
-    errUser: "Slapyvardis – bent 3 simboliai",
-    errPass: "Slaptažodis – bent 6 simboliai",
-    errMail: "Neteisingas el. pašto adresas",
-    errTaken: "Toks slapyvardis jau užimtas",
-    errNoUser: "Tokio žvejo nėra. Pirma registruokis.",
-    errWrong: "Neteisingas slaptažodis",
-    welcome: (u) => `Sveikas, ${u}`,
-    created: (u) => `Paskyra sukurta. Sveikas, ${u}`,
-    steps: [
-      "Ruošiamas ežeras",
-      "Kraunami modeliai",
-      "Leidžiamas vanduo",
-      "Paleidžiamos žuvys",
-      "Rišamas kabliukas",
-    ],
-    ready: "Pasiruošęs",
-    tips: [
-      "Karšiai geriau kimba auštant, sekliose vietose.",
-      "Lietus drumsčia vandenį – kvapas svarbesnis už spalvą.",
-      "Per stipriai sukant valą, jis trūksta. Leisk žuviai pavargti.",
-    ],
-  },
-  EN: {
-    title: "FISH N' BAIT",
-    sub: "THE QUIET LAKE",
-    play: "New trip",
-    cont: "Continue",
-    account: "Angler card",
-    settings: "Settings",
-    credits: "About",
-    quit: "Quit",
-    signedIn: "Signed in:",
-    music: "Music",
-    sfx: "Sound",
-    quality: "Quality",
-    scaling: "Scaling",
-    lang: "Language",
-    guest: "Guest",
-    askTitle: "New trip",
-    askLogin: "Sign in",
-    askCancel: "Cancel",
-    guestDesc: "Fish right away. The trip goes when you close the window.",
-    acctDesc: "Sign in and the trip stays on your card.",
-    startBtn: "Start the trip",
-
-    gameLine: "The lake goes here.",
-    gameWho: (o) => `Angler: ${o}`,
-    hintGame: "Esc — pause",
-    pauseTitle: "Paused",
-    resume: "Back to fishing",
-    toMenu: "Main menu",
-    confTitle: "Sign out",
-    confBody:
-      "You will be signed out and this trip closed. The title menu will offer a new trip again.",
-    yes: "Yes, sign out",
-    no: "No, go back",
-    font: "Font",
-    f_pixel: "Pixel",
-    f_plain: "Plain",
-    textSize: "Text size",
-    ts_sm: "Small",
-    ts_md: "Normal",
-    ts_lg: "Large",
-    q_low: "Low",
-    q_med: "Medium",
-    q_high: "High",
-    sc_int: "Whole multiples",
-    sc_str: "Fill the screen",
-    authTitle: "Angler card",
-    setTitle: "Settings",
-    credTitle: "About",
-    byeTitle: "Goodbye",
-    tabLogin: "Sign in",
-    tabReg: "Register",
-    fUser: "Username",
-    fPass: "Password",
-    fMail: "Email",
-    btnLogin: "Sign in",
-    btnReg: "Create account",
-    btnOut: "Sign out",
-    working: "Working…",
-    hintBack: "Esc to go back",
-    hintSet: "↑↓ choose · ←→ change · Esc back",
-    credBody:
-      "A coursework project by team 3JS-3.\nA fishing simulator on a lake in three dimensions.\n\nEngine: three.js\nServer: Node · MongoDB\nArt: drawn by hand, 480×270",
-    byeBody:
-      "A browser will not let a page close a tab it did not open itself.\nClose it by hand: Ctrl+W.\n\nThanks for fishing.",
-    errUser: "Username needs at least 3 characters",
-    errPass: "Password needs at least 6 characters",
-    errMail: "That email address is not valid",
-    errTaken: "That username is taken",
-    errNoUser: "No angler by that name. Register first.",
-    errWrong: "Wrong password",
-    welcome: (u) => `Welcome back, ${u}`,
-    created: (u) => `Account created. Welcome, ${u}`,
-    steps: [
-      "Preparing the lake",
-      "Loading models",
-      "Filling the water",
-      "Releasing the fish",
-      "Tying the hook",
-    ],
-    ready: "Ready",
-    tips: [
-      "Bream bite best at dawn, in the shallows.",
-      "Rain clouds the water — scent beats colour.",
-      "Reel too hard and the line snaps. Let the fish tire.",
-    ],
-  },
-};
-
 /* ==========================================================================
    THE MENU ENGINE
    Same imperative code as the original page, wrapped so it can be started
