@@ -659,6 +659,7 @@ function startMenu(root) {
   root.querySelectorAll(".tab").forEach((tab) => {
     tab.addEventListener("click", () => {
       authMode = tab.dataset.mode;
+      $("s-auth").classList.toggle("register-mode", authMode === "register");
       root
         .querySelectorAll(".tab")
         .forEach((x) => x.setAttribute("aria-selected", x === tab));
