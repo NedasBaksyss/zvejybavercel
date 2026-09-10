@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
-import { T } from "./translations";
-import MenuView from "./MenuView";
-import { createSound } from "./sound";
-import { createSettingsStore } from "./settingsStore";
+import { T } from "./components/translations";
+import MenuView from "./components/MenuView";
+import { createSound } from "./components/sound";
+import { createSettingsStore } from "./components/settingsStore";
 import { createAccountApi } from "./accountApi";
-import { createScene } from "./scene";
-import { createSettingsController } from "./settingsController";
+import { createScene } from "./components/scene";
+import { createSettingsController } from "./components/settingsController";
 import { createAuthController } from "./authController";
 import "./App.css";
 
