@@ -1,7 +1,4 @@
-import { useState, useEffect, useRef } from "react";
-import heroImg from "./assets/hero.png";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "./assets/vite.svg";
+import { useEffect, useRef } from "react";
 import { T } from "./translations";
 import MenuView from "./MenuView";
 import { createSound } from "./sound";
@@ -11,7 +8,6 @@ import "./App.css";
    THE COMPONENT
    ========================================================================== */
 function App() {
-  const [count, setCount] = useState(0);
   const rootRef = useRef(null);
 
   useEffect(() => {
@@ -22,10 +18,7 @@ function App() {
   return <MenuView rootRef={rootRef} />;
 }
 
-/* ==========================================================================
-   1. TEXT — every visible string lives here, in both languages.
-   ========================================================================== */
-/* ==========================================================================
+/* ========================================================================== 
    THE MENU ENGINE
    Same imperative code as the original page, wrapped so it can be started
    and — crucially — stopped again when React unmounts the component.
@@ -68,7 +61,7 @@ function startMenu(root) {
         mem[k] = v;
         try {
           localStorage.setItem(KEY, JSON.stringify(mem));
-        } catch (e) {
+        } catch {
           /* private mode */
         }
       },
@@ -78,7 +71,7 @@ function startMenu(root) {
             ...defaults,
             ...JSON.parse(localStorage.getItem(KEY) || "{}"),
           };
-        } catch (e) {
+        } catch {
           mem = { ...defaults };
         }
         return this.all();
@@ -621,7 +614,12 @@ function startMenu(root) {
         }
       });
       b.addEventListener("click", () => {
-        b.disabled ? Sound.deny() : ((sel = i), choose(m.id));
+        if (b.disabled) {
+          Sound.deny();
+        } else {
+          sel = i;
+          choose(m.id);
+        }
       });
       menuEl.appendChild(b);
     });
@@ -1293,7 +1291,7 @@ function startMenu(root) {
       await Promise.all(
         WEIGHTS.map((w) => document.fonts.load(w + " 15px " + PIX, GLYPHS)),
       );
-    } catch (e) {
+    } catch {
       /* offline, blocked, or no such family */
     }
     if (!alive) return;
