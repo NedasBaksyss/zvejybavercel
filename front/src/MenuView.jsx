@@ -17,6 +17,7 @@ export default function MenuView({ rootRef }) {
           <section className="screen" id="s-auth">
             <div className="panel">
               <h2 id="auth-title" />
+
               <div className="tabs">
                 <button
                   className="tab"
@@ -24,6 +25,7 @@ export default function MenuView({ rootRef }) {
                   data-mode="login"
                   aria-selected="true"
                 />
+
                 <button
                   className="tab"
                   type="button"
@@ -31,19 +33,12 @@ export default function MenuView({ rootRef }) {
                   aria-selected="false"
                 />
               </div>
+
               <div className="field">
                 <span id="lbl-user" />
                 <input id="f-user" autoComplete="username" maxLength={20} />
               </div>
-              <div className="field">
-                <span id="lbl-pass" />
-                <input
-                  id="f-pass"
-                  type="password"
-                  autoComplete="current-password"
-                  maxLength={40}
-                />
-              </div>
+
               <div className="field" id="f-mail-wrap" hidden>
                 <span id="lbl-mail" />
                 <input
@@ -53,8 +48,23 @@ export default function MenuView({ rootRef }) {
                   maxLength={60}
                 />
               </div>
+
+              <div className="field">
+                <span id="lbl-pass" />
+                <input
+                  id="f-pass"
+                  type="password"
+                  autoComplete="current-password"
+                  maxLength={40}
+                />
+              </div>
+
               <p className="msg" id="auth-msg" />
-              <button className="btn" type="button" id="auth-go" />
+
+              <button className="btn" type="button" id="auth-go">
+                Prisijungti
+              </button>
+
               <button
                 className="btn ghost"
                 type="button"
@@ -62,9 +72,9 @@ export default function MenuView({ rootRef }) {
                 hidden
               />
             </div>
+
             <p className="hint" id="hint-auth" />
           </section>
-
           <section className="screen" id="s-settings">
             <div className="panel">
               <h2 id="set-title" />
