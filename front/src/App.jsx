@@ -3,6 +3,7 @@ import { T } from "./translations";
 import MenuView from "./MenuView";
 import { createSound } from "./sound";
 import { createSettingsStore } from "./settingsStore";
+import { createAccountApi } from "./accountApi";
 import "./App.css";
 
 /* ==========================================================================
@@ -505,23 +506,8 @@ function startMenu(root) {
     now: () => current,
   };
 
-  /* ---- 7. ACCOUNTS — a working stub. Swap Db for fetch() when Node is up. */
-  const Db = new Map(); // username -> {pass, mail}
-  const Api = {
-    async register(user, pass, mail) {
-      await new Promise((r) => later(r, 420));
-      if (Db.has(user.toLowerCase())) throw new Error(t().errTaken);
-      Db.set(user.toLowerCase(), { pass, mail });
-      return { user, token: "dev-" + Math.random().toString(36).slice(2) };
-    },
-    async login(user, pass) {
-      await new Promise((r) => later(r, 420));
-      const rec = Db.get(user.toLowerCase());
-      if (!rec) throw new Error(t().errNoUser);
-      if (rec.pass !== pass) throw new Error(t().errWrong);
-      return { user, token: "dev-" + Math.random().toString(36).slice(2) };
-    },
-  };
+  /* ---- 7. ACCOUNTS — a working stub. Swap the factory for fetch() when Node is up. */
+  const Api = createAccountApi({ later, getText: t });
 
   let player = null;
   let authMode = "login";
