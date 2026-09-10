@@ -10,20 +10,14 @@ export function createFontGuard({ root, isAlive, applyTextSize }) {
     try {
       await Promise.all(
         WEIGHTS.map((weight) =>
-          document.fonts.load(
-            weight + " 15px " + PIXEL_FACE,
-            REQUIRED_GLYPHS,
-          ),
+          document.fonts.load(weight + " 15px " + PIXEL_FACE, REQUIRED_GLYPHS),
         ),
       );
     } catch {}
     if (stopped || !isAlive()) return;
     const loaded = document.fonts.check
       ? WEIGHTS.every((weight) =>
-          document.fonts.check(
-            weight + " 15px " + PIXEL_FACE,
-            REQUIRED_GLYPHS,
-          ),
+          document.fonts.check(weight + " 15px " + PIXEL_FACE, REQUIRED_GLYPHS),
         )
       : true;
     root.classList.toggle("nopix", !loaded);

@@ -9,6 +9,7 @@ import { createSettingsController } from "./components/settingsController";
 import { createAuthController } from "./authController";
 import { createChoiceList } from "./components/choiceList";
 import { createFontGuard } from "./components/fontGuard";
+import { createGameHooks } from "./components/gameHooks";
 import "./App.css";
 
 function App() {
@@ -143,6 +144,14 @@ function startMenu(root) {
   let player = null;
 
   let slot = null;
+  const gameHooks = createGameHooks({
+    root,
+    ui: UI,
+    store: Store,
+    getPlayer: () => player,
+    getSlot: () => slot,
+  });
+  const Hooks = gameHooks.hooks;
   let pendingOwner = null;
   let settingsBack = "title";
   let askMode = "new";
@@ -544,30 +553,6 @@ function startMenu(root) {
   }
   addEventListener("keydown", onKey);
 
-  const Hooks = (() => {
-    const map = {};
-    return {
-      on(ev, fn) {
-        (map[ev] = map[ev] || []).push(fn);
-      },
-      emit(ev, d) {
-        (map[ev] || []).forEach((fn) => fn(d));
-      },
-    };
-  })();
-  window.Game = {
-    on: Hooks.on,
-    show: () => {
-      root.style.display = "flex";
-      UI.go("title");
-    },
-    hide: () => {
-      root.style.display = "none";
-    },
-    settings: () => Store.all(),
-    player: () => player,
-    slot: () => slot,
-  };
   Hooks.on("start", (d) => console.log("[menu] start →", d));
 
   const fontGuard = createFontGuard({
@@ -592,7 +577,7 @@ function startMenu(root) {
     removeEventListener("keydown", onKey);
     fontGuard.stop();
     Sound.close();
-    if (window.Game) delete window.Game;
+    gameHooks.stop();
   };
 }
 
