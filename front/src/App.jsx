@@ -5,6 +5,7 @@ import { createSound } from "./sound";
 import { createSettingsStore } from "./settingsStore";
 import { createAccountApi } from "./accountApi";
 import { createScene } from "./scene";
+import { createSettingsController } from "./settingsController";
 import "./App.css";
 
 /* ==========================================================================
@@ -522,142 +523,18 @@ function startMenu(root) {
   });
 
   /* ---- 9. SETTINGS ------------------------------------------------------- */
-  const OPTIONS = [
-    { key: "music", label: "music", type: "slider" },
-    { key: "sfx", label: "sfx", type: "slider" },
-    {
-      key: "quality",
-      label: "quality",
-      type: "cycle",
-      values: ["low", "med", "high"],
-      text: (v) => t()["q_" + v],
-    },
-    {
-      key: "scaling",
-      label: "scaling",
-      type: "cycle",
-      values: ["integer", "stretch"],
-      text: (v) => (v === "integer" ? t().sc_int : t().sc_str),
-    },
-    {
-      key: "font",
-      label: "font",
-      type: "cycle",
-      values: ["pixel", "plain"],
-      text: (v) => (v === "pixel" ? t().f_pixel : t().f_plain),
-    },
-    {
-      key: "textSize",
-      label: "textSize",
-      type: "cycle",
-      values: ["sm", "md", "lg"],
-      text: (v) => t()["ts_" + v],
-    },
-    {
-      key: "lang",
-      label: "lang",
-      type: "cycle",
-      values: ["EN", "LT"],
-      text: (v) => v,
-    },
-  ];
-  let optSel = 0;
-  const optsEl = $("opts");
-
-  function paintOpts() {
-    const L = t();
-    optsEl.innerHTML = "";
-    OPTIONS.forEach((o, i) => {
-      const row = document.createElement("div");
-      row.className = "row" + (i === optSel ? " focused" : "");
-      const lab = document.createElement("span");
-      lab.className = "label";
-      lab.textContent = L[o.label];
-      row.appendChild(lab);
-      if (o.type === "slider") {
-        const s = document.createElement("div");
-        s.className = "slider";
-        for (let n = 1; n <= 12; n++) {
-          const cell = document.createElement("i");
-          if (n <= Store.get(o.key)) cell.classList.add("on");
-          cell.addEventListener("click", () => {
-            Store.set(o.key, n);
-            optSel = i;
-            paintOpts();
-            Sound.tick();
-          });
-          s.appendChild(cell);
-        }
-        row.appendChild(s);
-      } else {
-        const b = document.createElement("button");
-        b.className = "cycle";
-        b.type = "button";
-        const l = document.createElement("span");
-        l.className = "arw";
-        l.textContent = "◀";
-        const v = document.createElement("span");
-        v.className = "val";
-        v.textContent = o.text(Store.get(o.key));
-        const r = document.createElement("span");
-        r.className = "arw";
-        r.textContent = "▶";
-        b.append(l, v, r);
-        b.addEventListener("click", () => {
-          optSel = i;
-          cycle(1);
-        });
-        row.appendChild(b);
-      }
-      row.addEventListener("pointerenter", () => {
-        if (optSel !== i) {
-          optSel = i;
-          paintOpts();
-        }
-      });
-      optsEl.appendChild(row);
-    });
-    $("set-title").textContent = L.setTitle;
-    $("hint-set").textContent = L.hintSet;
-  }
-  function cycle(d) {
-    const o = OPTIONS[optSel];
-    if (o.type === "slider") {
-      Store.set(o.key, Math.max(0, Math.min(12, Store.get(o.key) + d)));
-      Sound.tick();
-    } else {
-      const vs = o.values;
-      Store.set(
-        o.key,
-        vs[(vs.indexOf(Store.get(o.key)) + d + vs.length) % vs.length],
-      );
-      Sound.move();
-      if (o.key === "scaling") fit();
-      if (o.key === "font") applyFont();
-      if (o.key === "textSize") applyTextSize();
-      if (o.key === "quality") scene.rebake();
-      if (o.key === "lang") applyLang();
-    }
-    paintOpts();
-  }
-  UI.register("settings", {
-    el: "s-settings",
-    back: () => settingsBack,
-    enter: paintOpts,
-    key(e) {
-      if (e.key === "ArrowUp" || e.key === "w") {
-        optSel = (optSel - 1 + OPTIONS.length) % OPTIONS.length;
-        paintOpts();
-        Sound.move();
-      }
-      if (e.key === "ArrowDown" || e.key === "s") {
-        optSel = (optSel + 1) % OPTIONS.length;
-        paintOpts();
-        Sound.move();
-      }
-      if (e.key === "ArrowLeft" || e.key === "a") cycle(-1);
-      if (e.key === "ArrowRight" || e.key === "d") cycle(1);
-    },
+  const settings = createSettingsController({
+    $,
+    getText: t,
+    Store,
+    Sound,
+    UI,
+    getSettingsBack: () => settingsBack,
+    fit,
+    applyFont,
+    applyTextSize,
+    scene,
+    onLanguageChange: applyLang,
   });
 
   /* ---- 10. AUTH ---------------------------------------------------------- */
@@ -826,7 +703,7 @@ function startMenu(root) {
     $("hint-game").textContent = L.hintGame;
     paintMenu();
     const n = UI.now();
-    if (n === "settings") paintOpts();
+    if (n === "settings") settings.paint();
     if (n === "game") paintGame();
     if (n === "ask" || n === "pause" || n === "confirm") Screens[n].enter();
   }
