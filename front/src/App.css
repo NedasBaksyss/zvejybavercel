@@ -596,3 +596,11 @@
     transition: none;
   }
 }
+
+.zv #s-auth.register-mode .panel {
+  width: 350px;
+  max-height: none;
+  overflow: visible;
+  transform: translate(-50%, -50%) scale(0.82);
+  transform-origin: center;
+}
