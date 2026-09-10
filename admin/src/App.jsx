@@ -47,16 +47,16 @@ function App() {
   };
   // end alerts state and functions
 
-  useEffect(() => {
-    // tikriname ar yra token localStorage
-    const sessionToken = localStorage.getItem("token");
-    const sessionUser = localStorage.getItem("user");
+  // useEffect(() => {
+  //   // tikriname ar yra token localStorage
+  //   const sessionToken = localStorage.getItem("token");
+  //   const sessionUser = localStorage.getItem("user");
 
-    if (sessionToken && sessionUser) {
-      setToken(sessionToken);
-      setUser(JSON.parse(sessionUser));
-    }
-  }, []);
+  //   if (sessionToken && sessionUser) {
+  //     setToken(sessionToken);
+  //     setUser(JSON.parse(sessionUser));
+  //   }
+  // }, []);
 
   return (
     // <AuthContext.Provider value={{ user, setUser, token, setToken }}>

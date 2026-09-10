@@ -10,16 +10,15 @@ import {
 } from "@material-tailwind/react";
 
 import { useState, useContext } from "react";
-// import { AuthContext, AlertContext } from "@/context";
+import { AuthContext, AlertContext } from "@/context";
 import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
-export function ProjectListItem({data, isLast, rows, setRows, error, setError, loadData}) {
-  const { id, foto} = data;
+export function FishListItem({data, isLast, rows, setRows, error, setError, loadData}) {
+  const { _id, foto} = data;
 
-  const [title, setTitle] = useState(data.title);
+  const [name, setName] = useState(data.name);
   const [description, setDescription] = useState(data.description);
-  const [sort_order, setSortOrder] = useState(data.sort_order);
-  const [publish_date, setPublishDate] = useState(data.publish_date);
+  const [rarity, setRarity] = useState(data.rarity);
 
   const [fotoName, setFotoName] = useState("");
   const [fotoFile, setFotoFile] = useState();
@@ -31,7 +30,7 @@ export function ProjectListItem({data, isLast, rows, setRows, error, setError, l
   // const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
-  const local_publish_date = publish_date ? new Date(publish_date).toLocaleDateString() : '';
+  // const local_publish_date = publish_date ? new Date(publish_date).toLocaleDateString() : '';
 
   const foto_element = projectFoto ? (<img src={projectFoto} alt="Projekto nuotrauka" className="h-12 w-12 object-cover" /> 
   ) : (
@@ -54,11 +53,11 @@ export function ProjectListItem({data, isLast, rows, setRows, error, setError, l
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`/api/projects/${id}`, {
+      const res = await fetch(`/api/fishes/${id}`, {
         method: "DELETE",
         headers: { 
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` 
+          // "Authorization": `Bearer ${token}` 
         },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -150,7 +149,7 @@ export function ProjectListItem({data, isLast, rows, setRows, error, setError, l
       <td className={classes}>
         <div className=""> 
           <Typography variant="small" color="blue-gray" className="font-normal">
-            {id}
+            {_id}
           </Typography>
         </div>
       </td>
@@ -178,13 +177,13 @@ export function ProjectListItem({data, isLast, rows, setRows, error, setError, l
           {editMode ? (
             <Input 
               type="text" 
-              label="Pavadinimas"
-              value={title} 
-              onChange={(e) => setTitle(e.target.value)} 
+              label="Name"
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
             />
           ) : (
             <Typography variant="small" color="blue-gray" className="font-normal">
-              {title}
+              {name}
             </Typography>
           )}
         </div>
@@ -194,7 +193,7 @@ export function ProjectListItem({data, isLast, rows, setRows, error, setError, l
           {editMode ? (
             <Textarea 
               type="text" 
-              label="Aprašymas"
+              label="Description"
               value={description} 
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -205,7 +204,7 @@ export function ProjectListItem({data, isLast, rows, setRows, error, setError, l
           )}
         </div>
       </td>
-      <td className={classes}>
+      {/* <td className={classes}>
         <div className=""> 
           {editMode ? (
             <Input 
@@ -220,19 +219,19 @@ export function ProjectListItem({data, isLast, rows, setRows, error, setError, l
             </Typography>
           )}
         </div>
-      </td>
+      </td> */}
       <td className={classes}>
         <div className=""> 
           {editMode ? (
             <Input 
-              type="number" 
-              label="Rūšiavimo tvarka"
-              value={sort_order} 
+              type="text" 
+              label="Rarity"
+              value={rarity} 
               onChange={(e) => setSortOrder(e.target.value)} 
             />
           ) : (
             <Typography variant="small" color="blue-gray" className="font-normal">
-              {sort_order}
+              {rarity}
             </Typography>
           )}
         </div>
@@ -284,4 +283,4 @@ export function ProjectListItem({data, isLast, rows, setRows, error, setError, l
   );
 }
 
-export default ProjectListItem;
+export default FishListItem;

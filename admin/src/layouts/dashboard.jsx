@@ -42,9 +42,9 @@ export function Dashboard() {
 
 
   const navigate = useNavigate();
-  const doNavigateSignIn = () => {
-    navigate("/auth/prisijungti");
-  }
+  // const doNavigateSignIn = () => {
+  //   navigate("/auth/prisijungti");
+  // }
 
   return (
     // user && token && 

@@ -97,7 +97,7 @@ export function DialogNewProject({loadData}) {
         className="mx-3 mr-0 flex items-center pl-2"
       >
         <PlusCircleIcon className="mr-2 h-5 w-5" />
-        Naujas projektas
+        Create
       </Button>
       <Dialog open={open} handler={handleOpen}>
         <DialogHeader>Pridėti naują projektą</DialogHeader>

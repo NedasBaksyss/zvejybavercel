@@ -14,12 +14,12 @@ import {
   Tab,
 } from "@material-tailwind/react";
 import { AlertContext } from "@/context";
-import ProjectListItem from "./project-list-item";
-import DialogNewProject from "./dialog-new-project";
+import FishListItem from "./fish-list-item";
+import DialogNewFish from "./dialog-new-fish";
 
-const TABLE_HEAD = ["#", "Foto", "Pavadinimas", "Aprašymas", "Sukūrimo data", "Rikiavimas", "Redaguoti"];
+const TABLE_HEAD = ["#", "Sprite", "Name", "Description", "Rarity", "Edit"];
 
-export function ProjectList() {
+export function FishList() {
   const [rows, setRows] = useState([]);            // fetched members
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,15 +29,16 @@ export function ProjectList() {
   // const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
-  // projektų sąrašo užkrovimas
+
+  // Loading the fish list
   const loadData = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/projects", {
+      const res = await fetch("/api/fishes", {
         method: "GET",
         headers: { 
           "Content-Type": "application/json", 
-          "Authorization": `Bearer ${token}` 
+          // "Authorization": `Bearer ${token}` 
         },
       });
 
@@ -50,19 +51,26 @@ export function ProjectList() {
       } catch (e) {
         data = [];
       }
+      
+      // console.log(data[0]._id)
 
       setRows(data);
     } catch (e) {
-      addAlert(e.message || "Nepavyko užkrauti projektų", "error");
+      addAlert(e.message || "Failed to load fishes", "error");
     } finally {
       setLoading(false);
     }
   };
+  
 
   // useEffect(() => {
   //   if (!token) return; // wait until token is available
   //   loadData();
-  // }, [token]);
+  // },[token]);
+
+  useEffect(() => {
+  loadData();
+  }, []);
 
   return (
     <div>
@@ -71,20 +79,20 @@ export function ProjectList() {
         <div className="mb-3 flex items-center justify-between gap-8">
           <div>
             <Typography variant="h5" color="blue-gray">
-              Projektai
+              Fishes
             </Typography>
             <Typography color="gray" className="mt-1 font-normal">
-              Peržiurėti ir valdyti projektus
+              View and manage fishes
             </Typography>
           </div>
-          <DialogNewProject loadData={loadData} />
+          <DialogNewFish loadData={loadData} />
         </div>
       </CardHeader>
 
       <CardBody className="overflow-scroll px-0">
         {loading && (
           <div className="p-6 text-center text-sm text-blue-gray-500">
-            Kraunami projektai…
+            Loading fishes…
           </div>
         )}
         {error && (
@@ -119,8 +127,8 @@ export function ProjectList() {
                   const isLast = index === rows.length - 1;
                   
                   return (
-                    <ProjectListItem 
-                      key={data.id} 
+                    <FishListItem 
+                      key={data._id} 
                       data={data} 
                       isLast={isLast} 
                       rows={rows} 
@@ -135,7 +143,7 @@ export function ProjectList() {
               {rows.length === 0 && (
                 <tr>
                   <td className="p-4 text-sm text-blue-gray-500" colSpan={TABLE_HEAD.length}>
-                    Projektų sąrašas tuščias.
+                    The fish list is empty.
                   </td>
                 </tr>
               )}
@@ -150,4 +158,4 @@ export function ProjectList() {
   );
 }
 
-export default ProjectList;
+export default FishList;

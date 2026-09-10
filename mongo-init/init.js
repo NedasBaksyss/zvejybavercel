@@ -16,6 +16,19 @@ db.achievements.insertOne({
 db.fish.insertOne({
   _id: "salmon",
   name: "Salmon",
+  description: "Quite the red one",
+  rarity: "common",
+  minWeight: 1.0,
+  maxWeight: 5.0,
+  baseValue: 10,
+  experienceReward: 5,
+  coin_value: 10,
+});
+
+db.fish.insertOne({
+  _id: "bass",
+  name: "Bass",
+  description: "I like this bass to it!",
   rarity: "common",
   minWeight: 1.0,
   maxWeight: 5.0,
