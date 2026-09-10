@@ -8,6 +8,7 @@ import { createScene } from "./components/scene";
 import { createSettingsController } from "./components/settingsController";
 import { createAuthController } from "./authController";
 import { createChoiceList } from "./components/choiceList";
+import { createFontGuard } from "./components/fontGuard";
 import "./App.css";
 
 function App() {
@@ -569,26 +570,12 @@ function startMenu(root) {
   };
   Hooks.on("start", (d) => console.log("[menu] start →", d));
 
-  const PIX = '"Pixelify Sans"';
-  const GLYPHS = "\u017D\u0117\u0173";
-  const WEIGHTS = [400, 500, 600, 700];
-  async function glyphGuard() {
-    if (!alive || !document.fonts) return;
-    try {
-      await Promise.all(
-        WEIGHTS.map((w) => document.fonts.load(w + " 15px " + PIX, GLYPHS)),
-      );
-    } catch {}
-    if (!alive) return;
-    const ok = document.fonts.check
-      ? WEIGHTS.every((w) => document.fonts.check(w + " 15px " + PIX, GLYPHS))
-      : true;
-    root.classList.toggle("nopix", !ok);
-    applyTextSize();
-  }
-  glyphGuard();
-  if (document.fonts && document.fonts.ready)
-    document.fonts.ready.then(glyphGuard);
+  const fontGuard = createFontGuard({
+    root,
+    isAlive: () => alive,
+    applyTextSize,
+  });
+  fontGuard.start();
 
   applyFont();
   applyTextSize();
@@ -603,7 +590,7 @@ function startMenu(root) {
     timers.clear();
     removeEventListener("resize", fit);
     removeEventListener("keydown", onKey);
-    removeEventListener("load", glyphGuard);
+    fontGuard.stop();
     Sound.close();
     if (window.Game) delete window.Game;
   };
