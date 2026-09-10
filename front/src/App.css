@@ -59,7 +59,6 @@
   transform: scale(var(--scale));
   transform-origin: center center;
   image-rendering: pixelated;
-  box-shadow: 0 0 0 1px #241f33;
   overflow: hidden;
 }
 .zv #stage.stretch {
@@ -197,48 +196,6 @@
   border: 2px solid #3b3350;
   padding: 9px 12px 11px;
 }
-/* sumazinti tarpeliai */
-.zv #s-auth .panel {
-  overflow: hidden;
-  padding: 7px 10px 9px;
-}
-.zv #s-auth .panel h2 {
-  margin-bottom: 5px;
-  padding-bottom: 3px;
-  font-size: calc(11px * var(--tsc));
-}
-.zv #s-auth .tabs {
-  margin-bottom: 5px;
-}
-.zv #s-auth .tab {
-  padding: 2px;
-  font-size: calc(9px * var(--tsc));
-}
-.zv #s-auth .field {
-  margin-bottom: 2px;
-}
-.zv #s-auth .field span {
-  font-size: calc(8px * var(--tsc));
-  margin-bottom: 0px;
-  line-height: 1.1;
-}
-.zv #s-auth .field input {
-  font-size: calc(10px * var(--tsc));
-  padding: 2px 5px;
-}
-.zv #s-auth .msg {
-  min-height: 11px;
-  margin: 2px 0 4px;
-  font-size: calc(8px * var(--tsc));
-}
-.zv #s-auth .btn {
-  font-size: calc(10px * var(--tsc));
-  padding: 3px;
-  border-bottom-width: 2px;
-}
-.zv #s-auth .btn.ghost {
-  margin-top: 3px;
-}
 .zv .panel h2 {
   font-size: calc(12px * var(--tsc));
   font-weight: 700;
@@ -334,7 +291,7 @@
   font-size: calc(9px * var(--tsc));
   font-weight: 500;
   color: #a8c0dd;
-  margin-bottom: 0px;
+  margin-bottom: 2px;
 }
 .zv .field input {
   width: 100%;
