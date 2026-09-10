@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { T } from "./translations";
 import MenuView from "./MenuView";
 import { createSound } from "./sound";
+import { createSettingsStore } from "./settingsStore";
 import "./App.css";
 
 /* ==========================================================================
@@ -42,42 +43,7 @@ function startMenu(root) {
 
   /* ---- 2. SETTINGS STORE -------------------------------------------------
      Values are stored as CODES ("high", "integer"), never as display text. */
-  const Store = (() => {
-    const defaults = {
-      music: 6,
-      sfx: 9,
-      quality: "high",
-      scaling: "stretch",
-      font: "pixel",
-      textSize: "md",
-      lang: "EN",
-    };
-    let mem = { ...defaults };
-    const KEY = "zvejyba.settings";
-    return {
-      all: () => ({ ...mem }),
-      get: (k) => mem[k],
-      set(k, v) {
-        mem[k] = v;
-        try {
-          localStorage.setItem(KEY, JSON.stringify(mem));
-        } catch {
-          /* private mode */
-        }
-      },
-      load() {
-        try {
-          mem = {
-            ...defaults,
-            ...JSON.parse(localStorage.getItem(KEY) || "{}"),
-          };
-        } catch {
-          mem = { ...defaults };
-        }
-        return this.all();
-      },
-    };
-  })();
+  const Store = createSettingsStore();
   Store.load();
 
   /* Text face and text size. Both are UI-only; the canvas never uses them. */
