@@ -444,20 +444,6 @@ const T = {
    Returns a cleanup function.
    ========================================================================== */
 function startMenu(root) {
-  /* The webfont has to be requested from <head>. An @import inside the
-     component's own <style> is only fetched after that stylesheet is parsed,
-     which is late enough that the first paint — and the glyph check below —
-     can run before the face exists. That is why the pixel text never showed. */
-  const FONT_HREF =
-    "https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap";
-  if (!document.querySelector("link[data-zv-font]")) {
-    const l = document.createElement("link");
-    l.rel = "stylesheet";
-    l.href = FONT_HREF;
-    l.setAttribute("data-zv-font", "");
-    document.head.appendChild(l);
-  }
-
   let alive = true;
   let raf = 0;
   const timers = new Set();
