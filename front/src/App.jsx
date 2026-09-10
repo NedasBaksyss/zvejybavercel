@@ -6,11 +6,9 @@ import { createSettingsStore } from "./settingsStore";
 import { createAccountApi } from "./accountApi";
 import { createScene } from "./scene";
 import { createSettingsController } from "./settingsController";
+import { createAuthController } from "./authController";
 import "./App.css";
 
-/* ==========================================================================
-   THE COMPONENT
-   ========================================================================== */
 function App() {
   const rootRef = useRef(null);
 
@@ -22,12 +20,6 @@ function App() {
   return <MenuView rootRef={rootRef} />;
 }
 
-/* ========================================================================== 
-   THE MENU ENGINE
-   Same imperative code as the original page, wrapped so it can be started
-   and — crucially — stopped again when React unmounts the component.
-   Returns a cleanup function.
-   ========================================================================== */
 function startMenu(root) {
   let alive = true;
   const timers = new Set();
@@ -43,17 +35,11 @@ function startMenu(root) {
   const $ = (id) => root.querySelector("#" + id);
   const t = () => T[Store.get("lang")];
 
-  /* ---- 2. SETTINGS STORE -------------------------------------------------
-     Values are stored as CODES ("high", "integer"), never as display text. */
   const Store = createSettingsStore();
   Store.load();
 
-  /* Text face and text size. Both are UI-only; the canvas never uses them. */
   const TSC = { sm: 0.85, md: 1, lg: 1.1 };
-  const PLAIN_BOOST = 1.08; // the fallback face needs this to match by eye
-  /* "plain" covers both cases: the player chose it, or the pixel font failed
-     to load and the glyph guard fell back to it. Either way the same face is
-     on screen, so it gets the same size compensation. */
+  const PLAIN_BOOST = 1.08;
   const onPlainFace = () =>
     Store.get("font") === "plain" || root.classList.contains("nopix");
   const applyTextSize = () =>
@@ -100,7 +86,6 @@ function startMenu(root) {
   };
   const Q = () => QP[Store.get("quality")];
 
-  /* ---- 3. SCALER --------------------------------------------------------- */
   const BASE_W = 480,
     BASE_H = 270;
   const stage = $("stage");
@@ -120,7 +105,6 @@ function startMenu(root) {
   }
   addEventListener("resize", fit);
 
-  /* ---- 4. SOUND ---------------------------------------------------------- */
   const Sound = createSound({
     isAlive: () => alive,
     getVolume: () => Store.get("sfx") / 12,
@@ -134,7 +118,6 @@ function startMenu(root) {
     isAlive: () => alive,
   });
 
-  /* ---- 6. SCREENS -------------------------------------------------------- */
   const Screens = {};
   let current = null;
   const UI = {
@@ -153,26 +136,20 @@ function startMenu(root) {
     now: () => current,
   };
 
-  /* ---- 7. ACCOUNTS — a working stub. Swap the factory for fetch() when Node is up. */
   const Api = createAccountApi({ later, getText: t });
 
   let player = null;
-  let authMode = "login";
 
-  /* One trip slot. In memory only, deliberately: the account store above is an
-     in-memory stub too, so a slot that survived a reload would outlive the
-     account that owns it. Persist both together when the server lands. */
-  let slot = null; // {owner, at} or null
-  let pendingOwner = null; // who the trip being loaded belongs to
-  let settingsBack = "title"; // Esc out of settings returns here
-  let askMode = "new"; // which entry opened the chooser: 'new' or 'continue'
+  let slot = null;
+  let pendingOwner = null;
+  let settingsBack = "title";
+  let askMode = "new";
   const tripOwner = () =>
     !slot ? "" : slot.owner === "guest" ? t().guest : slot.owner;
 
-  /* ---- 8. TITLE ---------------------------------------------------------- */
   const MENU = [
-    { id: "play", key: "play", hidden: () => !!slot }, // gone once a trip exists
-    { id: "continue", key: "cont", off: () => !slot }, // lights up once one does
+    { id: "play", key: "play", hidden: () => !!slot },
+    { id: "continue", key: "cont", off: () => !slot },
     { id: "settings", key: "settings" },
     { id: "credits", key: "credits" },
     { id: "quit", key: "quit" },
@@ -189,7 +166,6 @@ function startMenu(root) {
     if (sel >= vis.length) sel = vis.length - 1;
     if (sel < 0) sel = 0;
     if (vis[sel] && isOff(vis[sel])) {
-      // never leave the cursor on a dead row
       const k = vis.findIndex((m) => !isOff(m));
       if (k >= 0) sel = k;
     }
@@ -228,7 +204,7 @@ function startMenu(root) {
     if (player) {
       whoEl.textContent = L.signedIn + " ";
       const b = document.createElement("b");
-      b.textContent = player.user; // no innerHTML: usernames are user input
+      b.textContent = player.user;
       whoEl.appendChild(b);
     }
   }
@@ -265,7 +241,6 @@ function startMenu(root) {
     },
   });
 
-  /* window.close() only works on tabs the script opened. Try, then tell the truth. */
   function quit() {
     Hooks.emit("quit");
     window.close();
@@ -283,11 +258,6 @@ function startMenu(root) {
     key() {},
   });
 
-  /* ========================================================================
-     8b. THE TRIP: asking, the game page, pausing, deleting
-     ======================================================================== */
-
-  /* One small keyboard list, shared by the three panels below. */
   function ChoiceList(elId) {
     let items = [],
       i = 0;
@@ -347,8 +317,6 @@ function startMenu(root) {
   const pauseList = ChoiceList("pause-list");
   const confList = ChoiceList("conf-list");
 
-  /* Both entries land here when nobody is signed in: you pick an account or
-     carry on as a guest. Signed in, there is nothing to ask, so we skip it. */
   function startTrip() {
     if (player) loadTrip(player.user);
     else {
@@ -368,9 +336,6 @@ function startMenu(root) {
     startLoading();
   }
 
-  /* The chooser. Two cards, arrows or a click to pick, the footer button to
-     commit. The card shells live in the markup so the icons stay real SVG
-     instead of a string of innerHTML. */
   const ASK_CARDS = [
     {
       id: "guest",
@@ -420,7 +385,7 @@ function startMenu(root) {
         askPick = i;
         paintAsk();
         Sound.move();
-      } else askConfirm(); // click the live card again to commit
+      } else askConfirm();
     });
   });
   $("ask-go").addEventListener("click", askConfirm);
@@ -446,7 +411,6 @@ function startMenu(root) {
       if (e.key === "Enter" || e.key === " ") askConfirm();
     },
   });
-  /* The game page. A placeholder for now — three.js takes the "start" hook. */
   function paintGame() {
     const L = t();
     $("game-line").textContent = L.gameLine;
@@ -484,7 +448,6 @@ function startMenu(root) {
     key: (e) => pauseList.key(e),
   });
 
-  /* "No" sits first so the safe answer is the one already under the cursor. */
   UI.register("confirm", {
     el: "s-confirm",
     back: "pause",
@@ -497,9 +460,6 @@ function startMenu(root) {
         {
           text: L.yes,
           run: () => {
-            /* Signing out closes the trip with it: the slot belongs to whoever
-               was signed in, so leaving it behind would hand it to the next
-               person to open the page. */
             player = null;
             slot = null;
             sel = 0;
@@ -513,7 +473,6 @@ function startMenu(root) {
     key: (e) => confList.key(e),
   });
 
-  /* ---- 9. SETTINGS ------------------------------------------------------- */
   const settings = createSettingsController({
     $,
     getText: t,
@@ -528,101 +487,22 @@ function startMenu(root) {
     onLanguageChange: applyLang,
   });
 
-  /* ---- 10. AUTH ---------------------------------------------------------- */
-  const msgEl = $("auth-msg");
-  const goBtn = $("auth-go");
-  const outBtn = $("auth-out");
-
-  root.querySelectorAll(".tab").forEach((tab) => {
-    tab.addEventListener("click", () => {
-      authMode = tab.dataset.mode;
-      $("s-auth").classList.toggle("register-mode", authMode === "register");
-      root
-        .querySelectorAll(".tab")
-        .forEach((x) => x.setAttribute("aria-selected", x === tab));
-      $("f-mail-wrap").hidden = authMode === "login";
-      $("f-pass").setAttribute(
-        "autocomplete",
-        authMode === "login" ? "current-password" : "new-password",
-      );
-      msgEl.textContent = "";
-      msgEl.className = "msg";
-      applyLang();
-      Sound.move();
-    });
-  });
-
-  async function submitAuth() {
-    const L = t();
-    const user = $("f-user").value.trim();
-    const pass = $("f-pass").value;
-    const mail = $("f-mail").value.trim();
-    msgEl.className = "msg";
-    if (user.length < 3) {
-      msgEl.textContent = L.errUser;
-      Sound.deny();
-      return;
-    }
-    if (pass.length < 6) {
-      msgEl.textContent = L.errPass;
-      Sound.deny();
-      return;
-    }
-    if (authMode === "register" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) {
-      msgEl.textContent = L.errMail;
-      Sound.deny();
-      return;
-    }
-    goBtn.disabled = true;
-    goBtn.textContent = L.working;
-    try {
-      player =
-        authMode === "login"
-          ? await Api.login(user, pass)
-          : await Api.register(user, pass, mail);
-      if (!alive) return;
-      msgEl.className = "msg ok";
-      msgEl.textContent =
-        authMode === "login" ? L.welcome(player.user) : L.created(player.user);
-      Sound.confirm();
-      Hooks.emit("login", player);
-      paintMenu();
-      later(() => UI.go("title"), 800);
-    } catch (err) {
-      if (!alive) return;
-      msgEl.textContent = err.message;
-      Sound.deny();
-    } finally {
-      if (alive) {
-        goBtn.disabled = false;
-        applyLang();
-      }
-    }
-  }
-  goBtn.addEventListener("click", submitAuth);
-  outBtn.addEventListener("click", () => {
-    player = null;
-    Sound.back();
-    msgEl.className = "msg";
-    msgEl.textContent = "";
-    $("f-pass").value = "";
-    paintMenu();
-    applyLang();
-  });
-  root.querySelectorAll("#s-auth input").forEach((i) =>
-    i.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") submitAuth();
-    }),
-  );
-
-  UI.register("auth", {
-    el: "s-auth",
-    back: "title",
-    enter() {
-      applyLang();
-      later(() => $("f-user").focus(), 30);
+  const auth = createAuthController({
+    $,
+    root,
+    Api,
+    UI,
+    Sound,
+    later,
+    isAlive: () => alive,
+    getText: t,
+    getPlayer: () => player,
+    setPlayer: (value) => {
+      player = value;
     },
-    key() {},
+    paintMenu,
+    applyLanguage: applyLang,
+    emit: (event, data) => Hooks.emit(event, data),
   });
 
   UI.register("credits", {
@@ -637,7 +517,6 @@ function startMenu(root) {
     key() {},
   });
 
-  /* ---- 11. LOADING ------------------------------------------------------- */
   function startLoading() {
     UI.go("loading");
     const L = t();
@@ -654,7 +533,7 @@ function startMenu(root) {
         Sound.confirm();
         slot = { owner: pendingOwner || "guest", at: Date.now() };
         Hooks.emit("newTrip", { slot, settings: Store.all() });
-        sel = 0; // "New trip" is gone; land on "Continue"
+        sel = 0;
         later(() => {
           paintMenu();
           UI.go("title");
@@ -669,20 +548,12 @@ function startMenu(root) {
   }
   UI.register("loading", { el: "loading", key() {} });
 
-  /* ---- 12. LANGUAGE — repaints every screen ------------------------------ */
   function applyLang() {
     const L = t();
     document.documentElement.lang = Store.get("lang").toLowerCase();
     root.querySelector('.tab[data-mode="login"]').textContent = L.tabLogin;
     root.querySelector('.tab[data-mode="register"]').textContent = L.tabReg;
-    $("auth-title").textContent = L.authTitle;
-    $("lbl-user").textContent = L.fUser;
-    $("lbl-pass").textContent = L.fPass;
-    $("lbl-mail").textContent = L.fMail;
-    goBtn.textContent = authMode === "login" ? L.btnLogin : L.btnReg;
-    outBtn.textContent = L.btnOut;
-    outBtn.hidden = !player;
-    $("hint-auth").textContent = L.hintBack;
+    auth.apply(L);
     $("hint-cred").textContent = L.hintBack;
     $("cred-title").textContent = L.credTitle;
     $("cred-body").innerText = L.credBody;
@@ -700,11 +571,10 @@ function startMenu(root) {
     if (n === "ask" || n === "pause" || n === "confirm") Screens[n].enter();
   }
 
-  /* ---- 13. INPUT --------------------------------------------------------- */
   function onKey(e) {
     const s = Screens[UI.now()];
     if (e.key === "Escape") {
-      if (!s || s.back === undefined) return; // title and loading swallow it
+      if (!s || s.back === undefined) return;
       Sound.back();
       UI.go(typeof s.back === "function" ? s.back() : s.back);
       return;
@@ -720,7 +590,6 @@ function startMenu(root) {
   }
   addEventListener("keydown", onKey);
 
-  /* ---- 14. HOOKS — where three.js takes over ----------------------------- */
   const Hooks = (() => {
     const map = {};
     return {
@@ -747,35 +616,22 @@ function startMenu(root) {
   };
   Hooks.on("start", (d) => console.log("[menu] start →", d));
 
-  /* ---- 15. BOOT, including the glyph guard for Ž -------------------------
-     document.fonts.check() answers "is this face loaded right now", not "can
-     it be loaded". A webfont is not fetched until something on the page needs
-     it, so checking straight after fonts.ready returns false for a face that
-     is perfectly available — and the UI got pinned to the fallback. Ask for
-     the face first, then check, then check again once everything settles. */
-  /* Every weight is checked, not just one. Asking Google for the discrete list
-     400;500;600;700 returns four separate font files; if some arrive and others
-     do not, the UI ends up in two different faces at once. The URL now asks for
-     the variable range instead, so it is one file, and the guard treats "not all
-     weights present" as a failure and falls back wholesale. */
   const PIX = '"Pixelify Sans"';
   const GLYPHS = "\u017D\u0117\u0173";
   const WEIGHTS = [400, 500, 600, 700];
   async function glyphGuard() {
-    if (!alive || !document.fonts) return; // no Font Loading API: trust the CSS stack
+    if (!alive || !document.fonts) return;
     try {
       await Promise.all(
         WEIGHTS.map((w) => document.fonts.load(w + " 15px " + PIX, GLYPHS)),
       );
-    } catch {
-      /* offline, blocked, or no such family */
-    }
+    } catch {}
     if (!alive) return;
     const ok = document.fonts.check
       ? WEIGHTS.every((w) => document.fonts.check(w + " 15px " + PIX, GLYPHS))
       : true;
     root.classList.toggle("nopix", !ok);
-    applyTextSize(); // falling back changes the face, so re-size
+    applyTextSize();
   }
   glyphGuard();
   if (document.fonts && document.fonts.ready)
@@ -787,7 +643,6 @@ function startMenu(root) {
   applyLang();
   UI.go("title");
 
-  /* ---- CLEANUP ----------------------------------------------------------- */
   return () => {
     alive = false;
     scene.stop();
