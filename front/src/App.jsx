@@ -22,206 +22,6 @@ function App() {
 }
 
 /* ==========================================================================
-   STYLES
-   Everything that used to hang off <body> now hangs off .zv, so the menu
-   cannot fight with Vite's default index.css / App.css.
-   ========================================================================== */
-const CSS = `
-.zv{
-  --ink:#0d0b18;
-  --pale:#ffdca8;
-  --gold:#f2b45c;
-  --ember:#e0765a;
-  --mist:#8fa8c8;
-  --dim:#6b5a7a;
-  --ok:#7fbf7f;
-  --bad:#d4574e;
-  --scale:1;
-  --tsc:1;
-  --face:'Pixelify Sans',ui-monospace,'DejaVu Sans Mono',monospace;
-
-  position:fixed;inset:0;z-index:0;
-  background:#07060f;
-  display:flex;align-items:center;justify-content:center;
-  overflow:hidden;
-  text-align:left;
-  font-family:var(--face);
-  color:var(--pale);
-}
-/* Set the face on everything, not just the root. Form controls do not
-   inherit font by default, and one missed element is a visible seam. */
-.zv,.zv *{font-family:var(--face)}
-.zv *{box-sizing:border-box;margin:0;padding:0}
-
-/* Glyph guard: if the pixel face cannot draw Z/e/u with Lithuanian
-   diacritics, the whole UI swaps to a monospace face that can. */
-/* Two ways to end up on the plain face: the pixel font failed to load
-   (nopix, set by the glyph guard) or the player asked for it (plain). */
-.zv.nopix,.zv.plain{--face:ui-monospace,'DejaVu Sans Mono','Courier New',monospace}
-/* The fallback face reads smaller and thinner than the pixel one at the
-   same px value, so it gets a little more weight. The size difference is
-   handled in JS, by PLAIN_BOOST. */
-.zv.nopix .item,.zv.plain .item{font-weight:700}
-
-.zv #stage{
-  position:relative;
-  width:480px;height:270px;
-  transform:scale(var(--scale));
-  transform-origin:center center;
-  image-rendering:pixelated;
-  box-shadow:0 0 0 1px #241f33;
-  overflow:hidden;
-}
-.zv #stage.stretch{image-rendering:auto}
-.zv canvas{position:absolute;inset:0;width:480px;height:270px;image-rendering:pixelated;display:block}
-
-.zv #ui{position:absolute;inset:0;z-index:2}
-.zv .screen{position:absolute;inset:0;display:none;padding:18px 22px}
-.zv .screen.active{display:block}
-
-.zv #logo{position:absolute;top:32px;left:0;right:0;text-align:center;pointer-events:none}
-.zv #logo .word{
-  font-size:34px;font-weight:700;line-height:1;letter-spacing:2px;
-  color:var(--pale);
-  text-shadow:0 3px 0 var(--ember),0 4px 0 #7a2e3a;
-}
-.zv #logo .sub{margin-top:6px;font-size:9px;letter-spacing:5px;color:var(--mist);opacity:.8}
-
-.zv #menu{position:absolute;left:46px;bottom:30px;display:flex;flex-direction:column;gap:3px}
-.zv .item{
-  position:relative;display:flex;align-items:center;gap:8px;
-  font-size:calc(15px * var(--tsc));line-height:1;padding:2px 6px 2px 0;
-  font-weight:600;color:#e7dbf2;text-shadow:1px 1px 0 rgba(7,6,15,.85);
-  background:none;border:0;font-family:inherit;cursor:pointer;text-align:left;
-}
-.zv .item .bob{
-  width:7px;height:7px;background:var(--ember);
-  box-shadow:0 -3px 0 0 var(--pale);
-  opacity:0;transform:translateX(-3px);
-  transition:opacity .09s steps(2),transform .09s steps(2);
-}
-.zv .item[aria-selected="true"]{color:var(--gold)}
-.zv .item[aria-selected="true"] .bob{opacity:1;transform:translateX(0)}
-.zv .item[disabled]{color:#4a4257;cursor:default}
-.zv .item[disabled] .bob{background:#4a4257;box-shadow:0 -3px 0 0 #4a4257}
-.zv .item:focus-visible{outline:2px solid var(--pale);outline-offset:2px}
-
-.zv #who{position:absolute;left:46px;bottom:12px;font-size:calc(9px * var(--tsc));font-weight:500;color:#a8c0dd;text-shadow:1px 1px 0 rgba(7,6,15,.85);}
-.zv #who b{color:var(--gold);font-weight:500}
-
-.zv .panel{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:288px;max-height:calc(100% - 14px);overflow:hidden;
-  background:rgba(13,11,24,.9);border:2px solid #3b3350;
-  padding:9px 12px 11px;
-}
-.zv .panel h2{
-  font-size:calc(12px * var(--tsc));font-weight:700;line-height:1.25;color:var(--gold);
-  margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid #3b3350;
-}
-.zv .row{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:3px 0;font-size:calc(11px * var(--tsc));font-weight:500;line-height:1.25;color:#ddd0ea;
-}
-.zv .row.focused{color:var(--gold)}
-.zv .row .label{white-space:nowrap}
-
-.zv .slider{display:flex;gap:2px;cursor:pointer}
-.zv .slider i{width:8px;height:10px;background:#332c46;display:block}
-.zv .slider i.on{background:var(--gold)}
-.zv .slider i.on:nth-child(n+9){background:var(--ember)}
-
-.zv .cycle{
-  display:flex;align-items:center;gap:7px;
-  background:#221d33;border:1px solid #3b3350;
-  padding:2px 6px;font-size:calc(11px * var(--tsc));font-weight:500;line-height:1.25;color:var(--pale);
-  cursor:pointer;
-}
-.zv .cycle .arw{color:var(--dim);font-size:calc(9px * var(--tsc))}
-.zv .cycle .val{min-width:96px;text-align:center}
-
-.zv .tabs{display:flex;gap:4px;margin-bottom:7px}
-.zv .tab{
-  flex:1;font-family:inherit;font-size:calc(10px * var(--tsc));padding:3px;cursor:pointer;
-  font-weight:500;background:#221d33;border:1px solid #3b3350;color:#a598bd;
-}
-.zv .tab[aria-selected="true"]{background:#3b3350;color:var(--pale)}
-.zv .field{margin-bottom:5px}
-.zv .field span{display:block;font-size:calc(9px * var(--tsc));font-weight:500;color:#a8c0dd;margin-bottom:2px}
-.zv .field input{
-  width:100%;font-family:inherit;font-size:calc(11px * var(--tsc));padding:3px 6px;
-  background:#0f0d1c;color:var(--pale);border:1px solid #3b3350;
-}
-.zv .field input:focus{outline:none;border-color:var(--gold)}
-.zv .msg{font-size:calc(9px * var(--tsc));font-weight:500;min-height:13px;margin:3px 0 5px;color:var(--bad);line-height:1.4}
-.zv .msg.ok{color:var(--ok)}
-.zv .btn{
-  width:100%;font-family:inherit;font-size:calc(11px * var(--tsc));padding:4px;cursor:pointer;
-  font-weight:600;background:var(--ember);color:#1a0f14;border:0;border-bottom:3px solid #7a2e3a;
-}
-.zv .btn:active{transform:translateY(1px);border-bottom-width:2px}
-.zv .btn[disabled]{background:#4a4257;border-bottom-color:#2b2639;color:#8d82a3;cursor:default}
-.zv .btn.ghost{background:#221d33;color:#c9bcd6;border-bottom-color:#3b3350;margin-top:5px}
-
-.zv .hint{position:absolute;bottom:8px;left:22px;font-size:calc(9px * var(--tsc));font-weight:500;color:#8a789b;text-align:left}
-.zv kbd{font-family:inherit;color:var(--mist);border:1px solid #3b3350;padding:0 3px}
-
-.zv .credits p{font-size:calc(11px * var(--tsc));font-weight:500;line-height:1.75;color:#ddd0ea}
-.zv .credits .who{color:var(--gold)}
-
-/* Backdrop for the chooser: a rod laid across the panel, butt at the bottom
-   left and tip at the top right. Decoration only — aria-hidden, no pointer
-   events, and faint enough that the panel still reads first. */
-.zv .rod{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.14}
-.zv .rod .blank,.rod .seat,.rod .reel{fill:var(--pale)}
-.zv .rod .grip{fill:var(--ember)}
-.zv .rod .hub{fill:var(--ink)}
-.zv .rod .guide{fill:none;stroke:var(--pale);stroke-width:1.5}
-.zv .rod .line{fill:none;stroke:var(--pale);stroke-width:1}
-/* The chooser is a modal: header with a close box, two option cards side by
-   side, then a footer with the confirm button and a plain-text way out. */
-.zv .panel.wide{width:342px}
-.zv .phead{display:flex;align-items:center;justify-content:space-between;gap:8px;
-  margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #3b3350}
-.zv .phead h2{margin:0;padding:0;border:0}
-.zv .x{font-family:inherit;font-size:calc(11px * var(--tsc));line-height:1;padding:1px 5px;
-  background:#221d33;border:1px solid #3b3350;color:#a598bd;cursor:pointer}
-.zv .x:hover{color:var(--pale);border-color:var(--gold)}
-.zv .cards{display:flex;gap:8px;margin-bottom:9px}
-.zv .card{flex:1;min-width:0;padding:9px 9px 10px;cursor:pointer;text-align:left;
-  font-family:inherit;color:#c9bcd6;background:#171327;border:2px solid #3b3350}
-.zv .card[aria-selected="true"]{border-color:var(--gold);background:#241a33}
-.zv .card svg{display:block;width:24px;height:24px}
-.zv .card .cap{display:block;margin-top:7px;font-size:calc(11px * var(--tsc));
-  font-weight:600;color:var(--pale)}
-.zv .card[aria-selected="true"] .cap{color:var(--gold)}
-.zv .card .cdesc{display:block;margin-top:4px;font-size:calc(8px * var(--tsc));
-  font-weight:500;line-height:1.55;color:#a8c0dd}
-.zv .pfoot{display:flex;align-items:center;gap:12px;padding-top:7px;border-top:1px solid #3b3350}
-.zv .btn.slim{width:auto;padding:4px 14px}
-.zv .link{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;
-  font-size:calc(10px * var(--tsc));font-weight:500;color:#a598bd;text-decoration:underline}
-.zv .link:hover{color:var(--pale)}
-.zv .note{font-size:calc(10px * var(--tsc));font-weight:500;line-height:1.65;color:#ddd0ea;margin-bottom:8px}
-.zv .choices{display:flex;flex-direction:column;gap:1px}
-.zv .choices .item{font-size:calc(12px * var(--tsc));padding:3px 6px 3px 0}
-.zv .hud{position:absolute;left:46px;top:38px}
-.zv .hud .line{font-size:calc(13px * var(--tsc));font-weight:600;color:var(--pale);text-shadow:1px 1px 0 rgba(7,6,15,.85)}
-.zv .hud .who{margin-top:6px;font-size:calc(10px * var(--tsc));font-weight:500;color:#a8c0dd;text-shadow:1px 1px 0 rgba(7,6,15,.85)}
-.zv #loading .box{position:absolute;left:50%;bottom:54px;transform:translateX(-50%);width:264px;text-align:center}
-.zv #loading .what{font-size:calc(11px * var(--tsc));font-weight:600;color:var(--pale);margin-bottom:8px;min-height:13px}
-.zv .bar{height:9px;background:#221d33;border:1px solid #3b3350}
-.zv .bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .18s steps(6)}
-.zv #loading .tip{margin-top:10px;font-size:calc(9px * var(--tsc));font-weight:500;color:#a8c0dd;line-height:1.6}
-
-.zv #s-bye .panel{text-align:center}
-.zv #s-bye p{font-size:calc(11px * var(--tsc));line-height:1.8;color:#c9bcd6}
-
-.zv #build{position:absolute;right:7px;bottom:6px;font-size:calc(8px * var(--tsc));color:#4a4257;z-index:3}
-@media (prefers-reduced-motion:reduce){.zv .item .bob{transition:none}}
-`;
-
-/* ==========================================================================
    1. TEXT — every visible string lives here, in both languages.
    ========================================================================== */
 /* ==========================================================================
@@ -253,7 +53,7 @@ function startMenu(root) {
       music: 6,
       sfx: 9,
       quality: "high",
-      scaling: "integer",
+      scaling: "stretch",
       font: "pixel",
       textSize: "md",
       lang: "EN",
@@ -343,13 +143,18 @@ function startMenu(root) {
     BASE_H = 270;
   const stage = $("stage");
   function fit() {
-    const w = innerWidth - 16,
-      h = innerHeight - 16;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
     const stretch = Store.get("scaling") === "stretch";
-    let s = Math.min(w / BASE_W, h / BASE_H);
-    if (!stretch) s = Math.max(1, Math.floor(s));
+
+    let scale = Math.min(w / BASE_W, h / BASE_H);
+
+    if (!stretch) {
+      scale = Math.max(1, Math.floor(scale));
+    }
+
     stage.classList.toggle("stretch", stretch);
-    root.style.setProperty("--scale", s);
+    root.style.setProperty("--scale", scale);
   }
   addEventListener("resize", fit);
 
