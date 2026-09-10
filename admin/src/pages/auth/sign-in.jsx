@@ -17,7 +17,7 @@ export function SignIn() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const { user, setUser, token, setToken } = useContext(AuthContext);
+  // const { user, setUser, token, setToken } = useContext(AuthContext);
 
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 

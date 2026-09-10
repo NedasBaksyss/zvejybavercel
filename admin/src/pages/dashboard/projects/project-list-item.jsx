@@ -10,7 +10,7 @@ import {
 } from "@material-tailwind/react";
 
 import { useState, useContext } from "react";
-import { AuthContext, AlertContext } from "@/context";
+// import { AuthContext, AlertContext } from "@/context";
 import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 export function ProjectListItem({data, isLast, rows, setRows, error, setError, loadData}) {
@@ -28,7 +28,7 @@ export function ProjectListItem({data, isLast, rows, setRows, error, setError, l
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
-  const { token } = useContext(AuthContext);
+  // const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
   const local_publish_date = publish_date ? new Date(publish_date).toLocaleDateString() : '';

@@ -13,7 +13,7 @@ import {
   TabsHeader,
   Tab,
 } from "@material-tailwind/react";
-import { AuthContext, AlertContext } from "@/context";
+import { AlertContext } from "@/context";
 import ProjectListItem from "./project-list-item";
 import DialogNewProject from "./dialog-new-project";
 
@@ -26,7 +26,7 @@ export function ProjectList() {
   const [q, setQ] = useState("");                  // search query
   const [roleList, setRoleList] = useState(["admin", "user"]);     // rolių sąrašas
 
-  const { token } = useContext(AuthContext);
+  // const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
   // projektų sąrašo užkrovimas
@@ -59,10 +59,10 @@ export function ProjectList() {
     }
   };
 
-  useEffect(() => {
-    if (!token) return; // wait until token is available
-    loadData();
-  }, [token]);
+  // useEffect(() => {
+  //   if (!token) return; // wait until token is available
+  //   loadData();
+  // }, [token]);
 
   return (
     <div>

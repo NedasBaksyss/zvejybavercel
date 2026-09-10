@@ -33,11 +33,11 @@ export function UserList() {
   const [q, setQ] = useState("");                  // search query
   const [roleList, setRoleList] = useState(["admin", "user"]);     // rolių sąrašas
 
-  const { token } = useContext(AuthContext);
+  // const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
   useEffect(() => {
-    if (!token) return; // wait until token is available
+    // if (!token) return; // wait until token is available
 
     // vartotojų sąrašas
     (async () => {
@@ -69,7 +69,9 @@ export function UserList() {
       }
     })();
 
-  }, [token]);
+  }
+// [token]
+);
 
   // filter + search (case-insensitive)
   const filtered = useMemo(() => {

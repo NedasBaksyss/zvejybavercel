@@ -14,7 +14,7 @@ import { AuthContext, AlertContext } from "@/context";
 export function UserListItem({userData, isLast, setError, setRows, roleList}) {
   const { id, role, email, status} = userData;
 
-  const { token } = useContext(AuthContext);
+  // const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
   const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";

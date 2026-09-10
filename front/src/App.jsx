@@ -18,7 +18,7 @@ function App() {
     return stop;
   }, []);
 
-  return <MenuView rootRef={rootRef} css={CSS} />;
+  return <MenuView rootRef={rootRef} />;
 }
 
 /* ==========================================================================

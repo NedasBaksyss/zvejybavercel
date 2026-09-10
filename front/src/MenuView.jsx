@@ -1,8 +1,6 @@
-export default function MenuView({ rootRef, css }) {
+export default function MenuView({ rootRef }) {
   return (
     <div className="zv" ref={rootRef}>
-      <style>{css}</style>
-
       <div id="stage">
         <canvas id="scene" width="480" height="270" />
 
