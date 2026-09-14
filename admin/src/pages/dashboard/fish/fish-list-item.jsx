@@ -15,7 +15,7 @@ import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon } from "@heroicons/react/24
 import { fishRarities } from "./fish-fields";
 
 export function FishListItem({data, isLast, rows, setRows, error, setError, loadData}) {
-  const { _id, foto} = data;
+  const { _id, sprite} = data;
 
   const [id, setId] = useState(data._id)
   const [gamesId, setGamesId] = useState(data.gamesId)
@@ -23,9 +23,9 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
   const [description, setDescription] = useState(data.description);
   const [rarity, setRarity] = useState(data.rarity);
 
-  const [fotoName, setFotoName] = useState("");
-  const [fotoFile, setFotoFile] = useState();
-  const [projectFoto, setProjectFoto] = useState(foto ? `/api/images/projects/` + foto : null);
+  const [spriteName, setSpriteName] = useState("");
+  const [spriteFile, setSpriteFile] = useState();
+  const [fishSprite, setFishSprite] = useState(sprite ? `/api/images/fish/` + sprite : null);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -35,21 +35,21 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
 
   // const local_publish_date = publish_date ? new Date(publish_date).toLocaleDateString() : '';
 
-  const foto_element = projectFoto ? (<img src={projectFoto} alt="Projekto nuotrauka" className="h-12 w-12 object-cover" /> 
+  const sprite_element = fishSprite ? (<img src={fishSprite} alt="Sprite" className="h-12 w-12 object-cover" /> 
   ) : (
     <div className="h-12 w-12 flex items-center justify-center bg-gray-200">
-      <span className="text-gray-500 text-sm">Nėra</span>
+      <span className="text-gray-500 text-sm">X</span>
     </div>
   );
 
   function handleFileChange(e) {
-    setFotoName(e.target.value);
-    setFotoFile(e.target.files[0]);
+    setSpriteName(e.target.value);
+    setSpriteFile(e.target.files[0]);
 
     // atvaizduojame naują nuotrauką iš karto
     const reader = new FileReader();
     reader.onload = (event) => {
-      setProjectFoto(event.target.result);
+      setFishSprite(event.target.result);
     };
     reader.readAsDataURL(e.target.files[0]);    
   }
@@ -74,7 +74,7 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
 
   const confirmEdit = async () => {
     let dataSendSuccess = false;
-    let fotoSendSuccess = true;
+    let spriteSendSuccess = true;
 
     // surenkame duomenis
     const updatedData = {
@@ -110,12 +110,12 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
     }
 
     // nuotraukos siuntimas, jei pasirinkta
-    if (fotoFile && dataSendSuccess) {
-      fotoSendSuccess = false;
+    if (spriteFile && dataSendSuccess) {
+      spriteSendSuccess = false;
       const formData = new FormData();
-      formData.append("foto", fotoFile);  
+      formData.append("sprite", spriteFile);  
       try {
-        const res = await fetch(`/api/projects/${id}/foto`, {
+        const res = await fetch(`/api/fishes/${id}/sprite`, {
           method: "PUT",
           // headers: { 
           //   "Authorization": `Bearer ${token}` 
@@ -123,28 +123,28 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
           body: formData,
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        fotoSendSuccess = true;
-        addAlert("Projekto nuotrauka sėkmingai atnaujinta", "success");
+        spriteSendSuccess = true;
+        addAlert("The fish photo has been successfully updated.", "success");
       } catch (e) {
-        addAlert(e.message || "Nepavyko atnaujinti projekto nuotraukos", "error");
+        addAlert(e.message || "Failed to update the fish photo.", "error");
       }
     }
 
-    if (fotoSendSuccess && dataSendSuccess) {
+    if (spriteSendSuccess && dataSendSuccess) {
       loadData();
       setEditMode(false);
     }
   };
 
   const cancelEdit = () => {
-    setGamesId(data.games_id);
+    setGamesId(data.gamesId);
     setName(data.name);
     setDescription(data.description);
     setRarity(data.rarity);
     setEditMode(false);
-    setFotoName('');
-    setFotoFile(null);
-    setProjectFoto(foto ? `/api/images/projects/` + foto : null);
+    setSpriteName('');
+    setSpriteFile(null);
+    setFishSprite(sprite ? `/api/images/fish/` + sprite : null);
   }
 
   const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
@@ -170,13 +170,13 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
       <td className={classes}>
         <div className="relative"> 
           <Typography variant="small" color="blue-gray" className="font-normal">
-            {foto_element}
+            {sprite_element}
           </Typography>
 
           {editMode ? (
           <input
             type="file"
-            value={fotoName}
+            value={spriteName}
             onChange={handleFileChange}
             className="form-control position-absolute top-50 start-50 translate-middle"
             style={{ width: "58px" }}

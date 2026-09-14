@@ -65,18 +65,18 @@ export function DialogNewFish({loadData}) {
     // jei yra nuotrauka, įkelti ją atskirai
     if (sprite) {
       const formData = new FormData();
-      formData.append("foto", foto);
-      const responseFoto = await fetch(`/api/projects/${createdFish.id}/foto`, {
+      formData.append("sprite", sprite);
+      const responseSprite = await fetch(`/api/fishes/${createdFish._id}/sprite`, {
         method: "PUT",
         body: formData,
       });
 
-      if (!responseFoto.ok) {
-        addAlert("Klaida įkeliant projekto nuotrauką", "error");
+      if (!responseSprite.ok) {
+        addAlert("Error uploading the fish photo", "error");
         return;
       }
 
-      addAlert("Projekto nuotrauka įkelta", "success");
+      addAlert("Photo of the fish uploaded.", "success");
     }
 
     // atnaujiname projektų sąrašą

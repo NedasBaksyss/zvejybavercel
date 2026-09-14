@@ -22,6 +22,8 @@ services:
       - "3000:3000"
     environment:
       - MONGO_URI=mongodb://mongodb:27017/zvejyba
+    volumes:
+      - ./api/public/images/fish:/app/public/images/fish
     depends_on:
       - mongodb
 
