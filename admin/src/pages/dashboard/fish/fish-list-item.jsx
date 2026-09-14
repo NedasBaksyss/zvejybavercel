@@ -12,10 +12,13 @@ import {
 import { useState, useContext } from "react";
 import { AuthContext, AlertContext } from "@/context";
 import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { fishRarities } from "./fish-fields";
 
 export function FishListItem({data, isLast, rows, setRows, error, setError, loadData}) {
   const { _id, foto} = data;
 
+  const [id, setId] = useState(data._id)
+  const [gamesId, setGamesId] = useState(data.gamesId)
   const [name, setName] = useState(data.name);
   const [description, setDescription] = useState(data.description);
   const [rarity, setRarity] = useState(data.rarity);
@@ -63,9 +66,9 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       loadData();
-      addAlert("Projektas sėkmingai ištrintas", "success");
+      addAlert("Fish successfully deleted.", "success");
     } catch (e) {
-      addAlert(e.message || "Nepavyko ištrinti projekto", "error");
+      addAlert(e.message || "Failed to delete the fish.", "error");
     } 
   };
 
@@ -75,33 +78,35 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
 
     // surenkame duomenis
     const updatedData = {
-      title,
+      gamesId,
+      name,
       description,
-      sort_order,
-      publish_date: new Date(publish_date).toLocaleDateString(),
+      rarity
     };
 
     // jei laukeliai tušti, pranešame klaidą
-    if (!updatedData.title || !updatedData.description || updatedData.sort_order === "" || !updatedData.publish_date) {
-      addAlert("Užpildykite visus laukelius prieš pateikdami", "error");
+    if (!updatedData.gamesId || !updatedData.name || !updatedData.description || !updatedData.rarity) {
+      addAlert("Fill in all fields before submitting.", "error");
       return;
     }
 
+    console.log(updatedData)
+
     // dumenų siuntimas
     try {
-      const res = await fetch(`/api/projects/${id}`, {
+      const res = await fetch(`/api/fishes/${id}`, {
         method: "PUT",
         headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` 
+          "Content-Type": "application/json"
+          // "Authorization": `Bearer ${token}` 
         },
         body: JSON.stringify(updatedData),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      addAlert("Projektas sėkmingai atnaujintas", "success");
+      addAlert("The fish has been successfully updated.", "success");
       dataSendSuccess = true;
     } catch (e) {
-      addAlert(e.message || "Nepavyko atnaujinti projekto", "error");
+      addAlert(e.message || "Failed to update fish", "error");
     }
 
     // nuotraukos siuntimas, jei pasirinkta
@@ -112,9 +117,9 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
       try {
         const res = await fetch(`/api/projects/${id}/foto`, {
           method: "PUT",
-          headers: { 
-            "Authorization": `Bearer ${token}` 
-          },
+          // headers: { 
+          //   "Authorization": `Bearer ${token}` 
+          // },
           body: formData,
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -132,10 +137,10 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
   };
 
   const cancelEdit = () => {
-    setTitle(data.title);
+    setGamesId(data.games_id);
+    setName(data.name);
     setDescription(data.description);
-    setSortOrder(data.sort_order);
-    setPublishDate(data.publish_date);
+    setRarity(data.rarity);
     setEditMode(false);
     setFotoName('');
     setFotoFile(null);
@@ -148,9 +153,18 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
     <tr className={confirmDelete ? "bg-red-100" : ""}>
       <td className={classes}>
         <div className=""> 
-          <Typography variant="small" color="blue-gray" className="font-normal">
-            {_id}
-          </Typography>
+          {editMode ? (
+            <Input 
+              type="text" 
+              label="Id"
+              value={gamesId} 
+              onChange={(e) => setGamesId(e.target.value)} 
+            />
+          ) : (
+            <Typography variant="small" color="blue-gray" className="font-normal">
+              {gamesId}
+            </Typography>
+          )}
         </div>
       </td>
       <td className={classes}>
@@ -204,31 +218,14 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
           )}
         </div>
       </td>
-      {/* <td className={classes}>
-        <div className=""> 
-          {editMode ? (
-            <Input 
-              type="date" 
-              label="Publikavimo data"
-              value={publish_date ? publish_date.split('T')[0] : ''} 
-              onChange={(e) => setPublishDate(e.target.value)} 
-            />
-          ) : (
-            <Typography variant="small" color="blue-gray" className="font-normal">
-              {local_publish_date}
-            </Typography>
-          )}
-        </div>
-      </td> */}
       <td className={classes}>
         <div className=""> 
           {editMode ? (
-            <Input 
-              type="text" 
-              label="Rarity"
-              value={rarity} 
-              onChange={(e) => setSortOrder(e.target.value)} 
-            />
+              <Select label="Rarity" size="lg" value={rarity} onChange={(value) => setRarity(value)}>
+                {fishRarities.map((r) => (
+                  <Option key={r} value={r} >{r}</Option>
+                ))}
+              </Select>
           ) : (
             <Typography variant="small" color="blue-gray" className="font-normal">
               {rarity}
@@ -239,12 +236,12 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
 
       {confirmDelete ? (
       <td className={classes}>
-        <Tooltip content="Patvirtinti trynimą">
+        <Tooltip content="Confirm deletion">
           <IconButton variant="text" className="bg-red-300 hover:bg-red-500 text-white mr-2" onClick={handleDelete}>
             <CheckIcon className="h-4 w-4" />
           </IconButton>
         </Tooltip>
-        <Tooltip content="Atšaukti trynimą">
+        <Tooltip content="Cancel deletion">
           <IconButton variant="text" onClick={() => setConfirmDelete(false)}>
             <XMarkIcon className="h-4 w-4" />
           </IconButton>
@@ -253,12 +250,12 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
       ) : 
       editMode ? (
       <td className={classes}>
-        <Tooltip content="Patvirtinti redagavimą">
+        <Tooltip content="Confirm edit">
           <IconButton variant="text" className="text-green-500 hover:text-green-700 mr-2" onClick={confirmEdit}>
             <CheckIcon className="h-4 w-4" />
           </IconButton>
         </Tooltip>
-        <Tooltip content="Atšaukti redagavimą">
+        <Tooltip content="Cancel editing">
           <IconButton variant="text" onClick={cancelEdit}>
             <XMarkIcon className="h-4 w-4" />
           </IconButton>
@@ -267,12 +264,12 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
       )
       : (
       <td className={classes}>
-        <Tooltip content="Redaguoti">
+        <Tooltip content="Edit">
           <IconButton variant="text" className="mr-2" onClick={() => setEditMode(true)}>
             <PencilIcon className="h-4 w-4" />
           </IconButton>
         </Tooltip>
-        <Tooltip content="Trinti">
+        <Tooltip content="Delete">
           <IconButton variant="text" onClick={() => setConfirmDelete(true)}>
             <TrashIcon className="h-4 w-4 text-red-500" />
           </IconButton>

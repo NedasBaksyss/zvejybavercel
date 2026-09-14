@@ -23,7 +23,7 @@ function prepareFishData(body, creating = false) {
     throw new Error("Žuvies pavadinimas yra privalomas");
   }
 
-  const textFields = ["name", "rarity"];
+  const textFields = ["gamesId", "name", "description", "rarity"];
 
   for (const field of textFields) {
     if (body[field] !== undefined) {
@@ -32,26 +32,6 @@ function prepareFishData(body, creating = false) {
       }
 
       fish[field] = body[field].trim();
-    }
-  }
-
-  const numberFields = [
-    "minWeight",
-    "maxWeight",
-    "baseValue",
-    "experienceReward",
-    "coin_value",
-  ];
-
-  for (const field of numberFields) {
-    if (body[field] !== undefined) {
-      const number = Number(body[field]);
-
-      if (!Number.isFinite(number) || number < 0) {
-        throw new Error(`Laukas ${field} turi būti teigiamas skaičius`);
-      }
-
-      fish[field] = number;
     }
   }
 

@@ -17,7 +17,7 @@ import { AlertContext } from "@/context";
 import FishListItem from "./fish-list-item";
 import DialogNewFish from "./dialog-new-fish";
 
-const TABLE_HEAD = ["#", "Sprite", "Name", "Description", "Rarity", "Edit"];
+const TABLE_HEAD = ["Id", "Sprite", "Name", "Description", "Rarity", "Edit"];
 
 export function FishList() {
   const [rows, setRows] = useState([]);            // fetched members
