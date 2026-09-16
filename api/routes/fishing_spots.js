@@ -66,7 +66,7 @@ function prepareFishData(body, creating = false) {
     throw new Error("The name of the fishing spot is mandatory.");
   }
 
-  const textFields = ["mapId", "name", "description"];
+  const textFields = ["mapId", "name", "description", "world"];
 
   for (const field of textFields) {
     if (body[field] !== undefined) {
@@ -233,7 +233,7 @@ router.put("/:id/sprite", async function (req, res) {
     const uploadedFoto = await uploadFile(
       req,
       "sprite",
-      "images/fish",
+      "images/fishing-spot",
       req.params.id
     );
 

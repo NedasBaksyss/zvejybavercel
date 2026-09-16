@@ -23,7 +23,7 @@ const TABS = [
   { label: "Hell", value: "hell" }
 ];
 
-const TABLE_HEAD = ["MapId", "Sprite", "World", "Name", "Description", "Edit"];
+const TABLE_HEAD = ["MapId", "Sprite", "Name", "Description",  "World", "Possible fishes", "Edit"];
 
 export function FishingSpotList() {
   const [rows, setRows] = useState([]);            // fetched members

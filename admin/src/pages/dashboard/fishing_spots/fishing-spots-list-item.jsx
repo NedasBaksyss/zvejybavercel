@@ -19,9 +19,10 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
   const { _id, sprite} = data;
 
   const [id, setId] = useState(data._id)
-  const [mapId, setMapsId] = useState(data.mapId)
+  const [mapId, setMapId] = useState(data.mapId)
   const [name, setName] = useState(data.name);
   const [description, setDescription] = useState(data.description);
+  const [world, setWorld] = useState(data.world);
 
   const [spriteName, setSpriteName] = useState("");
   const [spriteFile, setSpriteFile] = useState();
@@ -81,10 +82,11 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
       mapId,
       name,
       description,
+      world
     };
 
     // jei laukeliai tušti, pranešame klaidą
-    if (!updatedData.mapId || !updatedData.name || !updatedData.description) {
+    if (!updatedData.mapId || !updatedData.name || !updatedData.world) {
       addAlert("Fill in all fields before submitting.", "error");
       return;
     }
@@ -137,6 +139,7 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
     setMapId(data.mapId);
     setName(data.name);
     setDescription(data.description);
+    setWorld(data.world);
     setEditMode(false);
     setSpriteName('');
     setSpriteFile(null);
@@ -208,6 +211,21 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
           ) : (
             <Typography variant="small" color="blue-gray" className="font-normal">
               {description}
+            </Typography>
+          )}
+        </div>
+      </td>
+      <td className={classes}>
+        <div className=""> 
+          {editMode ? (
+              <Select label="World" size="lg" value={world} onChange={(value) => setWorld(value)}>
+                {fishingWorld.map((r) => (
+                  <Option key={r} value={r} >{r}</Option>
+                ))}
+              </Select>
+          ) : (
+            <Typography variant="small" color="blue-gray" className="font-normal">
+              {world}
             </Typography>
           )}
         </div>
