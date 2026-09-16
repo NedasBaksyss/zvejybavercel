@@ -322,12 +322,17 @@ export function createMapRenderer(canvas, getLanguage) {
     ctx.restore();
   }
 
-  function drawFishingScene(time, cast) {
+  function drawFishingScene(time, fishing) {
     const waterTop = 282;
-    const bobberX = 548 + Math.sin(time * 0.7) * 7;
-    const bobberY = 386 + Math.sin(time * 1.8) * 2;
-    const lineX = cast ? bobberX : 454;
-    const lineY = cast ? bobberY : 230;
+    const cast = fishing?.cast;
+    const target = fishing?.target || { x: 548, y: 386 };
+    const bobberX = target.x + Math.sin(time * 0.7) * 7;
+    const bobberY = target.y + Math.sin(time * 1.8) * 2;
+    const castAmount = cast
+      ? Math.min(1, Math.max(0, (time - fishing.startedAt) / 0.45))
+      : 0;
+    const lineX = mix(454, bobberX, castAmount);
+    const lineY = mix(230, bobberY, castAmount);
     const sky = ctx.createLinearGradient(0, 0, 0, waterTop);
     sky.addColorStop(0, "#173346");
     sky.addColorStop(1, "#a9b8a1");
@@ -384,12 +389,12 @@ export function createMapRenderer(canvas, getLanguage) {
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(409, 384);
-    ctx.lineTo(lineX, lineY);
+    ctx.lineTo(454, 230);
     ctx.stroke();
     ctx.strokeStyle = "#d2e1d3aa";
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(418, 173);
+    ctx.moveTo(454, 230);
     ctx.quadraticCurveTo(470, 245, lineX, lineY);
     ctx.stroke();
     if (cast) {
@@ -419,7 +424,7 @@ export function createMapRenderer(canvas, getLanguage) {
 
   function drawDestination(location, time, state) {
     if (location.type === "lake") {
-      drawFishingScene(time, state.fishing?.cast);
+      drawFishingScene(time, state.fishing);
       return;
     }
     const sky = ctx.createLinearGradient(0, 0, 0, 320);

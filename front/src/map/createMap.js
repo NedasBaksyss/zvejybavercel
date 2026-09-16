@@ -56,7 +56,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     destination: null,
   });
   let state = freshState();
-  let fishing = { cast: false, startedAt: 0 };
+  let fishing = { cast: false, startedAt: 0, target: null };
   const isGlobe = () => state.targetZoom < GLOBE_SWITCH;
   const on = (element, event, fn, options = {}) =>
     element.addEventListener(event, fn, {
@@ -126,7 +126,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     clearInput();
     state.player = { ...place.entry };
     state.destination = place;
-    fishing = { cast: false, startedAt: 0 };
+    fishing = { cast: false, startedAt: 0, target: null };
     save();
     updateHud(true);
     emit("enterLocation", {
@@ -142,10 +142,15 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     $("map-return").focus({ preventScroll: true });
     return true;
   }
-  function toggleFishing() {
+  function toggleFishing(target = null) {
     if (!active || !state.destination || state.destination.type !== "lake")
       return false;
-    fishing = { cast: !fishing.cast, startedAt: performance.now() };
+    const cast = !fishing.cast;
+    fishing = {
+      cast,
+      startedAt: performance.now() / 1000,
+      target: target || fishing.target,
+    };
     updateHud(true);
     emit(fishing.cast ? "castLine" : "reelLine", {
       id: state.destination.id,
@@ -167,7 +172,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     if (!state.destination) return false;
     const locationId = state.destination.id;
     state.destination = null;
-    fishing = { cast: false, startedAt: 0 };
+    fishing = { cast: false, startedAt: 0, target: null };
     state.camera = { ...state.player };
     clearInput();
     save();
@@ -427,7 +432,8 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
   on(canvas, "click", (event) => {
     if (!active || !state.destination || state.destination.type !== "lake")
       return;
-    if (point(event).y >= 282) toggleFishing();
+    const target = point(event);
+    if (target.y >= 282) toggleFishing(target);
   });
   on($("map-plus"), "click", () => setZoom(state.targetZoom * 1.3));
   on($("map-minus"), "click", () => setZoom(state.targetZoom / 1.3));
@@ -510,7 +516,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     reset() {
       clearInput();
       state = freshState();
-      fishing = { cast: false, startedAt: 0 };
+      fishing = { cast: false, startedAt: 0, target: null };
       save();
       updateHud(true);
     },
