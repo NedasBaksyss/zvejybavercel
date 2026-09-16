@@ -28,6 +28,28 @@ export function DialogNewFish({loadData}) {
 
   const {addAlert, hideAllAlerts} = useContext(AlertContext);
 
+  const [spriteName, setSpriteName] = useState("");
+  const [fishSprite, setFishSprite] = useState(sprite ? `/api/images/fish/` + sprite : null);
+
+    const sprite_element = fishSprite ? (<img src={fishSprite} alt="Sprite" className="h-12 w-12 object-cover" /> 
+  ) : (
+    <div className="h-12 w-12 flex items-center justify-center bg-gray-200">
+      <span className="text-gray-500 text-sm">X</span>
+    </div>
+  );
+
+  function handleFileChange(e) {
+    setSpriteName(e.target.value);
+    setSprite(e.target.files[0]);
+
+    // atvaizduojame naują nuotrauką iš karto
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setFishSprite(event.target.result);
+    };
+    reader.readAsDataURL(e.target.files[0]);    
+  }
+
   const handleOpen = () => setOpen(!open);
 
   // projekto kūrimo logika čia
@@ -108,7 +130,10 @@ export function DialogNewFish({loadData}) {
           <Input label="ID" size="lg" value={gamesId} onChange={(e) => setGamesId(e.target.value)} />
           <Input label="Name" size="lg" value={name} onChange={(e) => setName(e.target.value)} />
           <Textarea label="Description" size="lg" value={description} onChange={(e) => setDescription(e.target.value)} />
-          <Input type="file" label="Sprite" size="lg" onChange={(e) => setSprite(e.target.files[0])} />
+          <Typography variant="small" color="blue-gray" className="font-normal">
+            {sprite_element}
+          </Typography>
+          <Input type="file" label="Sprite" size="lg" value={spriteName} onChange={handleFileChange} />
           <Select label="Rarity" size="lg" value={rarity} onChange={(value) => setRarity(value)}>
             {fishRarities.map((r) => (
               <Option key={r} value={r} >{r}</Option>
