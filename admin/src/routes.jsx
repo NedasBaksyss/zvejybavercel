@@ -8,7 +8,7 @@ import {
   ServerStackIcon,
   RectangleStackIcon,
 } from "@heroicons/react/24/solid";
-import { Home, Profile, UserList, FishList} from "@/pages/dashboard";
+import { Home, Profile, UserList, FishList, FishingSpotList} from "@/pages/dashboard";
 import { SignIn, SignUp, SignOut } from "@/pages/auth";
 import { Notifications, Components, ProfileExample, Tables, Sorting } from "@/pages/demo";
 
@@ -18,7 +18,7 @@ const icon = {
 
 export const routes = [
   {
-    title: "Administravimas",
+    title: "Admin",
     layout: "admin",
     pages: [
       {
@@ -26,12 +26,6 @@ export const routes = [
         name: "dashboard",
         path: "/home",
         element: <Home />,
-      },
-      {
-        icon: <SparklesIcon {...icon} />,
-        name: "Fishes",
-        path: "/fishes",
-        element: <FishList />,
       }
       // ,
       // {
@@ -46,7 +40,25 @@ export const routes = [
       //   path: "/paskyra",
       //   element: <Profile />,
       // },
-    ]
+  ]},
+  {
+      title: "Games",
+      layout: "admin",
+      pages: [
+      {
+        icon: <SparklesIcon {...icon} />,
+        name: "Fishes",
+        path: "/fishes",
+        element: <FishList />,
+      },
+      {
+        icon: <TableCellsIcon {...icon} />,
+        name: "Fishing Spots",
+        path: "/fishingspots",
+        element: <FishingSpotList />,
+      }
+      ]
+  },
     // ,
   // },
   // {
@@ -108,7 +120,6 @@ export const routes = [
   //       element: <Sorting />,
   //     },
   //   ],
-  },
 ];
 
 export default routes;
