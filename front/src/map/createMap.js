@@ -109,8 +109,14 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     updateHud(true);
   }
   function showLocal() {
+    if (state.destination) leaveLocation();
     state.camera = { ...state.player };
     setZoom(LOCAL_ZOOM);
+    canvas.focus({ preventScroll: true });
+  }
+  function showGlobe() {
+    if (state.destination) leaveLocation();
+    setZoom(MIN_ZOOM);
     canvas.focus({ preventScroll: true });
   }
   function enterLocation(id) {
@@ -257,7 +263,8 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
         : region;
     $("map-local").setAttribute("aria-pressed", String(!isGlobe()));
     $("map-globe").setAttribute("aria-pressed", String(isGlobe()));
-    $("map-local").disabled = $("map-globe").disabled = !!state.destination;
+    $("map-local").disabled = false;
+    $("map-globe").disabled = false;
     $("map-zoom-value").textContent =
       `${Math.round((state.zoom / LOCAL_ZOOM) * 100)}%`;
     $("map-plus").disabled = state.targetZoom >= MAX_ZOOM;
@@ -437,7 +444,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
   });
   on($("map-plus"), "click", () => setZoom(state.targetZoom * 1.3));
   on($("map-minus"), "click", () => setZoom(state.targetZoom / 1.3));
-  on($("map-globe"), "click", () => setZoom(MIN_ZOOM));
+  on($("map-globe"), "click", showGlobe);
   on($("map-local"), "click", showLocal);
   on($("map-center"), "click", showLocal);
   on($("map-pause"), "click", () => {
