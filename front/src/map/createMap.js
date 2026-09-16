@@ -445,7 +445,6 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
           y: state.player.y + dy * dt * speed,
         });
         const before = { ...state.player };
-        // Resolve axes separately so walking along a shoreline does not stick.
         if (renderer.terrain.canWalk(next.x, state.player.y))
           state.player.x = next.x;
         if (renderer.terrain.canWalk(state.player.x, next.y))
