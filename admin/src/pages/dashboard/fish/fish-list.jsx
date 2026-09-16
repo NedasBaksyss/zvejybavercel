@@ -17,12 +17,22 @@ import { AlertContext } from "@/context";
 import FishListItem from "./fish-list-item";
 import DialogNewFish from "./dialog-new-fish";
 
+const TABS = [
+  { label: "All", value: "all" },
+  { label: "Common", value: "common" },
+  { label: "Uncommon", value: "uncommon" },
+  { label: "Rare", value: "rare" },
+  { label: "Epic", value: "epic" },
+  { label: "Legendary", value: "legendary" }
+];
+
 const TABLE_HEAD = ["GamesId", "Sprite", "Name", "Description", "Rarity", "Edit"];
 
 export function FishList() {
   const [rows, setRows] = useState([]);            // fetched members
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [tab, setTab] = useState("all"); 
   const [q, setQ] = useState("");                  // search query
   const [roleList, setRoleList] = useState(["admin", "user"]);     // rolių sąrašas
 
@@ -72,6 +82,22 @@ export function FishList() {
   loadData();
   }, []);
 
+    // filter + search (case-insensitive)
+  const filtered = useMemo(() => {
+    // filter by tab
+    const byTab = tab === "all" ? rows : rows.filter((r) => r.rarity === tab);
+
+    // filter by search
+    const term = q.trim().toLowerCase();
+    if (!term) return byTab;
+
+    return byTab.filter((r) =>
+      [r.gamesId]
+        .filter(Boolean)
+        .some((v) => v.toLowerCase().includes(term))
+    );
+  }, [rows, tab, q]);
+
   return (
     <div>
     <Card className="h-full w-full">
@@ -86,6 +112,27 @@ export function FishList() {
             </Typography>
           </div>
           <DialogNewFish loadData={loadData} />
+        </div>
+
+        <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+          <Tabs value={tab} className="w-full md:w-max">
+            <TabsHeader>
+              {TABS.map(({ label, value }) => (
+                <Tab key={value} value={value} onClick={() => setTab(value)}>
+                  &nbsp;&nbsp;{label}&nbsp;&nbsp;
+                </Tab>
+              ))}
+            </TabsHeader>
+          </Tabs>
+
+          <div className="w-full md:w-72">
+            <Input
+              label="Search"
+              icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
+          </div>
         </div>
       </CardHeader>
 
@@ -122,9 +169,9 @@ export function FishList() {
               </tr>
             </thead>
             <tbody>
-              {roleList.length > 0 && rows.map(
+              {roleList.length > 0 && filtered.map(
                 (data, index) => {
-                  const isLast = index === rows.length - 1;
+                  const isLast = index === filtered.length - 1;
                   
                   return (
                     <FishListItem 
@@ -140,7 +187,7 @@ export function FishList() {
                   );
                 }
               )}
-              {rows.length === 0 && (
+              {filtered.length === 0 && (
                 <tr>
                   <td className="p-4 text-sm text-blue-gray-500" colSpan={TABLE_HEAD.length}>
                     The fish list is empty.

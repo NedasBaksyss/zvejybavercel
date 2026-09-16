@@ -2,6 +2,7 @@ import {
   ListBulletIcon,
   HomeIcon,
   UserCircleIcon,
+  SparklesIcon,
   TableCellsIcon,
   InformationCircleIcon,
   ServerStackIcon,
@@ -27,7 +28,7 @@ export const routes = [
         element: <Home />,
       },
       {
-        icon: <ListBulletIcon {...icon} />,
+        icon: <SparklesIcon {...icon} />,
         name: "Fishes",
         path: "/fishes",
         element: <FishList />,
