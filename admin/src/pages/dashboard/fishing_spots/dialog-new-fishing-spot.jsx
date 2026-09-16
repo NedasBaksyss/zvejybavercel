@@ -14,7 +14,7 @@ import {
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { useContext } from "react";
 import { AlertContext } from "@/context";
-import { fishRarities } from "./fishing-spot-fields";
+import { fishingWorld } from "./fishing-spot-fields";
 
 export function DialogNewFishingSpot({loadData}) {
   const [open, setOpen] = useState(false);
@@ -24,7 +24,7 @@ export function DialogNewFishingSpot({loadData}) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [sprite, setSprite] = useState(null);
-  const [rarity, setRarity] = useState("");
+  const [world, setWorld] = useState("");
 
   const {addAlert, hideAllAlerts} = useContext(AlertContext);
 
@@ -52,7 +52,7 @@ export function DialogNewFishingSpot({loadData}) {
     setMapId("")
     setName("");
     setDescription("");
-    setRarity("");
+    setWorld("");
 
     setSprite(null);
     setFishSprite(null);
@@ -74,7 +74,7 @@ export function DialogNewFishingSpot({loadData}) {
       mapId,
       name,
       description,
-      rarity
+      world
     };
     // siunčiame į API
     const response = await fetch("/api/fishes", {
@@ -135,7 +135,7 @@ export function DialogNewFishingSpot({loadData}) {
         Create
       </Button>
       <Dialog open={open} handler={handleOpen}>
-        <DialogHeader>Add new fish</DialogHeader>
+        <DialogHeader>Add new fishing spot</DialogHeader>
         <DialogBody className="flex flex-col gap-4">
           <div className="flex flex-row p-5 justify-center items-center">
             <div className="font-normal shrink-0 overflow-hidden">
@@ -146,8 +146,8 @@ export function DialogNewFishingSpot({loadData}) {
           <Input label="ID" size="md" value={mapId} onChange={(e) => setMapId(e.target.value)} />
           <Input label="Name" size="md" value={name} onChange={(e) => setName(e.target.value)} />
           <Textarea label="Description" size="md" value={description} onChange={(e) => setDescription(e.target.value)} />
-          <Select label="Rarity" size="md" value={rarity} onChange={(value) => setRarity(value)}>
-            {fishRarities.map((r) => (
+          <Select label="World" size="md" value={world} onChange={(value) => setWorld(value)}>
+            {fishingWorld.map((r) => (
               <Option key={r} value={r} >{r}</Option>
             ))}
           </Select>

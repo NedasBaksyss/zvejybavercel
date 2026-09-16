@@ -12,7 +12,7 @@ import {
 import { useState, useContext } from "react";
 import { AuthContext, AlertContext } from "@/context";
 import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon, FingerPrintIcon } from "@heroicons/react/24/outline";
-import { fishRarities } from "./fishing-spot-fields";
+import { fishingWorld } from "./fishing-spot-fields";
 import DialogViewId from "./dialog-view-id";
 
 export function FishingSpotListItem({data, isLast, rows, setRows, error, setError, loadData}) {
