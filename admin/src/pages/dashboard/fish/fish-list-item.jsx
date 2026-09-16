@@ -91,8 +91,6 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
       return;
     }
 
-    console.log(updatedData)
-
     // dumenų siuntimas
     try {
       const res = await fetch(`/api/fishes/${id}`, {

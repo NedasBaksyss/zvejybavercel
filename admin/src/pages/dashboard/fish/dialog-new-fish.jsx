@@ -138,15 +138,15 @@ export function DialogNewFish({loadData}) {
         <DialogHeader>Add new fish</DialogHeader>
         <DialogBody className="flex flex-col gap-4">
           <div className="flex flex-row p-5 justify-center items-center">
-            <Typography variant="lg" color="blue-gray" className="font-norma shrink-0 overflow-hidden">
+            <div className="font-normal shrink-0 overflow-hidden">
               {sprite_element}
-            </Typography>
+            </div>
             <Input type="file" label="Sprite" size="lg" onChange={handleFileChange} />
           </div>
-          <Input label="ID" size="small" value={gamesId} onChange={(e) => setGamesId(e.target.value)} />
-          <Input label="Name" size="small" value={name} onChange={(e) => setName(e.target.value)} />
-          <Textarea label="Description" size="small" value={description} onChange={(e) => setDescription(e.target.value)} />
-          <Select label="Rarity" size="small" value={rarity} onChange={(value) => setRarity(value)}>
+          <Input label="ID" size="md" value={gamesId} onChange={(e) => setGamesId(e.target.value)} />
+          <Input label="Name" size="md" value={name} onChange={(e) => setName(e.target.value)} />
+          <Textarea label="Description" size="md" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <Select label="Rarity" size="md" value={rarity} onChange={(value) => setRarity(value)}>
             {fishRarities.map((r) => (
               <Option key={r} value={r} >{r}</Option>
             ))}
