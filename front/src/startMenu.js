@@ -8,6 +8,7 @@ import { createAuthController } from "./authController";
 import { createChoiceList } from "./components/choiceList";
 import { createFontGuard } from "./components/fontGuard";
 import { createGameHooks } from "./components/gameHooks";
+import { createMap } from "./map/createMap";
 
 export function startMenu(root) {
   let alive = true;
@@ -138,11 +139,16 @@ export function startMenu(root) {
     getSlot: () => slot,
   });
   const Hooks = gameHooks.hooks;
+  const map = createMap({
+    root,
+    getLanguage: () => Store.get("lang"),
+    getSlot: () => slot,
+    emit: (event, data) => Hooks.emit(event, data),
+    onPause: () => UI.go("pause"),
+  });
   let pendingOwner = null;
   let settingsBack = "title";
   let askMode = "new";
-  const tripOwner = () =>
-    !slot ? "" : slot.owner === "guest" ? t().guest : slot.owner;
 
   const MENU = [
     { id: "play", key: "play", hidden: () => !!slot },
@@ -361,17 +367,17 @@ export function startMenu(root) {
     },
   });
   function paintGame() {
-    const L = t();
-    $("game-line").textContent = L.gameLine;
-    $("game-who").textContent = L.gameWho(tripOwner());
+    map.applyLanguage();
   }
   UI.register("game", {
     el: "s-game",
     back: "pause",
     enter() {
       paintGame();
+      map.enter();
       Hooks.emit("start", { slot, player, settings: Store.all() });
     },
+    exit: () => map.exit(),
     key() {},
   });
 
@@ -481,11 +487,12 @@ export function startMenu(root) {
         what.textContent = L.ready;
         Sound.confirm();
         slot = { owner: pendingOwner || "guest", at: Date.now() };
+        map.reset();
         Hooks.emit("newTrip", { slot, settings: Store.all() });
         sel = 0;
         later(() => {
           paintMenu();
-          UI.go("title");
+          UI.go("game");
         }, 760);
         return;
       }
@@ -512,7 +519,6 @@ export function startMenu(root) {
     $("bye-body").innerText = L.byeBody;
     $("hint-ask").textContent = L.hintBack;
     $("hint-pause").textContent = L.hintBack;
-    $("hint-game").textContent = L.hintGame;
     paintMenu();
     const n = UI.now();
     if (n === "settings") settings.paint();
@@ -523,6 +529,11 @@ export function startMenu(root) {
   function onKey(e) {
     const s = Screens[UI.now()];
     if (e.key === "Escape") {
+      if (UI.now() === "game" && map.back()) {
+        e.preventDefault();
+        Sound.back();
+        return;
+      }
       if (!s || s.back === undefined) return;
       Sound.back();
       UI.go(typeof s.back === "function" ? s.back() : s.back);
@@ -556,6 +567,7 @@ export function startMenu(root) {
 
   return () => {
     alive = false;
+    map.stop();
     scene.stop();
     timers.forEach(clearTimeout);
     timers.clear();
