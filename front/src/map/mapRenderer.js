@@ -371,7 +371,8 @@ export function createMapRenderer(canvas, getLanguage) {
     ctx.lineTo(485, VIEW.height);
     ctx.lineTo(0, VIEW.height);
     ctx.fill();
-    for (let i = 0; i < 18; i++) drawTree(ctx, i * 22 - 18, 458 + (i % 3) * 10, 2.6);
+    for (let i = 0; i < 18; i++)
+      drawTree(ctx, i * 22 - 18, 458 + (i % 3) * 10, 2.6);
     ctx.fillStyle = "#9e865e";
     ctx.fillRect(155, 410, 300, 17);
     ctx.fillRect(185, 427, 9, 70);
@@ -395,7 +396,15 @@ export function createMapRenderer(canvas, getLanguage) {
       const ripple = (time * 18) % 38;
       ctx.strokeStyle = "#c5e5d780";
       ctx.beginPath();
-      ctx.ellipse(bobberX, bobberY + 4, 12 + ripple, 4 + ripple * 0.22, 0, 0, 7);
+      ctx.ellipse(
+        bobberX,
+        bobberY + 4,
+        12 + ripple,
+        4 + ripple * 0.22,
+        0,
+        0,
+        7,
+      );
       ctx.stroke();
       ctx.fillStyle = "#d4574e";
       ctx.fillRect(bobberX - 2, bobberY - 6, 4, 10);
