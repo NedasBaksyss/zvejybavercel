@@ -244,7 +244,9 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
         ? "globe"
         : "map";
     $("map-heading").textContent = state.destination
-      ? L[state.destination.type]
+      ? state.destination.type === "lake"
+        ? state.destination.name[language()]
+        : L[state.destination.type]
       : isGlobe()
         ? L.world
         : region;
@@ -282,6 +284,10 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     $("map-enter").hidden = !nearby;
     $("map-enter").dataset.target = place.id;
     $("map-destination").hidden = !state.destination;
+    $("map-destination").classList.toggle(
+      "fishing-mode",
+      state.destination?.type === "lake",
+    );
     for (const button of root.querySelectorAll("[data-place]"))
       button.setAttribute(
         "aria-pressed",
@@ -417,6 +423,11 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
   on(canvas, "pointercancel", clearInput);
   on(canvas, "lostpointercapture", () => {
     drag = null;
+  });
+  on(canvas, "click", (event) => {
+    if (!active || !state.destination || state.destination.type !== "lake")
+      return;
+    if (point(event).y >= 282) toggleFishing();
   });
   on($("map-plus"), "click", () => setZoom(state.targetZoom * 1.3));
   on($("map-minus"), "click", () => setZoom(state.targetZoom / 1.3));

@@ -354,6 +354,9 @@
   color: #14292a;
   border-color: #d7b77c;
 }
+.zv .atlas-destination.fishing-mode .atlas-destination-card {
+  display: none;
+}
 .zv .atlas-destination #map-fish-action {
   margin-top: 10px;
   background: #7eb6a1;
