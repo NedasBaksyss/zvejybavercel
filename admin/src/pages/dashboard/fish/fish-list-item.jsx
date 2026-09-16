@@ -11,8 +11,9 @@ import {
 
 import { useState, useContext } from "react";
 import { AuthContext, AlertContext } from "@/context";
-import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon, FingerPrintIcon } from "@heroicons/react/24/outline";
 import { fishRarities } from "./fish-fields";
+import DialogViewId from "./dialog-view-id";
 
 export function FishListItem({data, isLast, rows, setRows, error, setError, loadData}) {
   const { _id, sprite} = data;
@@ -274,6 +275,7 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
             <TrashIcon className="h-4 w-4 text-red-500" />
           </IconButton>
         </Tooltip>
+        <DialogViewId data={data}/>
       </td>
       )}
     </tr>
