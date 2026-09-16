@@ -374,4 +374,145 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
       state.longitude -= dx * 0.007;
       state.latitude = clamp(state.latitude + dy * 0.007, -1.3, 1.3);
     }
+    drag.x = p.x;
+    drag.y = p.y;
+  });
+  on(canvas, "pointerup", (event) => {
+    if (!drag) return;
+    if (!drag.moved) {
+      const p = point(event);
+      const id = renderer?.hitTest(p.x, p.y);
+      if (id) selectLocation(id);
+    }
+    clearInput();
+  });
+  on(canvas, "pointercancel", clearInput);
+  on(canvas, "lostpointercapture", () => {
+    drag = null;
+  });
+  on($("map-plus"), "click", () => setZoom(state.targetZoom * 1.3));
+  on($("map-minus"), "click", () => setZoom(state.targetZoom / 1.3));
+  on($("map-globe"), "click", () => setZoom(MIN_ZOOM));
+  on($("map-local"), "click", showLocal);
+  on($("map-center"), "click", showLocal);
+  on($("map-pause"), "click", () => {
+    if (active) onPause();
+  });
+  on($("map-enter"), "click", () => interact($("map-enter").dataset.target));
+  on($("map-return"), "click", leaveLocation);
+  on($("map-places-toggle"), "click", () => setLocationsOpen(!locationsOpen));
+  on($("map-places-close"), "click", () => setLocationsOpen(false, true));
+  for (const button of root.querySelectorAll("[data-place]"))
+    on(button, "click", () => selectLocation(button.dataset.place));
 
+  function frame(now) {
+    if (!active || stopped) return;
+    const dt = Math.min((now - lastTime) / 1000, 0.05);
+    lastTime = now;
+    state.zoom = mix(
+      state.zoom,
+      state.targetZoom,
+      reducedMotion.matches ? 1 : 1 - Math.exp(-dt * 6),
+    );
+    if (Math.abs(state.zoom - state.targetZoom) < 0.001)
+      state.zoom = state.targetZoom;
+    state.moving = false;
+    if (!state.destination && state.zoom >= GLOBE_START && !isGlobe()) {
+      let dx =
+        Number(keys.has("KeyD") || keys.has("ArrowRight")) -
+        Number(keys.has("KeyA") || keys.has("ArrowLeft"));
+      let dy =
+        Number(keys.has("KeyS") || keys.has("ArrowDown")) -
+        Number(keys.has("KeyW") || keys.has("ArrowUp"));
+      const length = Math.hypot(dx, dy);
+      if (length) {
+        dx /= length;
+        dy /= length;
+        state.direction =
+          Math.abs(dx) > Math.abs(dy)
+            ? dx > 0
+              ? "right"
+              : "left"
+            : dy > 0
+              ? "down"
+              : "up";
+        const speed =
+          keys.has("ShiftLeft") || keys.has("ShiftRight")
+            ? RUN_SPEED
+            : WALK_SPEED;
+        const next = renderer.terrain.clampPosition({
+          x: state.player.x + dx * dt * speed,
+          y: state.player.y + dy * dt * speed,
+        });
+        const before = { ...state.player };
+        // Resolve axes separately so walking along a shoreline does not stick.
+        if (renderer.terrain.canWalk(next.x, state.player.y))
+          state.player.x = next.x;
+        if (renderer.terrain.canWalk(state.player.x, next.y))
+          state.player.y = next.y;
+        state.moving =
+          before.x !== state.player.x || before.y !== state.player.y;
+        save();
+      }
+      state.camera = followCamera(state.camera, state.player, state.zoom);
+    }
+    renderer.draw(
+      { ...state, locationsOpen },
+      reducedMotion.matches ? 0 : now / 1000,
+    );
+    if (now - lastHudTime > 100) {
+      updateHud();
+      lastHudTime = now;
+    }
+    frameId = requestAnimationFrame(frame);
+  }
+  return {
+    applyLanguage,
+    reset() {
+      clearInput();
+      state = freshState();
+      save();
+      updateHud(true);
+    },
+    enter() {
+      if (stopped || active) return;
+      renderer ||= createMapRenderer(canvas, language);
+      active = true;
+      root.classList.add("atlas-active");
+      clearInput();
+      applyLanguage();
+      lastTime = performance.now();
+      frameId = requestAnimationFrame(frame);
+      (state.destination ? $("map-return") : canvas).focus({
+        preventScroll: true,
+      });
+    },
+    exit() {
+      active = false;
+      cancelAnimationFrame(frameId);
+      clearInput();
+      save();
+      root.classList.remove("atlas-active");
+    },
+    back() {
+      if (leaveLocation()) return true;
+      if (locationsOpen) {
+        setLocationsOpen(false, true);
+        return true;
+      }
+      return false;
+    },
+    getState: () => ({
+      ...state,
+      locationsOpen,
+      player: { ...state.player },
+      camera: { ...state.camera },
+    }),
+    stop() {
+      this.exit();
+      stopped = true;
+      controller.abort();
+      renderer?.terrain.dispose();
+    },
+  };
+}
