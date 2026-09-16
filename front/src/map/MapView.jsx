@@ -49,6 +49,7 @@ export default function MapView() {
           <h2 id="map-destination-name" />
           <p id="map-destination-description" />
           <h3 id="map-content-title" /><p id="map-content" />
+          <button type="button" id="map-fish-action" hidden />
           <button type="button" id="map-return" />
         </div>
       </section>

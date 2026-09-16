@@ -51,4 +51,5 @@
 .zv .atlas-destination p { color: #b8caba; font-size: 8px; line-height: 1.6; }
 .zv .atlas-destination h3 { font-size: 6px; font-weight: 500; color: #d5c699; letter-spacing: 1.4px; margin: 14px 0 3px; }
 .zv .atlas-destination button { width: 100%; margin-top: 16px; padding: 7px 6px; background: #d7b77c; color: #14292a; border-color: #d7b77c; }
+.zv .atlas-destination #map-fish-action { margin-top: 10px; background: #7eb6a1; border-color: #9ed2b5; }
 .zv.atlas-active #build { display: none; }

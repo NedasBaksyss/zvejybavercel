@@ -322,7 +322,97 @@ export function createMapRenderer(canvas, getLanguage) {
     ctx.restore();
   }
 
-  function drawDestination(location, time) {
+  function drawFishingScene(time, cast) {
+    const waterTop = 282;
+    const bobberX = 548 + Math.sin(time * 0.7) * 7;
+    const bobberY = 386 + Math.sin(time * 1.8) * 2;
+    const lineX = cast ? bobberX : 454;
+    const lineY = cast ? bobberY : 230;
+    const sky = ctx.createLinearGradient(0, 0, 0, waterTop);
+    sky.addColorStop(0, "#173346");
+    sky.addColorStop(1, "#a9b8a1");
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, VIEW.width, waterTop);
+    ctx.fillStyle = "#557c75";
+    for (let i = 0; i < 7; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * 170 - 100, 282);
+      ctx.lineTo(i * 170 + 8, 165 + (i % 3) * 22);
+      ctx.lineTo(i * 170 + 150, 282);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#31583f";
+    ctx.fillRect(0, 268, VIEW.width, 22);
+    for (let i = 0; i < 35; i++) {
+      ctx.fillStyle = i % 2 ? "#234d3b" : "#376847";
+      ctx.fillRect(i * 29, 252 - (i % 4) * 5, 5, 25);
+      ctx.fillRect(i * 29 - 5, 259 - (i % 4) * 5, 15, 3);
+    }
+    const water = ctx.createLinearGradient(0, waterTop, 0, VIEW.height);
+    water.addColorStop(0, "#629b9c");
+    water.addColorStop(1, "#163f57");
+    ctx.fillStyle = water;
+    ctx.fillRect(0, waterTop, VIEW.width, VIEW.height - waterTop);
+    for (let i = 0; i < 60; i++) {
+      const y = 300 + ((i * 31) % 220);
+      ctx.fillStyle = i % 3 ? "#b0d6c442" : "#87b9b75e";
+      ctx.fillRect(
+        (i * 137 + Math.sin(time * 0.7 + i) * 8) % VIEW.width,
+        y,
+        12 + (i % 6) * 5,
+        2,
+      );
+    }
+    ctx.fillStyle = "#344c37";
+    ctx.beginPath();
+    ctx.moveTo(0, 440);
+    ctx.lineTo(170, 400);
+    ctx.lineTo(325, 443);
+    ctx.lineTo(485, VIEW.height);
+    ctx.lineTo(0, VIEW.height);
+    ctx.fill();
+    for (let i = 0; i < 18; i++) drawTree(ctx, i * 22 - 18, 458 + (i % 3) * 10, 2.6);
+    ctx.fillStyle = "#9e865e";
+    ctx.fillRect(155, 410, 300, 17);
+    ctx.fillRect(185, 427, 9, 70);
+    ctx.fillRect(412, 427, 9, 70);
+    ctx.fillStyle = "#67583e";
+    for (let x = 162; x < 450; x += 16) ctx.fillRect(x, 410, 2, 17);
+    drawCharacter(385, 405, time, false, "right");
+    ctx.strokeStyle = "#2a1f2c";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(409, 384);
+    ctx.lineTo(lineX, lineY);
+    ctx.stroke();
+    ctx.strokeStyle = "#d2e1d3aa";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(418, 173);
+    ctx.quadraticCurveTo(470, 245, lineX, lineY);
+    ctx.stroke();
+    if (cast) {
+      const ripple = (time * 18) % 38;
+      ctx.strokeStyle = "#c5e5d780";
+      ctx.beginPath();
+      ctx.ellipse(bobberX, bobberY + 4, 12 + ripple, 4 + ripple * 0.22, 0, 0, 7);
+      ctx.stroke();
+      ctx.fillStyle = "#d4574e";
+      ctx.fillRect(bobberX - 2, bobberY - 6, 4, 10);
+      ctx.fillStyle = "#ffdca8";
+      ctx.fillRect(bobberX - 2, bobberY - 8, 4, 3);
+    }
+    ctx.fillStyle = "#d8b97e";
+    ctx.fillRect(35, 44, 3, 3);
+    ctx.fillRect(48, 72, 2, 2);
+    ctx.fillRect(815, 58, 3, 3);
+  }
+
+  function drawDestination(location, time, state) {
+    if (location.type === "lake") {
+      drawFishingScene(time, state.fishing?.cast);
+      return;
+    }
     const sky = ctx.createLinearGradient(0, 0, 0, 320);
     sky.addColorStop(0, "#173346");
     sky.addColorStop(1, "#a9b8a1");
@@ -428,7 +518,7 @@ export function createMapRenderer(canvas, getLanguage) {
       ctx.clearRect(0, 0, VIEW.width, VIEW.height);
       ctx.imageSmoothingEnabled = false;
       if (state.destination) {
-        drawDestination(state.destination, time);
+        drawDestination(state.destination, time, state);
         return;
       }
       ctx.fillStyle = "#091922";
