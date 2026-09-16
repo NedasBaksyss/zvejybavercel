@@ -169,7 +169,7 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
         </div>
       </td>
       <td className={classes}>
-        <div className="relative"> 
+        <div className=""> 
           <Typography variant="small" color="blue-gray" className="font-normal">
             {sprite_element}
           </Typography>
@@ -179,8 +179,6 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
             type="file"
             value={spriteName}
             onChange={handleFileChange}
-            className="form-control position-absolute top-50 start-50 translate-middle"
-            style={{ width: "58px" }}
           />
           ) : null}
 

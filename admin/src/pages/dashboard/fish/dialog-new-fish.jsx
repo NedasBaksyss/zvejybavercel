@@ -28,18 +28,16 @@ export function DialogNewFish({loadData}) {
 
   const {addAlert, hideAllAlerts} = useContext(AlertContext);
 
-  const [spriteName, setSpriteName] = useState("");
   const [fishSprite, setFishSprite] = useState(sprite ? `/api/images/fish/` + sprite : null);
 
-    const sprite_element = fishSprite ? (<img src={fishSprite} alt="Sprite" className="h-12 w-12 object-cover" /> 
+    const sprite_element = fishSprite ? (<img src={fishSprite} alt="Sprite" className="h-[160px] w-[160px] [image-rendering:pixelated] m-5 border-2 border-gray-600 rounded " /> 
   ) : (
-    <div className="h-12 w-12 flex items-center justify-center bg-gray-200">
-      <span className="text-gray-500 text-sm">X</span>
+    <div className="h-[160px] w-[160px] flex items-center justify-center bg-gray-200 border-2 border-gray-600 rounded m-5">
+      <span className="text-gray-500 text-lg">X</span>
     </div>
   );
 
   function handleFileChange(e) {
-    setSpriteName(e.target.value);
     setSprite(e.target.files[0]);
 
     // atvaizduojame naują nuotrauką iš karto
@@ -47,10 +45,26 @@ export function DialogNewFish({loadData}) {
     reader.onload = (event) => {
       setFishSprite(event.target.result);
     };
-    reader.readAsDataURL(e.target.files[0]);    
+    reader.readAsDataURL(e.target.files[0]); 
   }
 
-  const handleOpen = () => setOpen(!open);
+  function handleClear() {
+    setGamesId("")
+    setName("");
+    setDescription("");
+    setRarity("");
+
+    setSprite(null);
+    setFishSprite(null);
+
+  }
+
+  const handleOpen = () => {
+    setOpen(!open);
+    if (open) {
+      handleClear()
+    }
+  }
 
   // projekto kūrimo logika čia
   const handleCreateFish = async () => {
@@ -105,11 +119,7 @@ export function DialogNewFish({loadData}) {
     loadData();
 
     // Išvvalome formos laukelius
-    setGamesId("")
-    setName("");
-    setDescription("");
-    setSprite(null);
-    setRarity("");
+    handleClear();
 
     handleOpen(); // uždaryti dialogą po kūrimo
   };
@@ -127,14 +137,16 @@ export function DialogNewFish({loadData}) {
       <Dialog open={open} handler={handleOpen}>
         <DialogHeader>Add new fish</DialogHeader>
         <DialogBody className="flex flex-col gap-4">
-          <Input label="ID" size="lg" value={gamesId} onChange={(e) => setGamesId(e.target.value)} />
-          <Input label="Name" size="lg" value={name} onChange={(e) => setName(e.target.value)} />
-          <Textarea label="Description" size="lg" value={description} onChange={(e) => setDescription(e.target.value)} />
-          <Typography variant="small" color="blue-gray" className="font-normal">
-            {sprite_element}
-          </Typography>
-          <Input type="file" label="Sprite" size="lg" value={spriteName} onChange={handleFileChange} />
-          <Select label="Rarity" size="lg" value={rarity} onChange={(value) => setRarity(value)}>
+          <div className="flex flex-row p-5 justify-center items-center">
+            <Typography variant="lg" color="blue-gray" className="font-norma shrink-0 overflow-hidden">
+              {sprite_element}
+            </Typography>
+            <Input type="file" label="Sprite" size="lg" onChange={handleFileChange} />
+          </div>
+          <Input label="ID" size="small" value={gamesId} onChange={(e) => setGamesId(e.target.value)} />
+          <Input label="Name" size="small" value={name} onChange={(e) => setName(e.target.value)} />
+          <Textarea label="Description" size="small" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <Select label="Rarity" size="small" value={rarity} onChange={(value) => setRarity(value)}>
             {fishRarities.map((r) => (
               <Option key={r} value={r} >{r}</Option>
             ))}
