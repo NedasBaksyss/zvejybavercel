@@ -207,4 +207,252 @@ export function createMapRenderer(canvas, getLanguage) {
     }
     sphereCtx.putImageData(sphereImage, 0, 0);
   }
+  function drawGlobe(state, blend) {
+    const radius = mix(248, 204, blend);
+    bakeSphere(state.longitude, state.latitude);
+    ctx.save();
+    ctx.globalAlpha = blend;
+    const atmosphere = ctx.createRadialGradient(
+      center.x,
+      center.y,
+      radius - 5,
+      center.x,
+      center.y,
+      radius + 20,
+    );
+    atmosphere.addColorStop(0, "#74c3d4a0");
+    atmosphere.addColorStop(0.5, "#3c9eb537");
+    atmosphere.addColorStop(1, "#25617900");
+    ctx.fillStyle = atmosphere;
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, radius + 20, 0, 7);
+    ctx.fill();
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(
+      sphere,
+      center.x - radius,
+      center.y - radius,
+      radius * 2,
+      radius * 2,
+    );
+    ctx.strokeStyle = "#9ebf9950";
+    ctx.lineWidth = 1;
+    for (let lat = -60; lat <= 60; lat += 30) {
+      ctx.beginPath();
+      let previous = false;
+      for (let lon = -180; lon <= 180; lon += 3) {
+        const p = globePoint(
+          {
+            x: ((lon + 180) / 360) * WORLD.width,
+            y: ((90 - lat) / 180) * WORLD.height,
+          },
+          state.longitude,
+          state.latitude,
+          radius,
+          center,
+        );
+        if (p.visible) {
+          if (previous) ctx.lineTo(p.x, p.y);
+          else ctx.moveTo(p.x, p.y);
+        }
+        previous = p.visible;
+      }
+      ctx.stroke();
+    }
+    for (let lon = -180; lon < 180; lon += 30) {
+      ctx.beginPath();
+      let previous = false;
+      for (let lat = -90; lat <= 90; lat += 3) {
+        const p = globePoint(
+          {
+            x: ((lon + 180) / 360) * WORLD.width,
+            y: ((90 - lat) / 180) * WORLD.height,
+          },
+          state.longitude,
+          state.latitude,
+          radius,
+          center,
+        );
+        if (p.visible) {
+          if (previous) ctx.lineTo(p.x, p.y);
+          else ctx.moveTo(p.x, p.y);
+        }
+        previous = p.visible;
+      }
+      ctx.stroke();
+    }
+    for (const place of LOCATIONS) {
+      const p = globePoint(
+        place,
+        state.longitude,
+        state.latitude,
+        radius,
+        center,
+      );
+      if (!p.visible) continue;
+      const selected = state.selectedId === place.id;
+      ctx.shadowColor = place.type === "shop" ? "#f1bc78" : "#8edbd0";
+      ctx.shadowBlur = selected ? 14 : 6;
+      ctx.fillStyle = selected
+        ? "#ffe0a0"
+        : place.type === "shop"
+          ? "#eab881"
+          : "#9cdcca";
+      ctx.fillRect(Math.round(p.x) - 3, Math.round(p.y) - 3, 6, 6);
+      ctx.shadowBlur = 0;
+      if (selected)
+        label(place.name[getLanguage()], p.x, p.y - 32, "#f2dca9", true);
+      if (blend > 0.6)
+        markerHits.push({ id: place.id, x: p.x, y: p.y, radius: 12 });
+    }
+    const player = globePoint(
+      state.player,
+      state.longitude,
+      state.latitude,
+      radius,
+      center,
+    );
+    if (player.visible) {
+      ctx.strokeStyle = "#ffdf94";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, 7, 0, 7);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
 
+  function drawDestination(location, time) {
+    const sky = ctx.createLinearGradient(0, 0, 0, 320);
+    sky.addColorStop(0, "#173346");
+    sky.addColorStop(1, "#a9b8a1");
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, VIEW.width, VIEW.height);
+    ctx.fillStyle = "#dad9aa";
+    ctx.fillRect(153, 113, 42, 40);
+    for (let i = 0; i < 9; i++) {
+      ctx.fillStyle = i % 2 ? "#4d736b" : "#608780";
+      ctx.beginPath();
+      ctx.moveTo(i * 140 - 90, 279);
+      ctx.lineTo(i * 140 + 10, 164 + (i % 3) * 19);
+      ctx.lineTo(i * 140 + 143, 280);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#466644";
+    ctx.fillRect(0, 246, VIEW.width, VIEW.height);
+    for (let i = 0; i < 66; i++)
+      drawTree(ctx, i * 16, 273 + Math.sin(i * 2) * 9, 1.4 + (i % 4) * 0.25);
+    if (location.type === "shop") {
+      ctx.fillStyle = "#84956a";
+      ctx.fillRect(0, 300, 960, 240);
+      ctx.fillStyle = "#c1b183";
+      ctx.beginPath();
+      ctx.moveTo(250, 375);
+      ctx.lineTo(340, 375);
+      ctx.lineTo(485, 540);
+      ctx.lineTo(155, 540);
+      ctx.fill();
+      drawShop(ctx, 291, 339, 5.4);
+      for (let i = 0; i < 7; i++)
+        drawTree(ctx, 46 + i * 74, 430 + Math.sin(i) * 55, 2.2);
+      drawCharacter(313, 454, time, false, "up");
+    } else {
+      const water = ctx.createLinearGradient(0, 281, 0, 540);
+      water.addColorStop(0, "#629b9c");
+      water.addColorStop(1, "#163f57");
+      ctx.fillStyle = water;
+      ctx.fillRect(0, 282, 960, 258);
+      if (location.type === "river") {
+        ctx.fillStyle = "#648558";
+        ctx.beginPath();
+        ctx.moveTo(0, 280);
+        ctx.lineTo(200, 285);
+        ctx.lineTo(420, 540);
+        ctx.lineTo(0, 540);
+        ctx.fill();
+      }
+      if (location.type === "waterfall") {
+        ctx.fillStyle = "#5c7972";
+        ctx.fillRect(164, 227, 184, 88);
+        ctx.fillStyle = "#b5e2d6";
+        ctx.fillRect(214, 224, 54, 131);
+        ctx.fillStyle = "#e0efce";
+        for (let i = 0; i < 7; i++)
+          ctx.fillRect(218 + i * 7, 230 + Math.sin(time * 2 + i) * 4, 3, 119);
+        ctx.fillStyle = "#c5e5d780";
+        ctx.beginPath();
+        ctx.ellipse(241, 359, 68, 12, 0, 0, 7);
+        ctx.fill();
+      }
+      for (let i = 0; i < 85; i++) {
+        ctx.fillStyle = i % 3 ? "#b0d6c442" : "#87b9b75e";
+        ctx.fillRect(
+          (i * 113 + Math.sin(time + i) * 6) % 960,
+          296 + ((i * 19) % 230),
+          12 + (i % 7) * 4,
+          2,
+        );
+      }
+      ctx.fillStyle = "#344c37";
+      ctx.beginPath();
+      ctx.moveTo(0, 440);
+      ctx.lineTo(77, 410);
+      ctx.lineTo(162, 449);
+      ctx.lineTo(290, 540);
+      ctx.lineTo(0, 540);
+      ctx.fill();
+      ctx.fillStyle = "#9e865e";
+      ctx.fillRect(98, 416, 228, 16);
+      ctx.fillRect(130, 432, 8, 48);
+      ctx.fillRect(302, 432, 8, 45);
+      ctx.fillStyle = "#67583e";
+      for (let x = 105; x < 326; x += 13) ctx.fillRect(x, 416, 2, 16);
+      drawCharacter(275, 406, time, false, "right");
+      for (let i = 0; i < 10; i++)
+        drawTree(ctx, i * 15 - 15, 462 + (i % 3) * 10, 2.8);
+    }
+  }
+
+  return {
+    terrain,
+    hitTest(x, y) {
+      return markerHits
+        .filter((pin) => Math.hypot(pin.x - x, pin.y - y) < pin.radius)
+        .sort(
+          (a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y),
+        )[0]?.id;
+    },
+    draw(state, time) {
+      center.x = state.locationsOpen ? 392 : 480;
+      markerHits = [];
+      ctx.clearRect(0, 0, VIEW.width, VIEW.height);
+      ctx.imageSmoothingEnabled = false;
+      if (state.destination) {
+        drawDestination(state.destination, time);
+        return;
+      }
+      ctx.fillStyle = "#091922";
+      ctx.fillRect(0, 0, VIEW.width, VIEW.height);
+      for (let i = 0; i < 92; i++) {
+        ctx.fillStyle = i % 3 ? "#345765" : "#89afb3";
+        ctx.fillRect(
+          (i * 197 + 53) % VIEW.width,
+          (i * 71 + 89) % VIEW.height,
+          i % 5 === 0 ? 2 : 1,
+          1,
+        );
+      }
+      const blend = smooth(
+        (GLOBE_START - state.zoom) / (GLOBE_START - GLOBE_END),
+      );
+      if (blend < 1) drawFlat(state, time, blend);
+      if (blend > 0) drawGlobe(state, blend);
+      if (blend > 0.98) {
+        ctx.font = "11px ui-monospace, monospace";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#8daaa1";
+        ctx.fillText(text().globeNote, center.x, 509);
+      }
+    },
+  };
+}
