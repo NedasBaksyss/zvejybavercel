@@ -37,7 +37,7 @@ export function FishingSpotList() {
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
 
-  // Loading the fish list
+  // Loading the fishing spots list
   const loadData = async () => {
     try {
       setLoading(true);
@@ -180,6 +180,7 @@ export function FishingSpotList() {
                       error={error}
                       setError={setError}
                       loadData={loadData}
+                      fishData={loadFishData}
                     />
                   );
                 }

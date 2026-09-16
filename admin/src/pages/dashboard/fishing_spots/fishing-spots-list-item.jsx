@@ -14,6 +14,9 @@ import { AuthContext, AlertContext } from "@/context";
 import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon, FingerPrintIcon } from "@heroicons/react/24/outline";
 import { fishingWorld } from "./fishing-spot-fields";
 import DialogViewId from "./dialog-view-id";
+import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/solid";
+import DialogViewPossibleFishes from "./dialog-view-possible-fishes";
+import DialogEditPossible from "./dialog-edit-possible";
 
 export function FishingSpotListItem({data, isLast, rows, setRows, error, setError, loadData}) {
   const { _id, sprite} = data;
@@ -230,6 +233,13 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
           )}
         </div>
       </td>
+      <td className={classes}>
+        <div className="">
+          {editMode ? (<DialogEditPossible data={data}/>) : 
+          (<DialogViewPossibleFishes data={data}/>)}
+        </div>
+      </td>
+
 
       {confirmDelete ? (
       <td className={classes}>

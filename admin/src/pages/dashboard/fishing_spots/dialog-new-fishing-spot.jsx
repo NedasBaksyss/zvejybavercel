@@ -77,7 +77,7 @@ export function DialogNewFishingSpot({loadData}) {
       world
     };
     // siunčiame į API
-    const response = await fetch("/api/fishes", {
+    const response = await fetch("/api/fishingspots", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -86,33 +86,33 @@ export function DialogNewFishingSpot({loadData}) {
     });
     if (!response.ok) {
       // klaidos tvarkymas 
-      addAlert("Error creating the fish", "error");
+      addAlert("Error creating the fishing spot", "error");
       return;
     }
 
     const createdFish = await response.json();
     if (!createdFish || !createdFish._id) {
-      addAlert("Error retrieving the created fish", "error");
+      addAlert("Error retrieving the created fishing spot", "error");
       return;
     }
 
-    addAlert("Fish Created", "success");
+    addAlert("Fishing spot created", "success");
 
     // jei yra nuotrauka, įkelti ją atskirai
     if (sprite) {
       const formData = new FormData();
       formData.append("sprite", sprite);
-      const responseSprite = await fetch(`/api/fishes/${createdFish._id}/sprite`, {
+      const responseSprite = await fetch(`/api/fishing-spot/${createdFish._id}/sprite`, {
         method: "PUT",
         body: formData,
       });
 
       if (!responseSprite.ok) {
-        addAlert("Error uploading the fish photo", "error");
+        addAlert("Error uploading the fishing spot's sprite", "error");
         return;
       }
 
-      addAlert("Photo of the fish uploaded.", "success");
+      addAlert("Sprite of the fishing spot uploaded.", "success");
     }
 
     // atnaujiname projektų sąrašą

@@ -141,6 +141,7 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
     setDescription(data.description);
     setRarity(data.rarity);
     setEditMode(false);
+
     setSpriteName('');
     setSpriteFile(null);
     setFishSprite(sprite ? `/api/images/fish/` + sprite : null);

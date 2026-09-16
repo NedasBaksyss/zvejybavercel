@@ -16,7 +16,6 @@ import {
 import { PlusCircleIcon, FingerPrintIcon } from "@heroicons/react/24/outline";
 import { useContext } from "react";
 import { AlertContext } from "@/context";
-import { fishRarities } from "./fish-fields";
 
 export function DialogViewId({data}) {
   const [open, setOpen] = useState(false);
