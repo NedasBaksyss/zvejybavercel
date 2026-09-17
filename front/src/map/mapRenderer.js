@@ -349,8 +349,67 @@ export function createMapRenderer(canvas, getLanguage) {
     );
   }
 
+  function drawLakeCabin(x, y, scale = 1) {
+    ctx.fillStyle = "#18352f";
+    ctx.fillRect(x - 22 * scale, y - 12 * scale, 44 * scale, 18 * scale);
+    ctx.fillStyle = "#7d493f";
+    ctx.beginPath();
+    ctx.moveTo(x - 27 * scale, y - 12 * scale);
+    ctx.lineTo(x, y - 31 * scale);
+    ctx.lineTo(x + 27 * scale, y - 12 * scale);
+    ctx.fill();
+    ctx.fillStyle = "#a9614c";
+    ctx.fillRect(x - 24 * scale, y - 11 * scale, 48 * scale, 4 * scale);
+    ctx.fillStyle = "#f2b45c";
+    ctx.fillRect(x - 13 * scale, y - 5 * scale, 8 * scale, 8 * scale);
+    ctx.fillStyle = "#291d2b";
+    ctx.fillRect(x - 1 * scale, y - 3 * scale, 7 * scale, 9 * scale);
+    ctx.fillStyle = "#f2b45c";
+    ctx.fillRect(x + 14 * scale, y - 21 * scale, 3 * scale, 9 * scale);
+    ctx.fillStyle = "#45293a";
+    ctx.fillRect(x + 12 * scale, y - 23 * scale, 7 * scale, 3 * scale);
+  }
+
+  function drawLakeDock(x, y, width, scale = 1) {
+    ctx.fillStyle = "#241b2d";
+    ctx.fillRect(x, y, width, 7 * scale);
+    ctx.fillStyle = "#875145";
+    for (let plank = x + 3; plank < x + width - 3; plank += 12 * scale)
+      ctx.fillRect(plank, y, 7 * scale, 4 * scale);
+    ctx.fillStyle = "#101c24";
+    ctx.fillRect(x + 12 * scale, y + 7 * scale, 5 * scale, 30 * scale);
+    ctx.fillRect(x + width - 18 * scale, y + 7 * scale, 5 * scale, 30 * scale);
+    ctx.fillStyle = "#f2b45c";
+    ctx.fillRect(x + width - 24 * scale, y - 8 * scale, 5 * scale, 8 * scale);
+    ctx.fillStyle = "#7a453f";
+    ctx.fillRect(x + width - 25 * scale, y - 10 * scale, 7 * scale, 2 * scale);
+  }
+
+  function drawLakeIsland(x, y) {
+    ctx.fillStyle = "#102c29";
+    ctx.beginPath();
+    ctx.ellipse(x, y, 68, 15, 0, 0, 7);
+    ctx.fill();
+    ctx.fillStyle = "#1e4938";
+    ctx.beginPath();
+    ctx.ellipse(x, y - 4, 55, 11, 0, 0, 7);
+    ctx.fill();
+    const colors = {
+      trunk: "#10231f",
+      0: "#153b2e",
+      1: "#1c4b36",
+      2: "#286044",
+      highlight: "#43805a",
+    };
+    drawLakePine(x - 35, y - 5, 46, 15, colors);
+    drawLakePine(x - 9, y - 8, 64, 21, colors);
+    drawLakePine(x + 20, y - 3, 51, 17, colors);
+    drawLakePine(x + 43, y - 2, 34, 12, colors);
+  }
+
   function drawFishingScene(time, fishing) {
     const waterTop = 282;
+    const rodTip = { x: 326, y: 325 };
     const cast = fishing?.cast;
     const target = fishing?.target || { x: 548, y: 386 };
     const bobberX = target.x + Math.sin(time * 0.7) * 7;
@@ -358,8 +417,8 @@ export function createMapRenderer(canvas, getLanguage) {
     const castAmount = cast
       ? Math.min(1, Math.max(0, (time - fishing.startedAt) / 0.45))
       : 0;
-    const lineX = mix(454, bobberX, castAmount);
-    const lineY = mix(230, bobberY, castAmount);
+    const lineX = mix(rodTip.x, bobberX, castAmount);
+    const lineY = mix(rodTip.y, bobberY, castAmount);
     const sky = ctx.createLinearGradient(0, 0, 0, waterTop);
     sky.addColorStop(0, "#1a183a");
     sky.addColorStop(0.34, "#2e2157");
@@ -430,6 +489,27 @@ export function createMapRenderer(canvas, getLanguage) {
       );
     }
     ctx.globalAlpha = 1;
+    ctx.fillStyle = "#17352f";
+    ctx.fillRect(0, 286, VIEW.width, 10);
+    for (let i = 0; i < 28; i++)
+      drawLakePine(
+        i * 37 - 10,
+        293 + (i % 2) * 3,
+        18 + (i % 4) * 7,
+        7 + (i % 3) * 3,
+        {
+          trunk: "#102a25",
+          0: "#15392d",
+          1: "#1d4a35",
+          2: "#285b40",
+          highlight: "#3c7350",
+        },
+      );
+    drawLakeCabin(58, 294, 0.7);
+    drawLakeCabin(904, 294, 0.65);
+    drawLakeDock(5, 310, 175, 0.65);
+    drawLakeDock(795, 308, 165, 0.62);
+    drawLakeIsland(575, 345);
     for (let i = 0; i < 60; i++) {
       const y = 300 + ((i * 31) % 220);
       ctx.fillStyle = i % 3 ? "#8fa8c844" : "#e7dbf255";
@@ -440,6 +520,15 @@ export function createMapRenderer(canvas, getLanguage) {
         2,
       );
     }
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle = "#f2b45c";
+    for (const reflection of [58, 904]) {
+      for (let row = 0; row < 22; row += 5) {
+        const width = 4 + ((row / 5) % 3) * 5;
+        ctx.fillRect(reflection - width / 2, 320 + row, width, 2);
+      }
+    }
+    ctx.globalAlpha = 1;
     ctx.fillStyle = "#102b26";
     ctx.beginPath();
     ctx.moveTo(0, 440);
@@ -462,24 +551,19 @@ export function createMapRenderer(canvas, getLanguage) {
           highlight: "#2c6043",
         },
       );
-    ctx.fillStyle = "#0b0913";
-    ctx.fillRect(155, 410, 300, 17);
-    ctx.fillRect(185, 427, 9, 70);
-    ctx.fillRect(412, 427, 9, 70);
-    ctx.fillStyle = "#161327";
-    for (let x = 162; x < 450; x += 16) ctx.fillRect(x, 410, 2, 17);
-    drawCharacter(385, 405, time, false, "right");
+    drawLakeDock(40, 446, 200, 1.1);
+    drawCharacter(173, 441, time, false, "right");
     ctx.strokeStyle = "#241c30";
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(409, 384);
-    ctx.lineTo(454, 230);
+    ctx.moveTo(197, 420);
+    ctx.lineTo(rodTip.x, rodTip.y);
     ctx.stroke();
     ctx.strokeStyle = "#cfe0f0aa";
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(454, 230);
-    ctx.quadraticCurveTo(470, 245, lineX, lineY);
+    ctx.moveTo(rodTip.x, rodTip.y);
+    ctx.quadraticCurveTo(340, 335, lineX, lineY);
     ctx.stroke();
     if (cast) {
       const ripple = (time * 18) % 38;
