@@ -56,6 +56,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     destination: null,
   });
   let state = freshState();
+  let fishing = { cast: false, startedAt: 0, target: null };
   const isGlobe = () => state.targetZoom < GLOBE_SWITCH;
   const on = (element, event, fn, options = {}) =>
     element.addEventListener(event, fn, {
@@ -108,8 +109,14 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     updateHud(true);
   }
   function showLocal() {
+    if (state.destination) leaveLocation();
     state.camera = { ...state.player };
     setZoom(LOCAL_ZOOM);
+    canvas.focus({ preventScroll: true });
+  }
+  function showGlobe() {
+    if (state.destination) leaveLocation();
+    setZoom(MIN_ZOOM);
     canvas.focus({ preventScroll: true });
   }
   function enterLocation(id) {
@@ -125,6 +132,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     clearInput();
     state.player = { ...place.entry };
     state.destination = place;
+    fishing = { cast: false, startedAt: 0, target: null };
     save();
     updateHud(true);
     emit("enterLocation", {
@@ -138,6 +146,22 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
       slot: getSlot(),
     });
     $("map-return").focus({ preventScroll: true });
+    return true;
+  }
+  function toggleFishing(target = null) {
+    if (!active || !state.destination || state.destination.type !== "lake")
+      return false;
+    const cast = !fishing.cast;
+    fishing = {
+      cast,
+      startedAt: performance.now() / 1000,
+      target: target || fishing.target,
+    };
+    updateHud(true);
+    emit(fishing.cast ? "castLine" : "reelLine", {
+      id: state.destination.id,
+      slot: getSlot(),
+    });
     return true;
   }
   function interact(id) {
@@ -154,6 +178,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     if (!state.destination) return false;
     const locationId = state.destination.id;
     state.destination = null;
+    fishing = { cast: false, startedAt: 0, target: null };
     state.camera = { ...state.player };
     clearInput();
     save();
@@ -230,13 +255,16 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
         ? "globe"
         : "map";
     $("map-heading").textContent = state.destination
-      ? L[state.destination.type]
+      ? state.destination.type === "lake"
+        ? state.destination.name[language()]
+        : L[state.destination.type]
       : isGlobe()
         ? L.world
         : region;
     $("map-local").setAttribute("aria-pressed", String(!isGlobe()));
     $("map-globe").setAttribute("aria-pressed", String(isGlobe()));
-    $("map-local").disabled = $("map-globe").disabled = !!state.destination;
+    $("map-local").disabled = false;
+    $("map-globe").disabled = false;
     $("map-zoom-value").textContent =
       `${Math.round((state.zoom / LOCAL_ZOOM) * 100)}%`;
     $("map-plus").disabled = state.targetZoom >= MAX_ZOOM;
@@ -268,11 +296,16 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     $("map-enter").hidden = !nearby;
     $("map-enter").dataset.target = place.id;
     $("map-destination").hidden = !state.destination;
+    $("map-destination").classList.toggle(
+      "fishing-mode",
+      state.destination?.type === "lake",
+    );
     for (const button of root.querySelectorAll("[data-place]"))
       button.setAttribute(
         "aria-pressed",
         String(button.dataset.place === state.selectedId),
       );
+    $("map-fish-action").hidden = state.destination?.type !== "lake";
     if (state.destination) {
       const destination = state.destination;
       $("map-destination-name").textContent = destination.name[language()];
@@ -286,6 +319,12 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
           : destination.possibleFish
               .map((fish) => L.fishNames[fish] || fish)
               .join(" · ");
+      if (destination.type === "lake") {
+        $("map-content-title").textContent = fishing.cast
+          ? L.lineInWater
+          : L.lineReady;
+        $("map-fish-action").textContent = fishing.cast ? L.reel : L.cast;
+      }
     }
   }
   function keydown(event) {
@@ -312,6 +351,13 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     } else if (key === "KeyL" && !event.repeat && !state.destination) {
       event.preventDefault();
       setLocationsOpen(!locationsOpen);
+    } else if (
+      (key === "KeyE" || key === "Space") &&
+      !event.repeat &&
+      state.destination
+    ) {
+      event.preventDefault();
+      toggleFishing();
     } else if (key === "KeyE" && !event.repeat) {
       event.preventDefault();
       interact();
@@ -390,15 +436,22 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
   on(canvas, "lostpointercapture", () => {
     drag = null;
   });
+  on(canvas, "click", (event) => {
+    if (!active || !state.destination || state.destination.type !== "lake")
+      return;
+    const target = point(event);
+    if (target.y >= 282) toggleFishing(target);
+  });
   on($("map-plus"), "click", () => setZoom(state.targetZoom * 1.3));
   on($("map-minus"), "click", () => setZoom(state.targetZoom / 1.3));
-  on($("map-globe"), "click", () => setZoom(MIN_ZOOM));
+  on($("map-globe"), "click", showGlobe);
   on($("map-local"), "click", showLocal);
   on($("map-center"), "click", showLocal);
   on($("map-pause"), "click", () => {
     if (active) onPause();
   });
   on($("map-enter"), "click", () => interact($("map-enter").dataset.target));
+  on($("map-fish-action"), "click", toggleFishing);
   on($("map-return"), "click", leaveLocation);
   on($("map-places-toggle"), "click", () => setLocationsOpen(!locationsOpen));
   on($("map-places-close"), "click", () => setLocationsOpen(false, true));
@@ -456,7 +509,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
       state.camera = followCamera(state.camera, state.player, state.zoom);
     }
     renderer.draw(
-      { ...state, locationsOpen },
+      { ...state, fishing, locationsOpen },
       reducedMotion.matches ? 0 : now / 1000,
     );
     if (now - lastHudTime > 100) {
@@ -470,6 +523,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     reset() {
       clearInput();
       state = freshState();
+      fishing = { cast: false, startedAt: 0, target: null };
       save();
       updateHud(true);
     },
