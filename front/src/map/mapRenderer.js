@@ -350,9 +350,9 @@ export function createMapRenderer(canvas, getLanguage) {
   }
 
   function drawLakeCabin(x, y, scale = 1) {
-    ctx.fillStyle = "#18352f";
-    ctx.fillRect(x - 22 * scale, y - 12 * scale, 44 * scale, 18 * scale);
     ctx.fillStyle = "#7d493f";
+    ctx.fillRect(x - 22 * scale, y - 12 * scale, 44 * scale, 18 * scale);
+    ctx.fillStyle = "#7a2e3a";
     ctx.beginPath();
     ctx.moveTo(x - 27 * scale, y - 12 * scale);
     ctx.lineTo(x, y - 31 * scale);
@@ -490,7 +490,7 @@ export function createMapRenderer(canvas, getLanguage) {
     }
     ctx.globalAlpha = 1;
     ctx.fillStyle = "#17352f";
-    ctx.fillRect(0, 286, VIEW.width, 10);
+    ctx.fillRect(0, 282, VIEW.width, 28);
     for (let i = 0; i < 28; i++)
       drawLakePine(
         i * 37 - 10,
@@ -537,9 +537,11 @@ export function createMapRenderer(canvas, getLanguage) {
     ctx.lineTo(485, VIEW.height);
     ctx.lineTo(0, VIEW.height);
     ctx.fill();
-    for (let i = 0; i < 18; i++)
+    for (let i = 0; i < 18; i++) {
+      const treeX = i * 22 - 18;
+      if (treeX >= 22 && treeX <= 258) continue;
       drawLakePine(
-        i * 22 - 18,
+        treeX,
         470 + (i % 3) * 10,
         42 + (i % 4) * 8,
         18 + (i % 3) * 4,
@@ -551,6 +553,7 @@ export function createMapRenderer(canvas, getLanguage) {
           highlight: "#2c6043",
         },
       );
+    }
     drawLakeDock(40, 446, 200, 1.1);
     drawCharacter(173, 441, time, false, "right");
     ctx.strokeStyle = "#241c30";
@@ -591,11 +594,13 @@ export function createMapRenderer(canvas, getLanguage) {
   }
 
   function canCastAt(x, y) {
-    if (y < 282) return false;
+    if (y < 310) return false;
+    if ((x <= 180 && y <= 335) || (x >= 795 && y <= 333)) return false;
+    if (x >= 510 && x <= 640 && y >= 285 && y <= 355) return false;
     if (x < 170 && y >= 440 - (40 * x) / 170) return false;
     if (x < 325 && y >= 400 + (43 * (x - 170)) / 155) return false;
     if (x < 485 && y >= 443 + (97 * (x - 325)) / 160) return false;
-    if (x >= 155 && x <= 455 && y >= 410 && y <= 427) return false;
+    if (x >= 40 && x <= 240 && y >= 446 && y <= 490) return false;
     return true;
   }
 
