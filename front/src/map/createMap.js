@@ -440,7 +440,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     if (!active || !state.destination || state.destination.type !== "lake")
       return;
     const target = point(event);
-    if (target.y >= 282) toggleFishing(target);
+    if (renderer?.canCastAt(target.x, target.y)) toggleFishing(target);
   });
   on($("map-plus"), "click", () => setZoom(state.targetZoom * 1.3));
   on($("map-minus"), "click", () => setZoom(state.targetZoom / 1.3));

@@ -422,6 +422,15 @@ export function createMapRenderer(canvas, getLanguage) {
     ctx.fillRect(815, 58, 3, 3);
   }
 
+  function canCastAt(x, y) {
+    if (y < 282) return false;
+    if (x < 170 && y >= 440 - (40 * x) / 170) return false;
+    if (x < 325 && y >= 400 + (43 * (x - 170)) / 155) return false;
+    if (x < 485 && y >= 443 + (97 * (x - 325)) / 160) return false;
+    if (x >= 155 && x <= 455 && y >= 410 && y <= 427) return false;
+    return true;
+  }
+
   function drawDestination(location, time, state) {
     if (location.type === "lake") {
       drawFishingScene(time, state.fishing);
@@ -519,6 +528,7 @@ export function createMapRenderer(canvas, getLanguage) {
 
   return {
     terrain,
+    canCastAt,
     hitTest(x, y) {
       return markerHits
         .filter((pin) => Math.hypot(pin.x - x, pin.y - y) < pin.radius)
