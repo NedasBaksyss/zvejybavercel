@@ -322,6 +322,33 @@ export function createMapRenderer(canvas, getLanguage) {
     ctx.restore();
   }
 
+  function drawLakePine(x, baseY, height, width, colors) {
+    ctx.fillStyle = colors.trunk;
+    ctx.fillRect(Math.round(x - 2), Math.round(baseY - 4), 4, 10);
+    for (let layer = 0; layer < 3; layer++) {
+      const top = baseY - height + layer * height * 0.19;
+      const layerHeight = height * (0.55 + layer * 0.06);
+      ctx.fillStyle = colors[layer];
+      for (let row = 0; row < layerHeight; row += 3) {
+        const progress = row / layerHeight;
+        const halfWidth = Math.max(1, Math.round(width * progress * 0.5));
+        ctx.fillRect(
+          Math.round(x - halfWidth),
+          Math.round(top + row),
+          halfWidth * 2 + 1,
+          3,
+        );
+      }
+    }
+    ctx.fillStyle = colors.highlight;
+    ctx.fillRect(
+      Math.round(x - width * 0.22),
+      Math.round(baseY - height * 0.66),
+      2,
+      Math.max(3, Math.round(height * 0.2)),
+    );
+  }
+
   function drawFishingScene(time, fishing) {
     const waterTop = 282;
     const cast = fishing?.cast;
@@ -334,11 +361,29 @@ export function createMapRenderer(canvas, getLanguage) {
     const lineX = mix(454, bobberX, castAmount);
     const lineY = mix(230, bobberY, castAmount);
     const sky = ctx.createLinearGradient(0, 0, 0, waterTop);
-    sky.addColorStop(0, "#173346");
-    sky.addColorStop(1, "#a9b8a1");
+    sky.addColorStop(0, "#1a183a");
+    sky.addColorStop(0.34, "#2e2157");
+    sky.addColorStop(0.56, "#5b3a6b");
+    sky.addColorStop(0.74, "#a4506b");
+    sky.addColorStop(0.88, "#e0765a");
+    sky.addColorStop(0.97, "#f2b45c");
+    sky.addColorStop(1, "#ffdca8");
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, VIEW.width, waterTop);
-    ctx.fillStyle = "#557c75";
+    for (let i = 0; i < 42; i++) {
+      const x = (i * 173) % VIEW.width;
+      const y = 12 + ((i * 47) % 180);
+      ctx.fillStyle = i % 3 ? "#fff4d8" : "#ffdca8";
+      ctx.fillRect(x, y, i % 4 ? 2 : 3, i % 5 ? 2 : 3);
+    }
+    const sunX = 644;
+    const sunY = waterTop - 12;
+    for (let dy = -34; dy <= 34; dy++) {
+      const width = Math.floor(Math.sqrt(34 * 34 - dy * dy));
+      ctx.fillStyle = dy < 0 ? "#ffdca8" : "#f2b45c";
+      ctx.fillRect(sunX - width, sunY + dy, width * 2, 2);
+    }
+    ctx.fillStyle = "#2e2157";
     for (let i = 0; i < 7; i++) {
       ctx.beginPath();
       ctx.moveTo(i * 170 - 100, 282);
@@ -346,21 +391,48 @@ export function createMapRenderer(canvas, getLanguage) {
       ctx.lineTo(i * 170 + 150, 282);
       ctx.fill();
     }
-    ctx.fillStyle = "#31583f";
+    ctx.fillStyle = "#17352f";
     ctx.fillRect(0, 268, VIEW.width, 22);
-    for (let i = 0; i < 35; i++) {
-      ctx.fillStyle = i % 2 ? "#234d3b" : "#376847";
-      ctx.fillRect(i * 29, 252 - (i % 4) * 5, 5, 25);
-      ctx.fillRect(i * 29 - 5, 259 - (i % 4) * 5, 15, 3);
-    }
+    for (let i = 0; i < 30; i++)
+      drawLakePine(
+        i * 34 - 12,
+        283 + (i % 3) * 2,
+        25 + (i % 5) * 7,
+        9 + (i % 4) * 3,
+        {
+          trunk: "#102a25",
+          0: "#15392d",
+          1: "#1d4835",
+          2: "#26583f",
+          highlight: "#3c7350",
+        },
+      );
     const water = ctx.createLinearGradient(0, waterTop, 0, VIEW.height);
-    water.addColorStop(0, "#629b9c");
-    water.addColorStop(1, "#163f57");
+    water.addColorStop(0, "#2e3c66");
+    water.addColorStop(1, "#0c0f20");
     ctx.fillStyle = water;
     ctx.fillRect(0, waterTop, VIEW.width, VIEW.height - waterTop);
+    for (let y = waterTop + 4; y < VIEW.height; y += 5) {
+      const depth = (y - waterTop) / (VIEW.height - waterTop);
+      const width = Math.max(
+        2,
+        Math.round(
+          (4 + depth * 46) * (0.5 + Math.abs(Math.sin(y * 0.19 + time))),
+        ),
+      );
+      ctx.globalAlpha = (1 - depth) * 0.8;
+      ctx.fillStyle = depth < 0.45 ? "#f2b45c" : "#e0765a";
+      ctx.fillRect(
+        Math.round(sunX - width / 2 + Math.sin(y * 0.13 + time * 2) * 12),
+        y,
+        width,
+        2,
+      );
+    }
+    ctx.globalAlpha = 1;
     for (let i = 0; i < 60; i++) {
       const y = 300 + ((i * 31) % 220);
-      ctx.fillStyle = i % 3 ? "#b0d6c442" : "#87b9b75e";
+      ctx.fillStyle = i % 3 ? "#8fa8c844" : "#e7dbf255";
       ctx.fillRect(
         (i * 137 + Math.sin(time * 0.7 + i) * 8) % VIEW.width,
         y,
@@ -368,7 +440,7 @@ export function createMapRenderer(canvas, getLanguage) {
         2,
       );
     }
-    ctx.fillStyle = "#344c37";
+    ctx.fillStyle = "#102b26";
     ctx.beginPath();
     ctx.moveTo(0, 440);
     ctx.lineTo(170, 400);
@@ -377,21 +449,33 @@ export function createMapRenderer(canvas, getLanguage) {
     ctx.lineTo(0, VIEW.height);
     ctx.fill();
     for (let i = 0; i < 18; i++)
-      drawTree(ctx, i * 22 - 18, 458 + (i % 3) * 10, 2.6);
-    ctx.fillStyle = "#9e865e";
+      drawLakePine(
+        i * 22 - 18,
+        470 + (i % 3) * 10,
+        42 + (i % 4) * 8,
+        18 + (i % 3) * 4,
+        {
+          trunk: "#10231f",
+          0: "#102d27",
+          1: "#153b2e",
+          2: "#1c4935",
+          highlight: "#2c6043",
+        },
+      );
+    ctx.fillStyle = "#0b0913";
     ctx.fillRect(155, 410, 300, 17);
     ctx.fillRect(185, 427, 9, 70);
     ctx.fillRect(412, 427, 9, 70);
-    ctx.fillStyle = "#67583e";
+    ctx.fillStyle = "#161327";
     for (let x = 162; x < 450; x += 16) ctx.fillRect(x, 410, 2, 17);
     drawCharacter(385, 405, time, false, "right");
-    ctx.strokeStyle = "#2a1f2c";
+    ctx.strokeStyle = "#241c30";
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(409, 384);
     ctx.lineTo(454, 230);
     ctx.stroke();
-    ctx.strokeStyle = "#d2e1d3aa";
+    ctx.strokeStyle = "#cfe0f0aa";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(454, 230);
@@ -399,7 +483,7 @@ export function createMapRenderer(canvas, getLanguage) {
     ctx.stroke();
     if (cast) {
       const ripple = (time * 18) % 38;
-      ctx.strokeStyle = "#c5e5d780";
+      ctx.strokeStyle = "#cfe0f080";
       ctx.beginPath();
       ctx.ellipse(
         bobberX,
@@ -416,7 +500,7 @@ export function createMapRenderer(canvas, getLanguage) {
       ctx.fillStyle = "#ffdca8";
       ctx.fillRect(bobberX - 2, bobberY - 8, 4, 3);
     }
-    ctx.fillStyle = "#d8b97e";
+    ctx.fillStyle = "#ffdca8";
     ctx.fillRect(35, 44, 3, 3);
     ctx.fillRect(48, 72, 2, 2);
     ctx.fillRect(815, 58, 3, 3);
