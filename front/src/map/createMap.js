@@ -1,7 +1,6 @@
 import {
   WORLD,
   VIEW,
-  SPAWN,
   LOCAL_ZOOM,
   MIN_ZOOM,
   MAX_ZOOM,
@@ -11,9 +10,7 @@ import {
   RUN_SPEED,
   GLOBE_START,
   GLOBE_SWITCH,
-  regionName,
   LOCATIONS,
-  MAP_TEXT,
   clamp,
   mix,
   distanceTo,
@@ -21,14 +18,20 @@ import {
   followCamera,
 } from "./mapData.js";
 import { createMapRenderer } from "./mapRenderer.js";
+import { createMapSnapshot, createMapState } from "./mapState.js";
 
-export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
-  const $ = (id) => root.querySelector(`#${id}`);
-  const canvas = $("map-canvas");
+export function createMap({
+  canvas,
+  getLanguage,
+  getSlot,
+  emit,
+  onPause,
+  onChange,
+  onFocus,
+}) {
   const controller = new AbortController();
   const keys = new Set();
   const language = () => (getLanguage() === "LT" ? "LT" : "EN");
-  const text = () => MAP_TEXT[language()];
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
   let renderer = null,
     active = false,
@@ -36,26 +39,14 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     frameId = 0,
     lastTime = 0;
   let drag = null,
-    hudSignature = "",
-    lastHudTime = 0;
+    snapshot = null,
+    lastPublishTime = 0;
   const panelPreference = "zvejyba.map.locationsOpen";
   let locationsOpen = false;
   try {
     locationsOpen = localStorage.getItem(panelPreference) === "true";
   } catch {}
-  const freshState = () => ({
-    player: { ...SPAWN },
-    camera: { ...SPAWN },
-    zoom: LOCAL_ZOOM,
-    targetZoom: LOCAL_ZOOM,
-    longitude: (SPAWN.x / WORLD.width) * Math.PI * 2 - Math.PI,
-    latitude: Math.PI / 2 - (SPAWN.y / WORLD.height) * Math.PI,
-    moving: false,
-    direction: "down",
-    selectedId: "quiet-lake",
-    destination: null,
-  });
-  let state = freshState();
+  let state = createMapState();
   let fishing = { cast: false, startedAt: 0, target: null };
   const isGlobe = () => state.targetZoom < GLOBE_SWITCH;
   const on = (element, event, fn, options = {}) =>
@@ -82,22 +73,25 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
       };
   }
   function setLocationsOpen(open, focusToggle = false) {
+    if (!active || stopped) return;
     locationsOpen = open;
     clearInput();
     try {
       localStorage.setItem(panelPreference, String(open));
     } catch {}
-    updateHud(true);
-    if (focusToggle) $("map-places-toggle").focus({ preventScroll: true });
+    publish(true);
+    if (focusToggle) onFocus("places");
   }
   function selectLocation(id) {
-    state.selectedId = id;
+    if (!active || stopped) return;
     const place = LOCATIONS.find((item) => item.id === id);
+    if (!place) return;
+    state.selectedId = id;
     if (isGlobe() && place) {
       state.longitude = (place.x / WORLD.width) * Math.PI * 2 - Math.PI;
       state.latitude = Math.PI / 2 - (place.y / WORLD.height) * Math.PI;
     }
-    updateHud(true);
+    publish(true);
   }
   function setZoom(value) {
     if (state.destination || !active) return;
@@ -106,18 +100,20 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     if (reducedMotion.matches) state.zoom = state.targetZoom;
     if (state.targetZoom >= GLOBE_SWITCH && state.zoom < GLOBE_SWITCH)
       state.camera = { ...state.player };
-    updateHud(true);
+    publish(true);
   }
   function showLocal() {
+    if (!active || stopped) return;
     if (state.destination) leaveLocation();
     state.camera = { ...state.player };
     setZoom(LOCAL_ZOOM);
-    canvas.focus({ preventScroll: true });
+    onFocus("canvas");
   }
   function showGlobe() {
+    if (!active || stopped) return;
     if (state.destination) leaveLocation();
     setZoom(MIN_ZOOM);
-    canvas.focus({ preventScroll: true });
+    onFocus("canvas");
   }
   function enterLocation(id) {
     if (!active || state.destination || state.zoom < GLOBE_START || isGlobe())
@@ -126,7 +122,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     if (!place) return false;
     state.selectedId = place.id;
     if (distanceTo(state.player, place) > INTERACTION_DISTANCE) {
-      updateHud(true);
+      publish(true);
       return false;
     }
     clearInput();
@@ -134,7 +130,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     state.destination = place;
     fishing = { cast: false, startedAt: 0, target: null };
     save();
-    updateHud(true);
+    publish(true);
     emit("enterLocation", {
       id: place.id,
       mapId: "main_map",
@@ -145,7 +141,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
       possibleFish: [...place.possibleFish],
       slot: getSlot(),
     });
-    $("map-return").focus({ preventScroll: true });
+    onFocus(place.type === "lake" ? "canvas" : "return");
     return true;
   }
   function toggleFishing(target = null) {
@@ -157,7 +153,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
       startedAt: performance.now() / 1000,
       target: target || fishing.target,
     };
-    updateHud(true);
+    publish(true);
     emit(fishing.cast ? "castLine" : "reelLine", {
       id: state.destination.id,
       slot: getSlot(),
@@ -175,162 +171,51 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     );
   }
   function leaveLocation() {
-    if (!state.destination) return false;
+    if (!active || stopped || !state.destination) return false;
     const locationId = state.destination.id;
     state.destination = null;
     fishing = { cast: false, startedAt: 0, target: null };
     state.camera = { ...state.player };
     clearInput();
     save();
-    updateHud(true);
+    publish(true);
     emit("leaveLocation", {
       id: locationId,
       mapId: "main_map",
       slot: getSlot(),
     });
-    canvas.focus({ preventScroll: true });
+    onFocus("canvas");
     return true;
   }
   function applyLanguage() {
-    const L = text();
-    for (const [id, value] of Object.entries({
-      "map-eyebrow": L.title,
-      "map-local": L.map,
-      "map-globe": L.globe,
-      "map-places-title": L.places,
-      "map-list-hint": L.listHint,
-      "map-places-toggle-label": L.placesButton,
-      "map-enter": L.enter,
-      "map-return": L.back,
-      "map-arrived": L.arrived,
-    }))
-      $(id).textContent = value;
-    for (const [id, value] of Object.entries({
-      "map-plus": L.zoomIn,
-      "map-minus": L.zoomOut,
-      "map-center": L.focus,
-      "map-pause": L.pause,
-      "map-places-close": L.hidePlaces,
-    })) {
-      $(id).title = value;
-      $(id).setAttribute("aria-label", value);
-    }
-    canvas.setAttribute("aria-label", L.canvas);
-    for (const place of LOCATIONS) {
-      root.querySelector(`[data-place-name="${place.id}"]`).textContent =
-        place.name[language()];
-      root.querySelector(`[data-place-type="${place.id}"]`).textContent =
-        L[place.type];
-    }
-    updateHud(true);
+    publish(true);
   }
-  function updateHud(force = false) {
-    const L = text();
-    const nearest = nearestLocation(state.player);
-    const nearby =
-      state.zoom >= GLOBE_START &&
-      !isGlobe() &&
-      distanceTo(state.player, nearest) <= INTERACTION_DISTANCE;
-    const selected = LOCATIONS.find((place) => place.id === state.selectedId);
-    const place = nearby ? nearest : selected || nearest;
-    const distance = Math.round(distanceTo(state.player, place));
-    const region = regionName(state.player, language());
-    const signature = [
-      language(),
-      isGlobe(),
-      region,
+  function publish(force = false) {
+    if (stopped) return;
+    const next = createMapSnapshot(state, {
+      language: language(),
+      active,
       locationsOpen,
-      state.destination?.id,
-      place.id,
-      nearby,
-      state.selectedId,
-      distance,
-      Math.round(state.zoom * 100),
-    ].join("|");
-    if (!force && hudSignature === signature) return;
-    hudSignature = signature;
-    $("atlas").dataset.view = state.destination
-      ? "location"
-      : isGlobe()
-        ? "globe"
-        : "map";
-    $("map-heading").textContent = state.destination
-      ? state.destination.type === "lake"
-        ? state.destination.name[language()]
-        : L[state.destination.type]
-      : isGlobe()
-        ? L.world
-        : region;
-    $("map-local").setAttribute("aria-pressed", String(!isGlobe()));
-    $("map-globe").setAttribute("aria-pressed", String(isGlobe()));
-    $("map-local").disabled = false;
-    $("map-globe").disabled = false;
-    $("map-zoom-value").textContent =
-      `${Math.round((state.zoom / LOCAL_ZOOM) * 100)}%`;
-    $("map-plus").disabled = state.targetZoom >= MAX_ZOOM;
-    $("map-minus").disabled = state.targetZoom <= MIN_ZOOM;
-    $("map-move-hint").textContent = isGlobe() ? L.rotate : L.move;
-    $("map-scroll-hint").textContent = L.zoom;
-    $("map-action-hint").textContent = isGlobe() ? L.returnMap : L.interact;
-    for (const id of [
-      "map-places-toggle",
-      "map-context",
-      "map-footer",
-      "map-compass",
-      "map-zoom-tools",
-    ])
-      $(id).hidden = !!state.destination;
-    $("map-places").hidden = !!state.destination || !locationsOpen;
-    $("map-places-toggle").setAttribute("aria-expanded", String(locationsOpen));
-    $("map-places-toggle").setAttribute(
-      "aria-label",
-      locationsOpen ? L.hidePlaces : L.showPlaces,
-    );
-    $("map-places-chevron").textContent = locationsOpen ? "▴" : "▾";
-    $("map-context").hidden = !!state.destination || isGlobe();
-    $("map-context-label").textContent = nearby ? L.nearby : L.selected;
-    $("map-context-name").textContent = place.name[language()];
-    $("map-context-hint").textContent = nearby
-      ? L.interact
-      : `${L.approach} · ${distance} ${L.distance}`;
-    $("map-enter").hidden = !nearby;
-    $("map-enter").dataset.target = place.id;
-    $("map-destination").hidden = !state.destination;
-    $("map-destination").classList.toggle(
-      "fishing-mode",
-      state.destination?.type === "lake",
-    );
-    for (const button of root.querySelectorAll("[data-place]"))
-      button.setAttribute(
-        "aria-pressed",
-        String(button.dataset.place === state.selectedId),
-      );
-    $("map-fish-action").hidden = state.destination?.type !== "lake";
-    if (state.destination) {
-      const destination = state.destination;
-      $("map-destination-name").textContent = destination.name[language()];
-      $("map-destination-description").textContent =
-        destination.description[language()];
-      $("map-content-title").textContent =
-        destination.type === "shop" ? L.supplies : L.fish;
-      $("map-content").textContent =
-        destination.type === "shop"
-          ? L.stock
-          : destination.possibleFish
-              .map((fish) => L.fishNames[fish] || fish)
-              .join(" · ");
-      if (destination.type === "lake") {
-        $("map-content-title").textContent = fishing.cast
-          ? L.lineInWater
-          : L.lineReady;
-        $("map-fish-action").textContent = fishing.cast ? L.reel : L.cast;
-      }
-    }
+      fishingCast: fishing.cast,
+    });
+    if (
+      !force &&
+      snapshot &&
+      Object.keys(next).every((key) => next[key] === snapshot[key])
+    )
+      return;
+    snapshot = next;
+    onChange(next);
   }
   function keydown(event) {
     if (!active || event.ctrlKey || event.metaKey || event.altKey) return;
-    if (["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)) return;
+    if (
+      ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName) ||
+      event.target.isContentEditable
+    )
+      return;
     const key = event.code;
+    if (key === "Space" && event.target.closest?.("button")) return;
     if (
       [
         "KeyW",
@@ -405,7 +290,7 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
   });
   on(canvas, "pointerdown", (event) => {
     if (!active || state.destination || event.button !== 0) return;
-    canvas.focus({ preventScroll: true });
+    onFocus("canvas");
     const p = point(event);
     drag = { ...p, id: event.pointerId, moved: false };
     canvas.setPointerCapture(event.pointerId);
@@ -442,22 +327,6 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
     const target = point(event);
     if (renderer?.canCastAt(target.x, target.y)) toggleFishing(target);
   });
-  on($("map-plus"), "click", () => setZoom(state.targetZoom * 1.3));
-  on($("map-minus"), "click", () => setZoom(state.targetZoom / 1.3));
-  on($("map-globe"), "click", showGlobe);
-  on($("map-local"), "click", showLocal);
-  on($("map-center"), "click", showLocal);
-  on($("map-pause"), "click", () => {
-    if (active) onPause();
-  });
-  on($("map-enter"), "click", () => interact($("map-enter").dataset.target));
-  on($("map-fish-action"), "click", toggleFishing);
-  on($("map-return"), "click", leaveLocation);
-  on($("map-places-toggle"), "click", () => setLocationsOpen(!locationsOpen));
-  on($("map-places-close"), "click", () => setLocationsOpen(false, true));
-  for (const button of root.querySelectorAll("[data-place]"))
-    on(button, "click", () => selectLocation(button.dataset.place));
-
   function frame(now) {
     if (!active || stopped) return;
     const dt = Math.min((now - lastTime) / 1000, 0.05);
@@ -512,42 +381,58 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
       { ...state, fishing, locationsOpen },
       reducedMotion.matches ? 0 : now / 1000,
     );
-    if (now - lastHudTime > 100) {
-      updateHud();
-      lastHudTime = now;
+    if (now - lastPublishTime > 100) {
+      publish();
+      lastPublishTime = now;
     }
     frameId = requestAnimationFrame(frame);
   }
   return {
     applyLanguage,
+    showLocal,
+    showGlobe,
+    selectLocation,
+    enterLocation,
+    leaveLocation,
+    toggleFishing,
+    zoomIn: () => setZoom(state.targetZoom * 1.3),
+    zoomOut: () => setZoom(state.targetZoom / 1.3),
+    toggleLocations: () => setLocationsOpen(!locationsOpen),
+    closeLocations: () => setLocationsOpen(false, true),
+    pause() {
+      if (active && !stopped) onPause();
+    },
     reset() {
+      if (stopped) return;
       clearInput();
-      state = freshState();
+      state = createMapState();
       fishing = { cast: false, startedAt: 0, target: null };
       save();
-      updateHud(true);
+      publish(true);
     },
     enter() {
       if (stopped || active) return;
       renderer ||= createMapRenderer(canvas, language);
       active = true;
-      root.classList.add("atlas-active");
       clearInput();
       applyLanguage();
       lastTime = performance.now();
       frameId = requestAnimationFrame(frame);
-      (state.destination ? $("map-return") : canvas).focus({
-        preventScroll: true,
-      });
+      onFocus(
+        state.destination && state.destination.type !== "lake"
+          ? "return"
+          : "canvas",
+      );
     },
     exit() {
       active = false;
       cancelAnimationFrame(frameId);
       clearInput();
       save();
-      root.classList.remove("atlas-active");
+      publish();
     },
     back() {
+      if (!active || stopped) return false;
       if (leaveLocation()) return true;
       if (locationsOpen) {
         setLocationsOpen(false, true);
@@ -560,10 +445,15 @@ export function createMap({ root, getLanguage, getSlot, emit, onPause }) {
       locationsOpen,
       player: { ...state.player },
       camera: { ...state.camera },
+      fishing: {
+        ...fishing,
+        target: fishing.target ? { ...fishing.target } : null,
+      },
     }),
     stop() {
-      this.exit();
+      if (stopped) return;
       stopped = true;
+      this.exit();
       controller.abort();
       renderer?.terrain.dispose();
     },

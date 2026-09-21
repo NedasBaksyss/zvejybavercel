@@ -1,6 +1,6 @@
 import MapView from "../map/MapView";
 
-export default function MenuView({ rootRef }) {
+export default function MenuView({ rootRef, mapRef }) {
   return (
     <div className="zv" ref={rootRef}>
       <div id="stage">
@@ -197,7 +197,7 @@ export default function MenuView({ rootRef }) {
           </section>
 
           <section className="screen" id="s-game">
-            <MapView />
+            <MapView ref={mapRef} />
           </section>
 
           <section className="screen" id="s-pause">
