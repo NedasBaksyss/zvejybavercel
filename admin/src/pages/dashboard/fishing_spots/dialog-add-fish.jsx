@@ -33,18 +33,19 @@ export function DialogAddFish() {
     }
   }
 
-  const handleSelect = (fish) => {
-    const mockSelected = selected
-    
-    if (mockSelected.includes(fish)) {
-      mockSelected.pop(fish)
-      setSelected(mockSelected)
-    } else {
-      mockSelected.push(fish)
-      setSelected(mockSelected)
-    }
-    console.log(selected)
+const handleSelect = (fish) => {
+  if (selected.includes(fish)) {
+    setSelected(selected.filter(item => item !== fish));
+  } else {
+    setSelected([...selected, fish]);
   }
+};
+
+const handleConfirm = () => {
+  console.log(selected)
+  setSelected([])
+  handleOpen()
+}
 
     // Loading the fish list
   const loadData = async () => {
@@ -115,7 +116,7 @@ export function DialogAddFish() {
           >
             <span>Cancel</span>
           </Button>
-          <Button variant="gradient" color="green">
+          <Button variant="gradient" color="green" onClick={handleConfirm}>
             <span>Confirm</span>
           </Button>
         </DialogFooter>
