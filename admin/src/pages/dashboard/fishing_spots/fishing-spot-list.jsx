@@ -68,15 +68,14 @@ export function FishingSpotList() {
       setLoading(false);
     }
   };
-  
 
-  // useEffect(() => {
+// useEffect(() => {
   //   if (!token) return; // wait until token is available
   //   loadData();
   // },[token]);
-
+  
   useEffect(() => {
-  loadData();
+    loadData();
   }, []);
 
     // filter + search (case-insensitive)
@@ -180,7 +179,6 @@ export function FishingSpotList() {
                       error={error}
                       setError={setError}
                       loadData={loadData}
-                      fishData={loadFishData}
                     />
                   );
                 }
