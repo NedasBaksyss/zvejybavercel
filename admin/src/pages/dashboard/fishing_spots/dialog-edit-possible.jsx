@@ -27,6 +27,8 @@ export function DialogEditPossible({loadData}) {
   const [sprite, setSprite] = useState(null);
   const [world, setWorld] = useState("");
 
+  const [selected, setSelected] = useState([])
+
   const {addAlert, hideAllAlerts} = useContext(AlertContext);
 
   const [fishSprite, setFishSprite] = useState(sprite ? `/api/images/fishing-spot/` + sprite : null);
@@ -47,6 +49,19 @@ export function DialogEditPossible({loadData}) {
     setSprite(null);
     setFishSprite(null);
 
+  }
+
+  const handleSelect = (fish) => {
+  if (selected.includes(fish)) {
+    setSelected(selected.filter(item => item !== fish));
+  } else {
+    setSelected([...selected, fish]);
+  }
+};
+
+  const handleClearSelect = () => {
+    console.log(selected)
+    setSelected([])
   }
 
   const handleOpen = () => {
@@ -121,12 +136,12 @@ export function DialogEditPossible({loadData}) {
         variant="gradient"
         className="mx-3 mr-0 flex items-center pl-2"
       >
-        <PlusCircleIcon className="mr-2 h-5 w-5" />
+        <PlusCircleIcon className="h-5 w-5" />
       </Button>
       <Dialog open={open} handler={handleOpen}>
         <DialogHeader>Edit possible fishes</DialogHeader>
         <DialogBody className="flex flex-col gap-4">
-          <DialogAddFish/>
+          <DialogAddFish handleSelect={handleSelect} handleClearSelect={handleClearSelect}/>
         </DialogBody>
         <DialogFooter>
           <Button

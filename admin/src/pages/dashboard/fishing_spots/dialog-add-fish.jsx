@@ -17,11 +17,10 @@ import { AlertContext } from "@/context";
 import { fishingWorld } from "./fishing-spot-fields";
 import AddFishListItem from "./fish-list-item";
 
-export function DialogAddFish() {
+export function DialogAddFish({handleSelect, handleClearSelect}) {
   const [open, setOpen] = useState(false);
 
   const [rows, setRows] = useState([]); 
-  const [selected, setSelected] = useState([])
   const [loading, setLoading] = useState(true);
 
   const {addAlert, hideAllAlerts} = useContext(AlertContext);
@@ -33,17 +32,8 @@ export function DialogAddFish() {
     }
   }
 
-const handleSelect = (fish) => {
-  if (selected.includes(fish)) {
-    setSelected(selected.filter(item => item !== fish));
-  } else {
-    setSelected([...selected, fish]);
-  }
-};
-
 const handleConfirm = () => {
-  console.log(selected)
-  setSelected([])
+  handleClearSelect()
   handleOpen()
 }
 
