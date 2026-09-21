@@ -5,13 +5,14 @@ import "./App.css";
 
 function App() {
   const rootRef = useRef(null);
+  const mapRef = useRef(null);
 
   useEffect(() => {
-    const stop = startMenu(rootRef.current);
+    const stop = startMenu(rootRef.current, mapRef.current);
     return stop;
   }, []);
 
-  return <MenuView rootRef={rootRef} />;
+  return <MenuView rootRef={rootRef} mapRef={mapRef} />;
 }
 
 export default App;

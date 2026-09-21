@@ -8,9 +8,8 @@ import { createAuthController } from "./authController";
 import { createChoiceList } from "./components/choiceList";
 import { createFontGuard } from "./components/fontGuard";
 import { createGameHooks } from "./components/gameHooks";
-import { createMap } from "./map/createMap";
 
-export function startMenu(root) {
+export function startMenu(root, map) {
   let alive = true;
   const timers = new Set();
   const later = (fn, ms) => {
@@ -139,8 +138,7 @@ export function startMenu(root) {
     getSlot: () => slot,
   });
   const Hooks = gameHooks.hooks;
-  const map = createMap({
-    root,
+  map.configure({
     getLanguage: () => Store.get("lang"),
     getSlot: () => slot,
     emit: (event, data) => Hooks.emit(event, data),
@@ -375,9 +373,13 @@ export function startMenu(root) {
     enter() {
       paintGame();
       map.enter();
+      root.classList.add("atlas-active");
       Hooks.emit("start", { slot, player, settings: Store.all() });
     },
-    exit: () => map.exit(),
+    exit() {
+      map.exit();
+      root.classList.remove("atlas-active");
+    },
     key() {},
   });
 
@@ -539,6 +541,7 @@ export function startMenu(root) {
       UI.go(typeof s.back === "function" ? s.back() : s.back);
       return;
     }
+    if (UI.now() === "game") return;
     if (
       ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(
         e.key,
@@ -568,6 +571,7 @@ export function startMenu(root) {
   return () => {
     alive = false;
     map.stop();
+    root.classList.remove("atlas-active");
     scene.stop();
     timers.forEach(clearTimeout);
     timers.clear();
