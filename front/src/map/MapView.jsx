@@ -6,6 +6,7 @@ import MapLocations from "./components/MapLocations.jsx";
 import MapControls from "./components/MapControls.jsx";
 import MapContext from "./components/MapContext.jsx";
 import MapDestination from "./components/MapDestination.jsx";
+import FishingHud from "./components/FishingHud.jsx";
 import "./map.css";
 
 export default function MapView({ ref }) {
@@ -24,7 +25,13 @@ export default function MapView({ ref }) {
   const view = inLocation ? "location" : snapshot.globe ? "globe" : "map";
 
   return (
-    <div className="atlas" id="atlas" data-view={view}>
+    <div className="atlas" id="atlas" data-view={view} onClickCapture={(event) => {
+      if (snapshot.fishing.phase === "bite") {
+        event.preventDefault();
+        event.stopPropagation();
+        actions.toggleFishing();
+      }
+    }}>
       <canvas
         id="map-canvas"
         ref={canvasRef}
@@ -83,6 +90,9 @@ export default function MapView({ ref }) {
         onCast={actions.toggleFishing}
         onReturn={actions.leaveLocation}
       />
+      {snapshot.destination?.type === "lake" && (
+        <FishingHud fishing={snapshot.fishing} language={snapshot.language} fishNames={text.fishNames} />
+      )}
     </div>
   );
 }

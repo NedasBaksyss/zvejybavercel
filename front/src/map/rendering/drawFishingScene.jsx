@@ -9,13 +9,15 @@ import {
 
 export function drawFishingScene(ctx, time, fishing) {
   const waterTop = 282;
-  const rodTip = { x: 326, y: 325 };
+  const pulling = fishing?.phase === "bite" || fishing?.phase === "fighting";
+  const tug = pulling ? 10 + Math.sin(time * 14) * 7 : 0;
+  const rodTip = { x: 326 - tug * 0.45, y: 325 + tug };
   const cast = fishing?.cast;
   const target = fishing?.target || { x: 548, y: 386 };
   const bobberX = target.x + Math.sin(time * 0.7) * 7;
-  const bobberY = target.y + Math.sin(time * 1.8) * 2;
+  const bobberY = target.y + Math.sin(time * 1.8) * 2 + (pulling ? Math.sin(time * 14) * 5 : 0);
   const castAmount = cast
-    ? Math.min(1, Math.max(0, (time - fishing.startedAt) / 0.45))
+    ? Math.min(1, fishing.elapsed / 0.45)
     : 0;
   const lineX = mix(rodTip.x, bobberX, castAmount);
   const lineY = mix(rodTip.y, bobberY, castAmount);
@@ -163,7 +165,7 @@ export function drawFishingScene(ctx, time, fishing) {
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(197, 420);
-  ctx.lineTo(rodTip.x, rodTip.y);
+  ctx.quadraticCurveTo(284, 350 - tug, rodTip.x, rodTip.y);
   ctx.stroke();
   ctx.strokeStyle = "#cfe0f0aa";
   ctx.lineWidth = 1;
@@ -181,6 +183,12 @@ export function drawFishingScene(ctx, time, fishing) {
     ctx.fillRect(bobberX - 2, bobberY - 6, 4, 10);
     ctx.fillStyle = "#ffdca8";
     ctx.fillRect(bobberX - 2, bobberY - 8, 4, 3);
+    if (fishing.phase === "bite") {
+      ctx.font = "bold 26px ui-monospace, monospace";
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#ffdca8";
+      ctx.fillText("!", bobberX, bobberY - 20 - Math.abs(Math.sin(time * 7)) * 7);
+    }
   }
   ctx.fillStyle = "#ffdca8";
   ctx.fillRect(35, 44, 3, 3);

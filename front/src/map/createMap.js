@@ -1,4 +1,5 @@
 import { GLOBE_SWITCH } from "./mapData.js";
+import { createFishingState } from "./fishing.js";
 import { createMapRenderer } from "./mapRenderer.js";
 import { createMapSnapshot, createMapState } from "./mapState.js";
 import { createLocationActions } from "./controls/createLocationActions.jsx";
@@ -21,7 +22,7 @@ export function createMap({
 }) {
   const runtime = {
     state: createMapState(),
-    fishing: { cast: false, startedAt: 0, target: null },
+    fishing: createFishingState(),
     locationsOpen: readLocationsPreference(),
     reducedMotion: matchMedia("(prefers-reduced-motion: reduce)"),
     renderer: null,
@@ -43,6 +44,7 @@ export function createMap({
       active: runtime.active,
       locationsOpen: runtime.locationsOpen,
       fishingCast: runtime.fishing.cast,
+      fishing: { ...runtime.fishing },
     });
     if (
       !force &&
@@ -81,7 +83,7 @@ export function createMap({
     actions: { ...locations, ...view },
     onFocus,
   });
-  const loop = createMapLoop({ runtime, keys, save, publish });
+  const loop = createMapLoop({ runtime, keys, save, publish, getSlot, emit });
 
   function exit() {
     runtime.active = false;
@@ -110,7 +112,7 @@ export function createMap({
       if (runtime.stopped) return;
       clearInput();
       runtime.state = createMapState();
-      runtime.fishing = { cast: false, startedAt: 0, target: null };
+      runtime.fishing = createFishingState();
       save();
       publish(true);
     },

@@ -34,6 +34,12 @@ export function createMapInput({
     )
       return;
     const key = event.code;
+    if (runtime.fishing.phase === "fighting" &&
+      ["KeyA", "KeyD", "ArrowLeft", "ArrowRight"].includes(key)) {
+      event.preventDefault();
+      keys.add(key);
+      return;
+    }
     if (key === "Space" && event.target.closest?.("button")) return;
     if (
       [
@@ -167,7 +173,7 @@ export function createMapInput({
     )
       return;
     const target = point(event);
-    if (runtime.renderer?.canCastAt(target.x, target.y)) toggleFishing(target);
+    if (runtime.fishing.phase === "bite" || runtime.renderer?.canCastAt(target.x, target.y)) toggleFishing(target);
   });
 
   return {

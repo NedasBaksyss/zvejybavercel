@@ -1,14 +1,27 @@
 import { updateMapMovement } from "./updateMapMovement.jsx";
+import { updateFishing } from "../fishing.js";
 
-export function createMapLoop({ runtime, keys, save, publish }) {
+export function createMapLoop({ runtime, keys, save, publish, getSlot, emit }) {
   let frameId = 0;
   let lastTime = 0;
   let lastPublishTime = 0;
 
   function frame(now) {
     if (!runtime.active || runtime.stopped) return;
-    const dt = Math.min((now - lastTime) / 1000, 0.05);
+    const dt = document.hidden || !document.hasFocus() ? 0 : Math.min((now - lastTime) / 1000, 0.05);
     lastTime = now;
+    const outcome = updateFishing(runtime.fishing, dt, keys,
+      runtime.state.destination?.possibleFish || []);
+    if (outcome === "caught") {
+      const slot = getSlot();
+      const catchData = { fish: runtime.fishing.fish, locationId: runtime.state.destination.id, at: Date.now() };
+      if (slot) {
+        slot.catches = [...(slot.catches || []), catchData];
+      }
+      emit("fishCaught", { ...catchData, slot });
+    } else if (outcome === "lost") {
+      emit("fishLost", { id: runtime.state.destination?.id, slot: getSlot() });
+    }
     if (
       updateMapMovement(
         runtime.state,
@@ -27,7 +40,7 @@ export function createMapLoop({ runtime, keys, save, publish }) {
       },
       runtime.reducedMotion.matches ? 0 : now / 1000,
     );
-    if (now - lastPublishTime > 100) {
+    if (outcome || now - lastPublishTime > (runtime.fishing.phase === "fighting" ? 33 : 100)) {
       publish();
       lastPublishTime = now;
     }

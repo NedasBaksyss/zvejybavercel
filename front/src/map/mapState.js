@@ -1,3 +1,4 @@
+import { createFishingState } from "./fishing.js";
 import {
   WORLD,
   SPAWN,
@@ -35,6 +36,7 @@ export function createMapSnapshot(
     active = false,
     locationsOpen = false,
     fishingCast = false,
+    fishing = createFishingState(),
   } = {},
 ) {
   const globe = state.targetZoom < GLOBE_SWITCH;
@@ -61,5 +63,6 @@ export function createMapSnapshot(
     nearby,
     distance: Math.round(distanceTo(state.player, place)),
     fishingCast,
+    fishing,
   };
 }

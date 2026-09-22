@@ -1,3 +1,4 @@
+import { createFishingState, castLine, hookFish } from "../fishing.js";
 import {
   LOCATIONS,
   MAP_VERSION,
@@ -36,7 +37,7 @@ export function createLocationActions({
     clearInput();
     runtime.state.player = { ...place.entry };
     runtime.state.destination = place;
-    runtime.fishing = { cast: false, startedAt: 0, target: null };
+    runtime.fishing = createFishingState();
     save();
     publish(true);
     emit("enterLocation", {
@@ -60,12 +61,17 @@ export function createLocationActions({
       runtime.state.destination.type !== "lake"
     )
       return false;
-    const cast = !runtime.fishing.cast;
-    runtime.fishing = {
-      cast,
-      startedAt: performance.now() / 1000,
-      target: target || runtime.fishing.target,
-    };
+    if (runtime.fishing.phase === "bite") {
+      hookFish(runtime.fishing);
+      clearInput();
+      onFocus("canvas");
+      publish(true);
+      return true;
+    }
+    if (!["idle", "waiting"].includes(runtime.fishing.phase)) return false;
+    runtime.fishing = runtime.fishing.cast
+      ? createFishingState(runtime.fishing.target)
+      : castLine(target || runtime.fishing.target);
     publish(true);
     emit(runtime.fishing.cast ? "castLine" : "reelLine", {
       id: runtime.state.destination.id,
@@ -93,7 +99,7 @@ export function createLocationActions({
       return false;
     const locationId = runtime.state.destination.id;
     runtime.state.destination = null;
-    runtime.fishing = { cast: false, startedAt: 0, target: null };
+    runtime.fishing = createFishingState();
     runtime.state.camera = { ...runtime.state.player };
     clearInput();
     save();
