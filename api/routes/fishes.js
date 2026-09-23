@@ -1,8 +1,51 @@
-var express = require("express");
-var router = express.Router();
+import express from "express";
+import fs from "fs";
+const router = express.Router();
 
-const { ObjectId } = require("mongodb");
-const { getDB } = require("../db");
+import { ObjectId } from "mongodb";
+import { getDB } from "../db.js";
+
+const uploadFile = async (req, field, folder, name) => {
+  try {
+    // jei įkeltas failas foto lauke
+    if (req.files && req.files[field]) {
+      // priskiriame failo duomenis į data objektą
+      let file = req.files[field].data;
+      let file_mime = req.files[field].mimeType;
+
+      // išsaugome failą kataloge
+      let file_name = Date.now() + '_' + name + '.' + file_mime.split('/')[1];
+      await fs.promises.writeFile(`public/${folder}/${file_name}`, file);
+
+      return file_name;
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
+export async function updateFoto(id, foto) {
+  try {
+    const db = getDB();
+
+    const result = await db.collection(collectionName).updateOne(
+      { _id: id },
+      {
+        $set: {
+          foto: foto,
+        },
+      }
+    );
+
+    return result.modifiedCount > 0 || result.matchedCount > 0;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
 
 const collectionName = "fish";
 
@@ -23,7 +66,7 @@ function prepareFishData(body, creating = false) {
     throw new Error("Žuvies pavadinimas yra privalomas");
   }
 
-  const textFields = ["name", "rarity"];
+  const textFields = ["gamesId", "name", "description", "rarity"];
 
   for (const field of textFields) {
     if (body[field] !== undefined) {
@@ -32,26 +75,6 @@ function prepareFishData(body, creating = false) {
       }
 
       fish[field] = body[field].trim();
-    }
-  }
-
-  const numberFields = [
-    "minWeight",
-    "maxWeight",
-    "baseValue",
-    "experienceReward",
-    "coin_value",
-  ];
-
-  for (const field of numberFields) {
-    if (body[field] !== undefined) {
-      const number = Number(body[field]);
-
-      if (!Number.isFinite(number) || number < 0) {
-        throw new Error(`Laukas ${field} turi būti teigiamas skaičius`);
-      }
-
-      fish[field] = number;
     }
   }
 
@@ -177,6 +200,81 @@ router.put("/:id", async function (req, res) {
   }
 });
 
+router.put("/:id/sprite", async function (req, res) {
+  try {
+    // Patikriname, ar nuotrauka pateikta
+    if (!req.files || !req.files.sprite) {
+      return res.status(400).json({
+        message: "Nuotrauka nepateikta",
+      });
+    }
+
+    const db = getDB();
+
+    // Surandame žuvį pagal ID
+    const filter = ObjectId.isValid(req.params.id)
+      ? {
+          $or: [
+            { _id: req.params.id },
+            { _id: new ObjectId(req.params.id) },
+          ],
+        }
+      : {
+          _id: req.params.id,
+        };
+
+    const fish = await db
+      .collection(collectionName)
+      .findOne(filter);
+
+    if (!fish) {
+      return res.status(404).json({
+        message: "Žuvis nerasta",
+      });
+    }
+
+    // Įkeliame failą
+    const uploadedFoto = await uploadFile(
+      req,
+      "sprite",
+      "images/fish",
+      req.params.id
+    );
+
+    if (!uploadedFoto) {
+      return res.status(500).json({
+        message: "Klaida įkeliant nuotrauką",
+      });
+    }
+
+    // Atnaujiname MongoDB
+    const result = await db
+      .collection(collectionName)
+      .updateOne(filter, {
+        $set: {
+          sprite: uploadedFoto,
+        },
+      });
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        message: "Žuvis nerasta",
+      });
+    }
+
+    res.status(200).json({
+      message: "Nuotrauka įkelta",
+      sprite: uploadedFoto,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Klaida įkeliant nuotrauką",
+    });
+  }
+});
+
 router.delete("/:id", async function (req, res) {
   try {
     const db = getDB();
@@ -202,4 +300,4 @@ router.delete("/:id", async function (req, res) {
   }
 });
 
-module.exports = router;
+export default router;
