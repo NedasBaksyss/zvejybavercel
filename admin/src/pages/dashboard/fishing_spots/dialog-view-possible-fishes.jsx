@@ -52,24 +52,31 @@ export function DialogViewPossibleFishes({data}) {
       <Dialog open={open} handler={handleOpen}>
         <DialogHeader>{data.name}'s possible fishes</DialogHeader>
         <DialogBody className="flex flex-col gap-4">
-          {data.possibleFish ?
-          (data.possibleFish.map((fish) => (
-            <p>{fish}</p>
-          ))) : (<p> No possible fishes here...</p>)}
-          {/* <div className="flex flex-row p-5 justify-center items-center">
-            <div className="font-normal shrink-0 overflow-hidden">
-              {sprite_element}
+        <div className="flex flex-col gap-4 max-h-[50vh] overflow-y-auto pr-2">
+          {data.possibleFishes ?
+          (data.possibleFishes.map((fish) => (
+            <div key={fish._id}>
+              <h2 className="font-semibold text-black">{fish._id}</h2>
+              <div>
+                <div>
+                  <p>minWeight: {fish.minWeight}</p>
+                </div>
+                <div>
+                  <p>maxWeight: {fish.maxWeight}</p>
+                </div>
+                <div>
+                  <p>baseValue: {fish.baseValue}</p>
+                </div>
+                <div>
+                  <p>experienceReward: {fish.experienceReward}</p>
+                </div>
+                <div>
+                  <p>coinValue: {fish.coinValue}</p>
+                </div>
+              </div>
             </div>
-            <Input type="file" label="Sprite" size="lg" onChange={handleFileChange} />
-          </div>
-          <Input label="ID" size="md" value={mapId} onChange={(e) => setMapId(e.target.value)} />
-          <Input label="Name" size="md" value={name} onChange={(e) => setName(e.target.value)} />
-          <Textarea label="Description" size="md" value={description} onChange={(e) => setDescription(e.target.value)} />
-          <Select label="World" size="md" value={world} onChange={(value) => setWorld(value)}>
-            {fishingWorld.map((r) => (
-              <Option key={r} value={r} >{r}</Option>
-            ))}
-          </Select> */}
+          ))) : (<p> No possible fishes here...</p>)}
+        </div>
         </DialogBody>
       </Dialog>
     </>

@@ -17,67 +17,16 @@ import { AlertContext } from "@/context";
 import { fishingWorld } from "./fishing-spot-fields";
 import DialogAddFish from "./dialog-add-fish";
 
-export function DialogEditPossible({loadData}) {
+export function DialogEditPossible({loadData, selectedFish, handleSelect, clearSelectedFish, updateSelectedFish}) {
   const [open, setOpen] = useState(false);
-
-  // formos laukelių duomenys
-  const [mapId, setMapId] = useState("");
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [sprite, setSprite] = useState(null);
-  const [world, setWorld] = useState("");
-
-  const [selectedFish, setSelectedFish] = useState([]);
-
-  const {addAlert, hideAllAlerts} = useContext(AlertContext);
-
-  const [fishSprite, setFishSprite] = useState(sprite ? `/api/images/fishing-spot/` + sprite : null);
-
-    const sprite_element = fishSprite ? (<img src={fishSprite} alt="Sprite" className="h-[160px] w-[160px] [image-rendering:pixelated] m-5 border-2 border-gray-600 rounded " /> 
-  ) : (
-    <div className="h-[160px] w-[160px] flex items-center justify-center bg-gray-200 border-2 border-gray-600 rounded m-5">
-      <span className="text-gray-500 text-lg">X</span>
-    </div>
-  );
-
-  function handleClear() {
-    setMapId("")
-    setName("");
-    setDescription("");
-    setWorld("");
-
-    setSprite(null);
-    setFishSprite(null);
-
-  }
-
-const handleSelect = (fish) => {
-  setSelectedFish((prev) => {
-    const exists = prev.some((item) => item._id === fish._id);
-
-    if (exists) {
-      return prev.filter((item) => item._id !== fish._id);
-    }
-
-    return [
-      ...prev,
-      {
-        ...fish,
-        minWeight: 0,
-        maxWeight: 0,
-        baseValue: 0,
-        coinValue: 0,
-        experienceReward: 0
-      },
-    ];
-  });
-};
 
   const handleOpen = () => {
     setOpen(!open);
-    if (open) {
-      handleClear()
-    }
+  }
+
+  const handleClear = () => {
+    clearSelectedFish()
+    handleOpen()
   }
 
   const handleConfirm = () => {
@@ -110,16 +59,10 @@ const handleSelect = (fish) => {
                   value={fish.minWeight}
                   label="minWeight"
                   onChange={(e) => {
-                      const minWeight = Number(e.target.value);
-
-                      setSelectedFish((prev) =>
-                        prev.map((item) =>
-                          item._id === fish._id
-                            ? { ...item, minWeight }
-                            : item
-                        )
-                      );
-                    }}
+                    updateSelectedFish(fish._id, {
+                    minWeight: Number(e.target.value),
+                    })
+                  }}
                   />
                 </div>
 
@@ -129,16 +72,10 @@ const handleSelect = (fish) => {
                 value={fish.maxWeight}
                 label="maxWeight"
                 onChange={(e) => {
-                    const maxWeight = Number(e.target.value);
-
-                    setSelectedFish((prev) =>
-                      prev.map((item) =>
-                        item._id === fish._id
-                          ? { ...item, maxWeight }
-                          : item
-                      )
-                    );
-                  }}
+                    updateSelectedFish(fish._id, {
+                    maxWeight: Number(e.target.value),
+                    })
+                }}
                 />
                 </div>
 
@@ -147,16 +84,10 @@ const handleSelect = (fish) => {
                 type="number"
                 value={fish.baseValue}
                 label="baseValue"
-                onChange={(e) => {
-                    const baseValue = Number(e.target.value);
-
-                    setSelectedFish((prev) =>
-                      prev.map((item) =>
-                        item._id === fish._id
-                          ? { ...item, baseValue }
-                          : item
-                      )
-                    );
+                  onChange={(e) => {
+                    updateSelectedFish(fish._id, {
+                    baseValue: Number(e.target.value),
+                    })
                   }}
                 />
                 </div>
@@ -166,16 +97,10 @@ const handleSelect = (fish) => {
                 type="number"
                 value={fish.experienceReward}
                 label="experienceReward"
-                onChange={(e) => {
-                    const experienceReward = Number(e.target.value);
-
-                    setSelectedFish((prev) =>
-                      prev.map((item) =>
-                        item._id === fish._id
-                          ? { ...item, experienceReward }
-                          : item
-                      )
-                    );
+                  onChange={(e) => {
+                    updateSelectedFish(fish._id, {
+                    experienceReward: Number(e.target.value),
+                    })
                   }}
                 />
                 </div>
@@ -185,16 +110,10 @@ const handleSelect = (fish) => {
                 type="number"
                 value={fish.coinValue}
                 label="coinValue"
-                onChange={(e) => {
-                    const coinValue = Number(e.target.value);
-
-                    setSelectedFish((prev) =>
-                      prev.map((item) =>
-                        item._id === fish._id
-                          ? { ...item, coinValue }
-                          : item
-                      )
-                    );
+                  onChange={(e) => {
+                    updateSelectedFish(fish._id, {
+                    coinValue: Number(e.target.value),
+                    })
                   }}
                 />
                 </div>
@@ -208,7 +127,7 @@ const handleSelect = (fish) => {
           <Button
             variant="text"
             color="red"
-            onClick={handleOpen}
+            onClick={handleClear}
             className="mr-1">
             <span>Clear</span>
           </Button>

@@ -27,6 +27,8 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
   const [description, setDescription] = useState(data.description);
   const [world, setWorld] = useState(data.world);
 
+  const [selectedFish, setSelectedFish] = useState([]);
+
   const [spriteName, setSpriteName] = useState("");
   const [spriteFile, setSpriteFile] = useState();
   const [fishSprite, setFishSprite] = useState(sprite ? `/api/images/fishing-spot/` + sprite : null);
@@ -45,6 +47,42 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
       <span className="text-gray-500 text-sm">X</span>
     </div>
   );
+
+  const handleSelectFish = (fish) => {
+  setSelectedFish((prev) => {
+    const exists = prev.some((item) => item._id === fish._id);
+
+    if (exists) {
+      return prev.filter((item) => item._id !== fish._id);
+    }
+
+    return [
+      ...prev,
+      {
+        ...fish,
+        minWeight: 0,
+        maxWeight: 0,
+        baseValue: 0,
+        coinValue: 0,
+        experienceReward: 0
+      },
+    ];
+  });
+};
+
+const updateSelectedFish = (fishId, changes) => {
+  setSelectedFish((prev) =>
+    prev.map((fish) =>
+      fish._id === fishId
+        ? { ...fish, ...changes }
+        : fish
+    )
+  );
+};
+
+ const clearSelectedFish = () => {
+  setSelectedFish([])
+ }
 
   function handleFileChange(e) {
     setSpriteName(e.target.value);
@@ -80,12 +118,22 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
     let dataSendSuccess = false;
     let spriteSendSuccess = true;
 
+    const possibleFishes = selectedFish.map((fish) => ({
+      _id: fish._id,
+      minWeight: fish.minWeight,
+      maxWeight: fish.maxWeight,
+      baseValue: fish.baseValue,
+      coinValue: fish.coinValue,
+      experienceReward: fish.experienceReward,
+    }));
+
     // surenkame duomenis
     const updatedData = {
       mapId,
       name,
       description,
-      world
+      world,
+      possibleFishes
     };
 
     // jei laukeliai tušti, pranešame klaidą
@@ -139,6 +187,8 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
   };
 
   const cancelEdit = () => {
+    console.log(selectedFish)
+    setSelectedFish([])
     setMapId(data.mapId);
     setName(data.name);
     setDescription(data.description);
@@ -234,8 +284,8 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
         </div>
       </td>
       <td className={classes}>
-        <div className="">
-          {editMode ? (<DialogEditPossible data={data}/>) : 
+        <div className="flex justify-center">
+          {editMode ? (<DialogEditPossible data={data} selectedFish={selectedFish} handleSelect={handleSelectFish} clearSelectedFish={clearSelectedFish} updateSelectedFish={updateSelectedFish} />) : 
           (<DialogViewPossibleFishes data={data}/>)}
         </div>
       </td>

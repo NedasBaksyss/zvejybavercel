@@ -38,7 +38,7 @@ export function AddFishListItem({data, handleSelect, selectedFish}) {
 
     const sprite_element = fishSprite ? (<img src={fishSprite} alt="Sprite" className="h-[100px] w-[100px] [image-rendering:pixelated] " /> 
   ) : (
-    <div className="h-[160px] w-[160px] flex items-center justify-center bg-gray-200 border-2 border-gray-600 rounded">
+    <div className="h-[100px] w-[100px] flex items-center justify-center bg-gray-200 border-2 border-gray-600 rounded">
       <span className="text-gray-500 text-lg">X</span>
     </div>
   );

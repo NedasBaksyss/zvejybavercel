@@ -78,6 +78,34 @@ function prepareFishData(body, creating = false) {
     }
   }
 
+  // Possible fishes
+if (body.possibleFishes !== undefined) {
+  if (!Array.isArray(body.possibleFishes)) {
+    throw new Error("possibleFishes must be an array.");
+  }
+
+  const fishIds = body.possibleFishes.map((fish) => String(fish._id));
+
+  if (new Set(fishIds).size !== fishIds.length) {
+    throw new Error("Duplicate fish IDs are not allowed.");
+  }
+
+  fish.possibleFishes = body.possibleFishes.map((possibleFish) => {
+    if (!possibleFish._id) {
+      throw new Error("Every possible fish must have an _id.");
+    }
+
+    return {
+      _id: possibleFish._id,
+      minWeight: Number(possibleFish.minWeight),
+      maxWeight: Number(possibleFish.maxWeight),
+      baseValue: Number(possibleFish.baseValue),
+      coinValue: Number(possibleFish.coinValue),
+      experienceReward: Number(possibleFish.experienceReward),
+    };
+  });
+}
+
   return fish;
 }
 
