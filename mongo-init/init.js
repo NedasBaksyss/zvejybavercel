@@ -16,6 +16,19 @@ db.achievements.insertOne({
 db.fish.insertOne({
   _id: "salmon",
   name: "Salmon",
+  description: "Quite the red one",
+  rarity: "common",
+  minWeight: 1.0,
+  maxWeight: 5.0,
+  baseValue: 10,
+  experienceReward: 5,
+  coin_value: 10,
+});
+
+db.fish.insertOne({
+  _id: "bass",
+  name: "Bass",
+  description: "I like this bass to it!",
   rarity: "common",
   minWeight: 1.0,
   maxWeight: 5.0,
@@ -34,21 +47,18 @@ db.fishing_spots.insertOne({
   possibleFish: ["salmon", "carp", "trout"],
 });
 
-db.players.insertOne({
+db.users.insertOne({
   _id: new ObjectId(),
   username: "test",
   passwordHash: "...",
   googleId: null,
   isGuest: false,
 
-  coins: 10,
-  level: 1,
-  experience: 0,
-
   stats: {
     totalFishCaught: 0,
-    gamesPlayed: 0,
-    gamesWon: 0,
+    coins: 10,
+    level: 1,
+    experience: 0
   },
 
   createdAt: new Date(),
