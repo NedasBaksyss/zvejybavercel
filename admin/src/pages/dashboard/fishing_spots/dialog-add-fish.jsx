@@ -17,7 +17,7 @@ import { AlertContext } from "@/context";
 import { fishingWorld } from "./fishing-spot-fields";
 import AddFishListItem from "./fish-list-item";
 
-export function DialogAddFish({handleSelect, handleClearSelect}) {
+export function DialogAddFish({handleSelect, selectedFish}) {
   const [open, setOpen] = useState(false);
 
   const [rows, setRows] = useState([]); 
@@ -27,15 +27,7 @@ export function DialogAddFish({handleSelect, handleClearSelect}) {
 
   const handleOpen = () => {
     setOpen(!open);
-    if (open) {
-      handleClear()
-    }
   }
-
-const handleConfirm = () => {
-  handleClearSelect()
-  handleOpen()
-}
 
     // Loading the fish list
   const loadData = async () => {
@@ -83,7 +75,7 @@ const handleConfirm = () => {
         <PlusCircleIcon className="mr-2 h-5 w-5" />
         Add fish
       </Button>
-      <Dialog open={open} handler={handleOpen}>
+      <Dialog open={open}>
         <DialogHeader>Add possible fish</DialogHeader>
         <DialogBody className="flex flex-row gap-4">
           {rows.map((data) => {
@@ -93,6 +85,7 @@ const handleConfirm = () => {
           key={data._id}
           data={data}
           handleSelect={handleSelect}
+          selectedFish={selectedFish}
           />)
         })}
           
@@ -100,14 +93,11 @@ const handleConfirm = () => {
         <DialogFooter>
           <Button
             variant="text"
-            color="red"
+            color="green"
             onClick={handleOpen}
             className="mr-1"
           >
-            <span>Cancel</span>
-          </Button>
-          <Button variant="gradient" color="green" onClick={handleConfirm}>
-            <span>Confirm</span>
+            <span>X</span>
           </Button>
         </DialogFooter>
       </Dialog>

@@ -27,7 +27,7 @@ export function DialogEditPossible({loadData}) {
   const [sprite, setSprite] = useState(null);
   const [world, setWorld] = useState("");
 
-  const [selected, setSelected] = useState([])
+  const [selectedFish, setSelectedFish] = useState([]);
 
   const {addAlert, hideAllAlerts} = useContext(AlertContext);
 
@@ -51,18 +51,27 @@ export function DialogEditPossible({loadData}) {
 
   }
 
-  const handleSelect = (fish) => {
-  if (selected.includes(fish)) {
-    setSelected(selected.filter(item => item !== fish));
-  } else {
-    setSelected([...selected, fish]);
-  }
-};
+const handleSelect = (fish) => {
+  setSelectedFish((prev) => {
+    const exists = prev.some((item) => item._id === fish._id);
 
-  const handleClearSelect = () => {
-    console.log(selected)
-    setSelected([])
-  }
+    if (exists) {
+      return prev.filter((item) => item._id !== fish._id);
+    }
+
+    return [
+      ...prev,
+      {
+        ...fish,
+        minWeight: 0,
+        maxWeight: 0,
+        baseValue: 0,
+        coinValue: 0,
+        experienceReward: 0
+      },
+    ];
+  });
+};
 
   const handleOpen = () => {
     setOpen(!open);
@@ -71,88 +80,139 @@ export function DialogEditPossible({loadData}) {
     }
   }
 
-  // projekto kūrimo logika čia
-  const handleCreateFish = async () => {
-    // surenkame duomenis iš formos
-    // paprastų duomenų siuntimui JSON formatu
-    const fishData = {
-      mapId,
-      name,
-      description,
-      world
-    };
-    // siunčiame į API
-    const response = await fetch("/api/fishingspots", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(fishData),
-    });
-    if (!response.ok) {
-      // klaidos tvarkymas 
-      addAlert("Error creating the fishing spot", "error");
-      return;
-    }
-
-    const createdFish = await response.json();
-    if (!createdFish || !createdFish._id) {
-      addAlert("Error retrieving the created fishing spot", "error");
-      return;
-    }
-
-    addAlert("Fishing spot created", "success");
-
-    // jei yra nuotrauka, įkelti ją atskirai
-    if (sprite) {
-      const formData = new FormData();
-      formData.append("sprite", sprite);
-      const responseSprite = await fetch(`/api/fishing-spot/${createdFish._id}/sprite`, {
-        method: "PUT",
-        body: formData,
-      });
-
-      if (!responseSprite.ok) {
-        addAlert("Error uploading the fishing spot's sprite", "error");
-        return;
-      }
-
-      addAlert("Sprite of the fishing spot uploaded.", "success");
-    }
-
-    // atnaujiname projektų sąrašą
-    loadData();
-
-    // Išvvalome formos laukelius
-    handleClear();
-
-    handleOpen(); // uždaryti dialogą po kūrimo
-  };
+  const handleConfirm = () => {
+    console.log(selectedFish)
+    handleOpen()
+  }
 
   return (
     <>
       <Button
         onClick={handleOpen}
         variant="gradient"
-        className="mx-3 mr-0 flex items-center pl-2"
+        className="mx-3 mr-0 flex items-center"
       >
         <PlusCircleIcon className="h-5 w-5" />
       </Button>
-      <Dialog open={open} handler={handleOpen}>
+      <Dialog open={open}>
         <DialogHeader>Edit possible fishes</DialogHeader>
         <DialogBody className="flex flex-col gap-4">
-          <DialogAddFish handleSelect={handleSelect} handleClearSelect={handleClearSelect}/>
+          <DialogAddFish handleSelect={handleSelect} selectedFish={selectedFish}/>
+          <div className="flex flex-col gap-4 max-h-[50vh] overflow-y-auto pr-2">
+            {selectedFish.map((fish) => (
+              <div key={fish._id}>
+                <p>{fish.gamesId}</p>
+
+              <div className="flex flex-row gap-2">
+                <div className="w-[200px]">
+                  <Input
+                  type="number"
+                  value={fish.minWeight}
+                  label="minWeight"
+                  onChange={(e) => {
+                      const minWeight = Number(e.target.value);
+
+                      setSelectedFish((prev) =>
+                        prev.map((item) =>
+                          item._id === fish._id
+                            ? { ...item, minWeight }
+                            : item
+                        )
+                      );
+                    }}
+                  />
+                </div>
+
+                <div className="w-[200px]">
+                <Input
+                type="number"
+                value={fish.maxWeight}
+                label="maxWeight"
+                onChange={(e) => {
+                    const maxWeight = Number(e.target.value);
+
+                    setSelectedFish((prev) =>
+                      prev.map((item) =>
+                        item._id === fish._id
+                          ? { ...item, maxWeight }
+                          : item
+                      )
+                    );
+                  }}
+                />
+                </div>
+
+                  <div className="w-[200px]">
+                <Input
+                type="number"
+                value={fish.baseValue}
+                label="baseValue"
+                onChange={(e) => {
+                    const baseValue = Number(e.target.value);
+
+                    setSelectedFish((prev) =>
+                      prev.map((item) =>
+                        item._id === fish._id
+                          ? { ...item, baseValue }
+                          : item
+                      )
+                    );
+                  }}
+                />
+                </div>
+
+                <div className="w-[200px]">
+                <Input
+                type="number"
+                value={fish.experienceReward}
+                label="experienceReward"
+                onChange={(e) => {
+                    const experienceReward = Number(e.target.value);
+
+                    setSelectedFish((prev) =>
+                      prev.map((item) =>
+                        item._id === fish._id
+                          ? { ...item, experienceReward }
+                          : item
+                      )
+                    );
+                  }}
+                />
+                </div>
+
+                <div className="w-[200px]">
+                <Input
+                type="number"
+                value={fish.coinValue}
+                label="coinValue"
+                onChange={(e) => {
+                    const coinValue = Number(e.target.value);
+
+                    setSelectedFish((prev) =>
+                      prev.map((item) =>
+                        item._id === fish._id
+                          ? { ...item, coinValue }
+                          : item
+                      )
+                    );
+                  }}
+                />
+                </div>
+                </div>
+                </div>
+
+          ))}
+          </div>
         </DialogBody>
         <DialogFooter>
           <Button
             variant="text"
             color="red"
             onClick={handleOpen}
-            className="mr-1"
-          >
-            <span>Cancel</span>
+            className="mr-1">
+            <span>Clear</span>
           </Button>
-          <Button variant="gradient" color="green" onClick={handleCreateFish}>
+          <Button variant="gradient" color="green" onClick={handleConfirm}>
             <span>Confirm</span>
           </Button>
         </DialogFooter>

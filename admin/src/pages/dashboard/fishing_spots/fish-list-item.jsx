@@ -18,7 +18,7 @@ import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/solid";
 import DialogViewPossibleFishes from "./dialog-view-possible-fishes";
 import DialogEditPossible from "./dialog-edit-possible";
 
-export function AddFishListItem({data, handleSelect}) {
+export function AddFishListItem({data, handleSelect, selectedFish}) {
   const { _id, sprite} = data;
   
   const [gamesId, setGamesId] = useState(data.gamesId)
@@ -26,9 +26,12 @@ export function AddFishListItem({data, handleSelect}) {
 
   const [fishSprite, setFishSprite] = useState(sprite ? `/api/images/fish/` + sprite : null);
 
+  const isSelected = selectedFish.some(
+    (fish) => fish._id === data._id
+  );
+
   const handleClick = () => {
-    setSelected(!selected)
-    handleSelect(gamesId)
+    handleSelect(data)
   }
 
   // const { token } = useContext(AuthContext);
@@ -40,7 +43,7 @@ export function AddFishListItem({data, handleSelect}) {
     </div>
   );
 
-  const classes = selected ? "rounded border-2 border-blue-300 bg-gray-100 flex flex-col justify-center items-center p-5 cursor-pointer" : "rounded border-2 border-gray-700 bg-gray-300 flex flex-col justify-center items-center p-5 cursor-pointer"
+  const classes = isSelected ? "rounded border-2 border-blue-300 bg-gray-100 flex flex-col justify-center items-center p-5 cursor-pointer" : "rounded border-2 border-gray-700 bg-gray-300 flex flex-col justify-center items-center p-5 cursor-pointer"
 
   return (
     <div className={classes} onClick={() => {handleClick()}}>
