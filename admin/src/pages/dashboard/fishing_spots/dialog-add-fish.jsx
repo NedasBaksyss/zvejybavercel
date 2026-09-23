@@ -73,10 +73,10 @@ export function DialogAddFish({handleSelect, selectedFish}) {
         className="mx-3 mr-0 flex items-center pl-2"
       >
         <PlusCircleIcon className="mr-2 h-5 w-5" />
-        Add fish
+        Edit & Add Fish
       </Button>
       <Dialog open={open}>
-        <DialogHeader>Add possible fish</DialogHeader>
+        <DialogHeader>Select possible fish</DialogHeader>
         <DialogBody className="flex flex-row gap-4">
           {rows.map((data) => {
 

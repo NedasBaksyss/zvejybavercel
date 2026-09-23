@@ -17,16 +17,11 @@ import { AlertContext } from "@/context";
 import { fishingWorld } from "./fishing-spot-fields";
 import DialogAddFish from "./dialog-add-fish";
 
-export function DialogEditPossible({loadData, selectedFish, handleSelect, clearSelectedFish, updateSelectedFish}) {
+export function DialogEditPossible({loadData, selectedFish, handleSelect, updateSelectedFish}) {
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => {
     setOpen(!open);
-  }
-
-  const handleClear = () => {
-    clearSelectedFish()
-    handleOpen()
   }
 
   const handleConfirm = () => {
@@ -124,13 +119,6 @@ export function DialogEditPossible({loadData, selectedFish, handleSelect, clearS
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button
-            variant="text"
-            color="red"
-            onClick={handleClear}
-            className="mr-1">
-            <span>Clear</span>
-          </Button>
           <Button variant="gradient" color="green" onClick={handleConfirm}>
             <span>Confirm</span>
           </Button>

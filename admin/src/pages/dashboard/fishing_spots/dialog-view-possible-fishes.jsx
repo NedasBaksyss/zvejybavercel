@@ -52,11 +52,11 @@ export function DialogViewPossibleFishes({data}) {
       <Dialog open={open} handler={handleOpen}>
         <DialogHeader>{data.name}'s possible fishes</DialogHeader>
         <DialogBody className="flex flex-col gap-4">
-        <div className="flex flex-col gap-4 max-h-[50vh] overflow-y-auto pr-2">
-          {data.possibleFishes ?
+        <div className="flex flex-row gap-4 max-h-[50vh] overflow-y-auto pr-2">
+          {data.possibleFishes?.length > 0 ?
           (data.possibleFishes.map((fish) => (
             <div key={fish._id}>
-              <h2 className="font-semibold text-black">{fish._id}</h2>
+              <h2 className="font-semibold text-black">{fish.gamesId}</h2>
               <div>
                 <div>
                   <p>minWeight: {fish.minWeight}</p>

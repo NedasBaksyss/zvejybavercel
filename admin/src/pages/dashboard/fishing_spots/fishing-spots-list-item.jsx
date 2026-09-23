@@ -27,7 +27,7 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
   const [description, setDescription] = useState(data.description);
   const [world, setWorld] = useState(data.world);
 
-  const [selectedFish, setSelectedFish] = useState([]);
+  const [selectedFish, setSelectedFish] = useState(data.possibleFishes);
 
   const [spriteName, setSpriteName] = useState("");
   const [spriteFile, setSpriteFile] = useState();
@@ -80,10 +80,6 @@ const updateSelectedFish = (fishId, changes) => {
   );
 };
 
- const clearSelectedFish = () => {
-  setSelectedFish([])
- }
-
   function handleFileChange(e) {
     setSpriteName(e.target.value);
     setSpriteFile(e.target.files[0]);
@@ -120,6 +116,7 @@ const updateSelectedFish = (fishId, changes) => {
 
     const possibleFishes = selectedFish.map((fish) => ({
       _id: fish._id,
+      gamesId: fish.gamesId,
       minWeight: fish.minWeight,
       maxWeight: fish.maxWeight,
       baseValue: fish.baseValue,
@@ -188,7 +185,7 @@ const updateSelectedFish = (fishId, changes) => {
 
   const cancelEdit = () => {
     console.log(selectedFish)
-    setSelectedFish([])
+    setSelectedFish(data.possibleFishes)
     setMapId(data.mapId);
     setName(data.name);
     setDescription(data.description);
@@ -285,7 +282,7 @@ const updateSelectedFish = (fishId, changes) => {
       </td>
       <td className={classes}>
         <div className="flex justify-center">
-          {editMode ? (<DialogEditPossible data={data} selectedFish={selectedFish} handleSelect={handleSelectFish} clearSelectedFish={clearSelectedFish} updateSelectedFish={updateSelectedFish} />) : 
+          {editMode ? (<DialogEditPossible data={data} selectedFish={selectedFish} handleSelect={handleSelectFish} updateSelectedFish={updateSelectedFish} />) : 
           (<DialogViewPossibleFishes data={data}/>)}
         </div>
       </td>

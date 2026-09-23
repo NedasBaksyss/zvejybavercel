@@ -97,6 +97,7 @@ if (body.possibleFishes !== undefined) {
 
     return {
       _id: possibleFish._id,
+      gamesId: possibleFish.gamesId,
       minWeight: Number(possibleFish.minWeight),
       maxWeight: Number(possibleFish.maxWeight),
       baseValue: Number(possibleFish.baseValue),
