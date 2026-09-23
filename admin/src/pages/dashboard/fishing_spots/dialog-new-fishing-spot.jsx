@@ -74,7 +74,8 @@ export function DialogNewFishingSpot({loadData}) {
       mapId,
       name,
       description,
-      world
+      world,
+      possibleFishes: []
     };
     // siunčiame į API
     const response = await fetch("/api/fishingspots", {

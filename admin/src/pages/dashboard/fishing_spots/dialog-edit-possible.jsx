@@ -43,7 +43,7 @@ export function DialogEditPossible({loadData, selectedFish, handleSelect, update
         <DialogBody className="flex flex-col gap-4">
           <DialogAddFish handleSelect={handleSelect} selectedFish={selectedFish}/>
           <div className="flex flex-col gap-4 max-h-[50vh] overflow-y-auto pr-2">
-            {selectedFish.map((fish) => (
+            {selectedFish?.length > 0 ? selectedFish.map((fish) => (
               <div key={fish._id}>
                 <p>{fish.gamesId}</p>
 
@@ -115,7 +115,7 @@ export function DialogEditPossible({loadData, selectedFish, handleSelect, update
                 </div>
                 </div>
 
-          ))}
+          )) : null }
           </div>
         </DialogBody>
         <DialogFooter>
