@@ -14,7 +14,7 @@ export function label(ctx, value, x, y, color = "#e8ead0", selected = false) {
   ctx.fillText(value, left + 7, y + 15);
 }
 
-export function drawCharacter(ctx, x, y, time, moving, direction) {
+export function drawCharacter(ctx, x, y, time, moving, direction, holdingRod = true) {
   ctx.save();
   ctx.translate(Math.round(x), Math.round(y));
   const step = moving ? Math.sin(time * 16) * 2 : 0;
@@ -40,11 +40,13 @@ export function drawCharacter(ctx, x, y, time, moving, direction) {
   if (direction !== "up") {
     ctx.fillRect(direction === "left" ? -5 : 2, -11, 2, 2);
   }
-  ctx.strokeStyle = "#76553b";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(10, 3);
-  ctx.lineTo(16, -24);
-  ctx.stroke();
+  if (holdingRod) {
+    ctx.strokeStyle = "#76553b";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(10, 3);
+    ctx.lineTo(16, -24);
+    ctx.stroke();
+  }
   ctx.restore();
 }

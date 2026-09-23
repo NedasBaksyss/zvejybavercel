@@ -3,7 +3,7 @@ import { createTerrain } from "./mapTerrain.js";
 import { drawFlatMap } from "./rendering/drawFlatMap.jsx";
 import { createGlobeRenderer } from "./rendering/createGlobeRenderer.jsx";
 import { drawDestination } from "./rendering/drawDestination.jsx";
-import { canCastAt } from "./rendering/drawFishingScene.jsx";
+import { canCastAt } from "./rendering/drawFishingScene.js";
 
 export function createMapRenderer(canvas, getLanguage) {
   const ctx = canvas.getContext("2d");

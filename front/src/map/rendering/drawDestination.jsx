@@ -1,11 +1,11 @@
 import { VIEW } from "../mapData.js";
 import { drawTree, drawShop } from "../terrain/terrainSprites.jsx";
 import { drawCharacter } from "./mapSprites.jsx";
-import { drawFishingScene } from "./drawFishingScene.jsx";
+import { drawFishingScene } from "./drawFishingScene.js";
 
 export function drawDestination(ctx, location, time, state) {
   if (location.type === "lake") {
-    drawFishingScene(ctx, time, state.fishing);
+    drawFishingScene(ctx, location, time, state.fishing, state.platformId);
     return;
   }
   const sky = ctx.createLinearGradient(0, 0, 0, 320);

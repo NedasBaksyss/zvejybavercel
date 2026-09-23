@@ -1,4 +1,5 @@
 import { createFishingState, castLine, hookFish } from "../fishing.js";
+import { chooseLakePlatform } from "../lakePlatforms.js";
 import {
   LOCATIONS,
   MAP_VERSION,
@@ -37,7 +38,9 @@ export function createLocationActions({
     clearInput();
     runtime.state.player = { ...place.entry };
     runtime.state.destination = place;
-    runtime.fishing = createFishingState();
+    const platform = place.type === "lake" ? chooseLakePlatform(place.id) : null;
+    runtime.state.platformId = platform?.id || null;
+    runtime.fishing = createFishingState(platform ? { ...platform.target } : null);
     save();
     publish(true);
     emit("enterLocation", {
@@ -48,6 +51,7 @@ export function createLocationActions({
       name: place.name[language()],
       position: { ...place.entry },
       possibleFish: [...place.possibleFish],
+      platformId: runtime.state.platformId,
       slot: getSlot(),
     });
     onFocus(place.type === "lake" ? "canvas" : "return");
@@ -99,6 +103,7 @@ export function createLocationActions({
       return false;
     const locationId = runtime.state.destination.id;
     runtime.state.destination = null;
+    runtime.state.platformId = null;
     runtime.fishing = createFishingState();
     runtime.state.camera = { ...runtime.state.player };
     clearInput();

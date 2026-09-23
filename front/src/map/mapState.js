@@ -26,6 +26,7 @@ export function createMapState() {
     direction: "down",
     selectedId: "quiet-lake",
     destination: null,
+    platformId: null,
   };
 }
 

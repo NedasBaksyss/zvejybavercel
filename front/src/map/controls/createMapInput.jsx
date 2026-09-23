@@ -173,7 +173,15 @@ export function createMapInput({
     )
       return;
     const target = point(event);
-    if (runtime.fishing.phase === "bite" || runtime.renderer?.canCastAt(target.x, target.y)) toggleFishing(target);
+    if (
+      runtime.fishing.phase === "bite" ||
+      runtime.renderer?.canCastAt(
+        target.x,
+        target.y,
+        runtime.state.destination.id,
+      )
+    )
+      toggleFishing(target);
   });
 
   return {
