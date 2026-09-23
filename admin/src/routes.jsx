@@ -23,17 +23,17 @@ export const routes = [
     pages: [
       {
         icon: <HomeIcon {...icon} />,
-        name: "dashboard",
+        name: "Dashboard",
         path: "/home",
         element: <Home />,
       }
-      // ,
-      // {
-      //   icon: <UserCircleIcon {...icon} />,
-      //   name: "Vartotojų sąrašas",
-      //   path: "/vartotojai",
-      //   element: <UserList />,
-      // },
+      ,
+      {
+        icon: <UserCircleIcon {...icon} />,
+        name: "Users",
+        path: "/users",
+        element: <UserList />,
+      },
       // {
       //   icon: <UserCircleIcon {...icon} />,
       //   name: "Paskyra",

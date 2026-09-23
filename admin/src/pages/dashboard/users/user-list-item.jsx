@@ -12,7 +12,7 @@ import { useContext } from "react";
 import { AuthContext, AlertContext } from "@/context";
 
 export function UserListItem({userData, isLast, setError, setRows, roleList}) {
-  const { id, role, email, status} = userData;
+  const { _id, username} = userData;
 
   // const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
@@ -112,12 +112,12 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
         <div className="flex items-center gap-3">
           <div className="flex flex-col">
             <Typography variant="small" color="blue-gray" className="font-normal">
-              {email}
+              {username}
             </Typography>
           </div>
         </div>
       </td>
-
+{/* 
       <td className={classes}>
         <div className="w-40"> 
           <Select 
@@ -166,7 +166,7 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
             persistStatusChange(id, prevStatus, nextStatus);
           }}
         />
-      </td>
+      </td> */}
 
       <td className={classes}>
         <Tooltip content="Edit User">

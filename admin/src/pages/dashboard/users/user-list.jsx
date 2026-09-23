@@ -18,12 +18,12 @@ import { AuthContext, AlertContext } from "@/context";
 
 
 const TABS = [
-  { label: "Visi", value: "all" },
-  { label: "Administratoriai", value: "admin" },
-  { label: "Vartotojai", value: "user" },
+  { label: "All", value: "all" },
+  { label: "Admin", value: "admin" },
+  { label: "User", value: "user" },
 ];
 
-const TABLE_HEAD = ["Vartotojas", "Rolė", "Būsena", "Redaguoti"];
+const TABLE_HEAD = ["User", "Role", "Game's Info", "Account's Info", "Edit"];
 
 export function UserList() {
   const [rows, setRows] = useState([]);            // fetched members
@@ -36,11 +36,7 @@ export function UserList() {
   // const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
-  useEffect(() => {
-    // if (!token) return; // wait until token is available
-
-    // vartotojų sąrašas
-    (async () => {
+  const loadData = async () => {
       try {
         setLoading(true);
         const res = await fetch("/api/users", {
@@ -63,11 +59,17 @@ export function UserList() {
 
         setRows(data);
       } catch (e) {
-        addAlert(e.message || "Nepavyko užkrauti vartotojų", "error");
+        addAlert(e.message || "Failed to load users.", "error");
       } finally {
         setLoading(false);
       }
-    })();
+    }
+  }
+
+  useEffect(() => {
+    // if (!token) return; // wait until token is available
+
+    // vartotojų sąrašas
 
   }
 // [token]
@@ -96,20 +98,12 @@ export function UserList() {
         <div className="mb-8 flex items-center justify-between gap-8">
           <div>
             <Typography variant="h5" color="blue-gray">
-              Vartotojų sarašas
+              User list
             </Typography>
             <Typography color="gray" className="mt-1 font-normal">
-              Peržiurėti ir valdyti registruotus vartotojus
+              View and manage registered users
             </Typography>
           </div>
-          {/* <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-            <Button variant="outlined" size="sm">
-              view all
-            </Button>
-            <Button className="flex items-center gap-3" size="sm">
-              <UserPlusIcon strokeWidth={2} className="h-4 w-4" /> Add member
-            </Button>
-          </div> */}
         </div>
 
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
@@ -137,7 +131,7 @@ export function UserList() {
       <CardBody className="overflow-scroll px-0">
         {loading && (
           <div className="p-6 text-center text-sm text-blue-gray-500">
-            Loading members…
+            Loading users…
           </div>
         )}
         {error && (
@@ -173,7 +167,7 @@ export function UserList() {
                   
                   return (
                     <UserListItem 
-                      key={userData.id} 
+                      key={userData._id} 
                       userData={userData} 
                       isLast={isLast} 
                       rows={rows} 
@@ -188,7 +182,7 @@ export function UserList() {
               {filtered.length === 0 && (
                 <tr>
                   <td className="p-4 text-sm text-blue-gray-500" colSpan={5}>
-                    No members match your filters.
+                    No users match your filters.
                   </td>
                 </tr>
               )}
