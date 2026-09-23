@@ -14,7 +14,7 @@ const uploadFile = async (req, field, folder, name) => {
       let file_mime = req.files[field].mimeType;
 
       // išsaugome failą kataloge
-      let file_name = Date.now() + '_' + name + '.' + file_mime.split('/')[1];
+      let file_name = name + '.' + file_mime.split('/')[1];
       await fs.promises.writeFile(`public/${folder}/${file_name}`, file);
 
       return file_name;
