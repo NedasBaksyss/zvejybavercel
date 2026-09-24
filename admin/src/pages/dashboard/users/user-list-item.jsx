@@ -1,18 +1,22 @@
-import { PencilIcon } from "@heroicons/react/24/solid";
+import { PencilIcon, TrashIcon, CheckIcon, XMarkIcon} from "@heroicons/react/24/solid";
 import {
   Typography,
   IconButton,
   Tooltip,
   Select,
   Option,
-  Switch,
+  Switch
 } from "@material-tailwind/react";
 
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext, AlertContext } from "@/context";
+import DialogViewId from "./dialog-view-id";
 
 export function UserListItem({userData, isLast, setError, setRows, roleList}) {
-  const { _id, username} = userData;
+  const { _id, username, role, passwordHash, googleId, stats, createdAt, lastLogin} = userData;
+
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [editMode, setEditMode] = useState(false);
 
   // const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
@@ -106,6 +110,90 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
     }
   };
 
+    const handleDelete = async () => {
+    try {
+      const res = await fetch(`/api/fishes/${id}`, {
+        method: "DELETE",
+        headers: { 
+          "Content-Type": "application/json",
+          // "Authorization": `Bearer ${token}` 
+        },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      loadData();
+      addAlert("Fish successfully deleted.", "success");
+    } catch (e) {
+      addAlert(e.message || "Failed to delete the fish.", "error");
+    } 
+  };
+
+    const confirmEdit = async () => {
+    let dataSendSuccess = false;
+    let spriteSendSuccess = true;
+
+    // surenkame duomenis
+    const updatedData = {
+      gamesId,
+      name,
+      description,
+      rarity
+    };
+
+    // jei laukeliai tušti, pranešame klaidą
+    if (!updatedData.gamesId || !updatedData.name || !updatedData.description || !updatedData.rarity) {
+      addAlert("Fill in all fields before submitting.", "error");
+      return;
+    }
+
+    // dumenų siuntimas
+    try {
+      const res = await fetch(`/api/fishes/${id}`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json"
+          // "Authorization": `Bearer ${token}` 
+        },
+        body: JSON.stringify(updatedData),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      addAlert("The fish has been successfully updated.", "success");
+      dataSendSuccess = true;
+    } catch (e) {
+      addAlert(e.message || "Failed to update fish", "error");
+    }
+
+    // nuotraukos siuntimas, jei pasirinkta
+    if (spriteFile && dataSendSuccess) {
+      spriteSendSuccess = false;
+      const formData = new FormData();
+      formData.append("sprite", spriteFile);  
+      try {
+        const res = await fetch(`/api/fishes/${id}/sprite`, {
+          method: "PUT",
+          // headers: { 
+          //   "Authorization": `Bearer ${token}` 
+          // },
+          body: formData,
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        spriteSendSuccess = true;
+        addAlert("The fish photo has been successfully updated.", "success");
+      } catch (e) {
+        addAlert(e.message || "Failed to update the fish photo.", "error");
+      }
+    }
+
+    if (spriteSendSuccess && dataSendSuccess) {
+      loadData();
+      setEditMode(false);
+    }
+  };
+
+    const cancelEdit = () => {
+    setEditMode(false);
+  }
+
   return (
     <tr>
       <td className={classes}>
@@ -113,6 +201,15 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
           <div className="flex flex-col">
             <Typography variant="small" color="blue-gray" className="font-normal">
               {username}
+            </Typography>
+          </div>
+        </div>
+      </td>
+      <td className={classes}>
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+            <Typography variant="small" color="blue-gray" className="font-normal">
+              {role}
             </Typography>
           </div>
         </div>
@@ -168,13 +265,49 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
         />
       </td> */}
 
-      <td className={classes}>
-        <Tooltip content="Edit User">
-          <IconButton variant="text">
-            <PencilIcon className="h-4 w-4" />
-          </IconButton>
-        </Tooltip>
-      </td>
+        {confirmDelete ? (
+        <td className={classes}>
+          <Tooltip content="Confirm deletion">
+            <IconButton variant="text" className="bg-red-300 hover:bg-red-500 text-white mr-2" onClick={handleDelete}>
+              <CheckIcon className="h-4 w-4" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip content="Cancel deletion">
+            <IconButton variant="text" onClick={() => setConfirmDelete(false)}>
+              <XMarkIcon className="h-4 w-4" />
+            </IconButton>
+          </Tooltip>
+        </td>
+        ) : 
+        editMode ? (
+        <td className={classes}>
+          <Tooltip content="Confirm edit">
+            <IconButton variant="text" className="text-green-500 hover:text-green-700 mr-2" onClick={confirmEdit}>
+              <CheckIcon className="h-4 w-4" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip content="Cancel editing">
+            <IconButton variant="text" onClick={cancelEdit}>
+              <XMarkIcon className="h-4 w-4" />
+            </IconButton>
+          </Tooltip>
+        </td>
+        )
+        : (
+        <td className={classes}>
+          <Tooltip content="Edit">
+            <IconButton variant="text" className="mr-2" onClick={() => setEditMode(true)}>
+              <PencilIcon className="h-4 w-4" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip content="Delete">
+            <IconButton variant="text" onClick={() => setConfirmDelete(true)}>
+              <TrashIcon className="h-4 w-4 text-red-500" />
+            </IconButton>
+          </Tooltip>
+          <DialogViewId data={userData}/>
+        </td>
+        )}
     </tr>
   );
 }
