@@ -135,10 +135,10 @@ export const LOCATIONS = [
     radiusX: 78,
     radiusY: 52,
     entry: { x: 4590, y: 878 },
-    name: { LT: "Kalnų ežeras", EN: "Highland Lake" },
+    name: { LT: "Šalnų ežeras", EN: "Frostwater Lake" },
     description: {
-      LT: "Vėsus ežeras šiaurinėse aukštumose.",
-      EN: "A cool lake tucked into the northern highlands.",
+      LT: "Ledinis ežeras tarp apsnigtų viršūnių ir šerkšnotų pušų.",
+      EN: "An icy lake beneath snow-covered peaks and frost-laden pines.",
     },
     possibleFish: ["trout", "perch"],
   },

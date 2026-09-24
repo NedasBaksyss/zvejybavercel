@@ -1,4 +1,4 @@
-export function drawTree(ctx, x, y, size = 1) {
+export function drawTree(ctx, x, y, size = 1, snowy = false) {
   ctx.fillStyle = "#213d33";
   ctx.fillRect(x - 1 * size, y, 2 * size, 4 * size);
   ctx.fillStyle = "#234e3d";
@@ -15,6 +15,16 @@ export function drawTree(ctx, x, y, size = 1) {
   ctx.fill();
   ctx.fillStyle = "#4c8058";
   ctx.fillRect(x - size, y - 8 * size, size, 3 * size);
+  if (snowy) {
+    for (let layer = 0; layer < 3; layer++) {
+      const top = y - (13 - layer * 4) * size;
+      const width = (2 + layer * 1.5) * size;
+      ctx.fillStyle = "#eff5eb";
+      ctx.fillRect(Math.round(x - width), Math.round(top + 3 * size), Math.round(width * 2), Math.max(1, Math.round(2 * size)));
+      ctx.fillStyle = "#b6ced4";
+      ctx.fillRect(Math.round(x), Math.round(top + 4 * size), Math.round(width), Math.max(1, Math.round(size)));
+    }
+  }
 }
 
 export function drawShop(ctx, x, y, size = 1) {

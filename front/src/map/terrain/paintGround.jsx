@@ -1,6 +1,7 @@
 import { WORLD_SCALE, CLEARINGS } from "../mapData.js";
 import { BRIDGES } from "./terrainGeometry.jsx";
 import { noise, intersects } from "./terrainUtils.jsx";
+import { isWinter, winterPath } from "./winterRegion.js";
 
 export function paintGround(
   ctx,
@@ -33,6 +34,8 @@ export function paintGround(
     ctx.fillStyle = "#dce0c8";
     ctx.fillRect(0, 0, 1600, 124);
     ctx.fillRect(0, 735, 1600, 65);
+    ctx.fillStyle = "#dfebe6";
+    ctx.fill(winterPath(WORLD_SCALE));
     ctx.restore();
   }
   ctx.restore();
@@ -48,7 +51,9 @@ export function paintGround(
     ) {
       const x = gx * 48 + noise(gx, gy) * 30,
         y = gy * 48 + noise(gx, gy, 12) * 30;
-      ctx.fillStyle = land(x, y)
+      ctx.fillStyle = land(x, y) && isWinter(x, y)
+        ? noise(gx, gy, 7) > 0.5 ? "#f7faf080" : "#97b4c13a"
+        : land(x, y)
         ? noise(gx, gy, 7) > 0.5
           ? "#b7be7d22"
           : "#3f724d28"
@@ -68,13 +73,25 @@ export function paintGround(
   ctx.strokeStyle = "#256a80";
   ctx.lineWidth = 14 / WORLD_SCALE;
   ctx.stroke(river);
+  ctx.save();
+  ctx.clip(winterPath(WORLD_SCALE));
+  ctx.strokeStyle = "#eef5ec";
+  ctx.lineWidth = 34 / WORLD_SCALE;
+  ctx.stroke(river);
+  ctx.strokeStyle = "#a7ced4";
+  ctx.lineWidth = 26 / WORLD_SCALE;
+  ctx.stroke(river);
+  ctx.strokeStyle = "#397b93";
+  ctx.lineWidth = 17 / WORLD_SCALE;
+  ctx.stroke(river);
+  ctx.restore();
   ctx.restore();
   for (const { spot, path } of lakes) {
     if (!intersects(bounds, spot.x, spot.y, spot.radiusX + 15)) continue;
-    ctx.strokeStyle = "#b5bb83";
+    ctx.strokeStyle = isWinter(spot.x, spot.y) ? "#f0f5eb" : "#b5bb83";
     ctx.lineWidth = 10;
     ctx.stroke(path);
-    ctx.fillStyle = "#398c93";
+    ctx.fillStyle = isWinter(spot.x, spot.y) ? "#a7cfd5" : "#398c93";
     ctx.fill(path);
     ctx.save();
     ctx.clip(path);
@@ -133,6 +150,20 @@ export function paintGround(
     ctx.lineWidth = 2;
     ctx.stroke(path);
   }
+  ctx.save();
+  ctx.clip(winterPath());
+  for (const path of trails) {
+    ctx.strokeStyle = "#a8bbbc";
+    ctx.lineWidth = 20;
+    ctx.stroke(path);
+    ctx.strokeStyle = "#cedbd5";
+    ctx.lineWidth = 14;
+    ctx.stroke(path);
+    ctx.strokeStyle = "#eef3e9";
+    ctx.lineWidth = 2;
+    ctx.stroke(path);
+  }
+  ctx.restore();
   for (const bridge of BRIDGES) {
     ctx.fillStyle = "#735f43";
     ctx.fillRect(bridge.x, bridge.y, bridge.width, bridge.height);

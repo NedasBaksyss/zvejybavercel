@@ -10,7 +10,7 @@ export function createMapLoop({ runtime, keys, save, publish, getSlot, emit }) {
     if (!runtime.active || runtime.stopped) return;
     const dt = document.hidden || !document.hasFocus() ? 0 : Math.min((now - lastTime) / 1000, 0.05);
     lastTime = now;
-    const outcome = updateFishing(runtime.fishing, dt, keys,
+    const outcome = updateFishing(runtime.fishing, dt,
       runtime.state.destination?.possibleFish || []);
     if (outcome === "caught") {
       const slot = getSlot();

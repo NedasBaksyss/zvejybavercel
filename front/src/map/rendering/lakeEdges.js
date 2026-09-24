@@ -12,7 +12,7 @@ const PALETTES = {
   pine: ["#183932", "#2b5041", "#73846a", "#456747"],
   reeds: ["#283e31", "#43563c", "#7d7953", "#5c7045"],
   meadow: ["#426b3e", "#65884c", "#b4a874", "#93ae61"],
-  highland: ["#3c5356", "#5a6c6b", "#aab9ae", "#7e9284"],
+  highland: ["#d9e6e4", "#b4cbd3", "#f1f5eb", "#f4f8f0"],
   sunset: ["#392d3d", "#655047", "#a57b62", "#805f50"],
 };
 export function bankHeight(scene, x) {
@@ -78,6 +78,45 @@ export function drawFarEdge(ctx, scene) {
     ctx.fillRect(x, scene.horizon + depth, 4, 2);
     ctx.fillStyle = "#132c3544";
     ctx.fillRect(x, scene.horizon + depth + 3, 4, 7);
+  }
+}
+
+// Side headlands anchor the distant docks directly to solid ground.
+export function landingWidth(scene, platform, y) {
+  const bottom = platform.y + 16;
+  if (y < scene.horizon || y > bottom) return 0;
+  const t = (y - scene.horizon) / (bottom - scene.horizon);
+  return Math.max(0, Math.round((132 * (1 - t) ** 0.7 + 12 * Math.sin(t * Math.PI)) / 3) * 3);
+}
+
+export function drawLandings(ctx, scene, platforms) {
+  const [ground, edge, sand, grass] = PALETTES[scene.biome];
+  for (const p of platforms.filter((p) => p.id !== "near-bank")) {
+    const left = p.x < 480;
+    for (let y = scene.horizon; y <= p.y + 16; y += 2) {
+      const width = landingWidth(scene, p, y);
+      const x = left ? 0 : 960 - width;
+      ctx.fillStyle = ground;
+      ctx.fillRect(x, y, width, 2);
+      const shore = left ? width : x;
+      ctx.fillStyle = edge;
+      ctx.fillRect(shore - (left ? 6 : 0), y, 6, 2);
+      ctx.fillStyle = sand;
+      ctx.fillRect(shore - (left ? 2 : 0), y, 2, 2);
+      ctx.fillStyle = scene.water[0] + "88";
+      ctx.fillRect(shore + (left ? 2 : -6), y + 2, 4, 2);
+      if (y % 8 === 0 && width > 20) {
+        ctx.fillStyle = grass;
+        const detailX = left ? width - 17 : x + 12;
+        ctx.fillRect(detailX, y, 5, 2);
+      }
+    }
+    // A short worn path reaches the shoreward end of the platform.
+    const startX = left ? p.x : p.x + p.width - 16;
+    ctx.fillStyle = edge;
+    ctx.fillRect(startX - 5, p.y - 7, 24, 7);
+    ctx.fillStyle = sand;
+    ctx.fillRect(startX, p.y - 4, 14, 3);
   }
 }
 
