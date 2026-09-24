@@ -8,7 +8,7 @@ export function createFishingState(target = null) {
     phase: "idle", cast: false, target, elapsed: 0, phaseTime: 0,
     nextCheck: 3, chance: 0, fish: null, fishPosition: 0.5,
     fishGoal: 0.5, nextTurn: 0, control: 0.5, progress: 0.3,
-    tracking: true,
+    tracking: true, controlDirection: 0,
   };
 }
 
@@ -20,11 +20,18 @@ export function hookFish(fishing) {
   if (fishing.phase !== "bite") return false;
   fishing.phase = "fighting";
   fishing.phaseTime = 0;
+  fishing.controlDirection = 0;
   return true;
 }
 
+export function steerFishing(fishing, key) {
+  if (fishing.phase !== "fighting") return;
+  if (key === "KeyA" || key === "ArrowLeft") fishing.controlDirection = -1;
+  if (key === "KeyD" || key === "ArrowRight") fishing.controlDirection = 1;
+}
+
 // Advance using active gameplay time, never wall time or render-frame odds.
-export function updateFishing(fishing, dt, keys, species, random = Math.random) {
+export function updateFishing(fishing, dt, species, random = Math.random) {
   if (fishing.phase === "idle" || dt <= 0) return null;
   fishing.elapsed += dt;
   fishing.phaseTime += dt;
@@ -41,9 +48,7 @@ export function updateFishing(fishing, dt, keys, species, random = Math.random) 
   } else if (fishing.phase === "bite") {
     if (fishing.phaseTime >= BITE_WINDOW) return finish(fishing, "lost");
   } else if (fishing.phase === "fighting") {
-    const direction = Number(keys.has("KeyD") || keys.has("ArrowRight")) -
-      Number(keys.has("KeyA") || keys.has("ArrowLeft"));
-    fishing.control = clamp(fishing.control + direction * dt * 0.55,
+    fishing.control = clamp(fishing.control + fishing.controlDirection * dt * 0.55,
       CONTROL_WIDTH / 2, 1 - CONTROL_WIDTH / 2);
     if (fishing.phaseTime >= fishing.nextTurn) {
       fishing.fishGoal = 0.04 + random() * 0.92;

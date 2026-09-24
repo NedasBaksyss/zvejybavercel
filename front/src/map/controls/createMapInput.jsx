@@ -1,4 +1,5 @@
 import { VIEW, GLOBE_START, clamp } from "../mapData.js";
+import { steerFishing } from "../fishing.js";
 
 export function createMapInput({
   canvas,
@@ -37,7 +38,7 @@ export function createMapInput({
     if (runtime.fishing.phase === "fighting" &&
       ["KeyA", "KeyD", "ArrowLeft", "ArrowRight"].includes(key)) {
       event.preventDefault();
-      keys.add(key);
+      if (!event.repeat) steerFishing(runtime.fishing, key);
       return;
     }
     if (key === "Space" && event.target.closest?.("button")) return;
