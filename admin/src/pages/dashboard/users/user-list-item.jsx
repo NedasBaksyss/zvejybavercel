@@ -32,8 +32,8 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
       const res = await fetch(`/api/users/${userId}/role`, {
         method: "PATCH",
         headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json"
+          // "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ role: nextRole }),
       });
@@ -68,50 +68,6 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
     }
   };
 
-  const persistStatusChange = async (userId, fallbackStatus, nextStatus) => {
-    try {
-      setError(null);
-
-      const res = await fetch(`/api/users/${userId}/status`, {
-        method: "PATCH",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ status: nextStatus }),
-      });
-
-      if (!res.ok) {
-        addAlert("Būsenos pakeisti nepavyko", "error");
-      }
-
-      try {
-        const text = await res.text();
-        if (text) {
-          const data = JSON.parse(text);
-          if (data?.message) {
-            addAlert(data.message, "success");
-          } else if (data?.error) {
-            addAlert(data.error, "error");
-          }
-        }
-      } catch (err) {
-          addAlert(`JSON nuskaitymo klaida (HTTP ${res.status})`, "error");
-      }
-
-    } catch (err) {
-      setRows((prev) =>
-        prev.map((row) => {
-          if (row.id !== userId) return row;
-          if ((row.status ?? null) !== nextStatus) return row;
-          return { ...row, status: fallbackStatus };
-        })
-      );
-
-      addAlert(err.message || "Nepavyko pakeisti būsenos", "error");
-    }
-  };
-
     const handleDelete = async () => {
     try {
       const res = await fetch(`/api/fishes/${id}`, {
@@ -131,65 +87,7 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
   };
 
     const confirmEdit = async () => {
-    let dataSendSuccess = false;
-    let spriteSendSuccess = true;
-
-    // surenkame duomenis
-    const updatedData = {
-      gamesId,
-      name,
-      description,
-      rarity
-    };
-
-    // jei laukeliai tušti, pranešame klaidą
-    if (!updatedData.gamesId || !updatedData.name || !updatedData.description || !updatedData.rarity) {
-      addAlert("Fill in all fields before submitting.", "error");
-      return;
-    }
-
-    // dumenų siuntimas
-    try {
-      const res = await fetch(`/api/fishes/${id}`, {
-        method: "PUT",
-        headers: { 
-          "Content-Type": "application/json"
-          // "Authorization": `Bearer ${token}` 
-        },
-        body: JSON.stringify(updatedData),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      addAlert("The fish has been successfully updated.", "success");
-      dataSendSuccess = true;
-    } catch (e) {
-      addAlert(e.message || "Failed to update fish", "error");
-    }
-
-    // nuotraukos siuntimas, jei pasirinkta
-    if (spriteFile && dataSendSuccess) {
-      spriteSendSuccess = false;
-      const formData = new FormData();
-      formData.append("sprite", spriteFile);  
-      try {
-        const res = await fetch(`/api/fishes/${id}/sprite`, {
-          method: "PUT",
-          // headers: { 
-          //   "Authorization": `Bearer ${token}` 
-          // },
-          body: formData,
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        spriteSendSuccess = true;
-        addAlert("The fish photo has been successfully updated.", "success");
-      } catch (e) {
-        addAlert(e.message || "Failed to update the fish photo.", "error");
-      }
-    }
-
-    if (spriteSendSuccess && dataSendSuccess) {
-      loadData();
-      setEditMode(false);
-    }
+      setEditMode(false)
   };
 
     const cancelEdit = () => {
@@ -207,6 +105,42 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
           </div>
         </div>
       </td>
+      {editMode ? (
+        <td className={classes}>
+          <div className="w-40">
+            <Select
+              label="Role"
+              value={role}
+              onChange={(val) => {
+                const nextRole = val;
+
+                if (!nextRole) {
+                  addAlert(`Rolės nėra: ${val}`, "error");
+                  return;
+                }
+
+                const prevRole = role ?? null;
+
+                setRows((prev) =>
+                  prev.map((r) =>
+                    r._id === _id
+                      ? { ...r, role: nextRole }
+                      : r
+                  )
+                );
+
+                persistRoleChange(_id, prevRole, nextRole);
+              }}
+            >
+              {roleList.map((r) => (
+                <Option key={r} value={r}>
+                  {r}
+                </Option>
+              ))}
+            </Select>
+          </div>
+        </td>
+      ) : (
       <td className={classes}>
         <div className="flex items-center gap-3">
           <div className="flex flex-col">
@@ -216,6 +150,7 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
           </div>
         </div>
       </td>
+      )}
       <td className={classes}>
         <div className="flex items-center gap-3">
           <div className="flex flex-col">
@@ -230,56 +165,6 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
           </div>
         </div>
       </td>
-{/* 
-      <td className={classes}>
-        <div className="w-40"> 
-          <Select 
-            label="Vartotojo rolė"
-            value={role}
-
-            onChange={(val) => {
-              const nextRole = val;
-
-              if (!nextRole) {
-                addAlert(`Rolės nėra: ${val}`, "error");
-                return;
-              }
-
-              const prevRole = role ?? null;
-
-              setRows((prev) =>
-                prev.map((r) =>
-                  r.id === id ? { ...r, role: val } : r
-                )
-              );
-
-              persistRoleChange(id, prevRole, nextRole);
-            }}
-          >
-            {roleList.map((r) => (
-              <Option key={r} value={r} >{r}</Option>
-            ))}
-          </Select>                         
-        </div>
-      </td>
-
-      <td className={classes}>
-        <Switch
-          checked={status === 1}
-          onChange={() => {
-            const prevStatus = status === 1 ? 1 : 0;
-            const nextStatus = prevStatus === 1 ? 0 : 1;
-
-            setRows((prev) =>
-              prev.map((row) =>
-                row.id === id ? { ...row, status: nextStatus } : row
-              )
-            );
-
-            persistStatusChange(id, prevStatus, nextStatus);
-          }}
-        />
-      </td> */}
 
         {confirmDelete ? (
         <td className={classes}>
