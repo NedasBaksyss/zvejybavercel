@@ -11,6 +11,8 @@ import {
 import { useContext, useState } from "react";
 import { AuthContext, AlertContext } from "@/context";
 import DialogViewId from "./dialog-view-id";
+import DialogViewStats from "./dialog-view-stats";
+import DialogViewAccount from "./dialog-view-account";
 
 export function UserListItem({userData, isLast, setError, setRows, roleList}) {
   const { _id, username, role, passwordHash, googleId, stats, createdAt, lastLogin} = userData;
@@ -211,6 +213,20 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
             <Typography variant="small" color="blue-gray" className="font-normal">
               {role}
             </Typography>
+          </div>
+        </div>
+      </td>
+      <td className={classes}>
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+            <DialogViewStats data={userData}/>
+          </div>
+        </div>
+      </td>
+            <td className={classes}>
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+            <DialogViewAccount data={userData}/>
           </div>
         </div>
       </td>
