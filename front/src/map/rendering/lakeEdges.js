@@ -12,7 +12,7 @@ const PALETTES = {
   pine: ["#183932", "#2b5041", "#73846a", "#456747"],
   reeds: ["#283e31", "#43563c", "#7d7953", "#5c7045"],
   meadow: ["#426b3e", "#65884c", "#b4a874", "#93ae61"],
-  highland: ["#3c5356", "#5a6c6b", "#aab9ae", "#7e9284"],
+  highland: ["#d9e6e4", "#b4cbd3", "#f1f5eb", "#f4f8f0"],
   sunset: ["#392d3d", "#655047", "#a57b62", "#805f50"],
 };
 export function bankHeight(scene, x) {

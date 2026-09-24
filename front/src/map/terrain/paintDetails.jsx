@@ -1,6 +1,9 @@
 import { LOCATIONS, CLEARINGS } from "../mapData.js";
 import { drawTree, drawShop } from "./terrainSprites.jsx";
 import { noise, intersects } from "./terrainUtils.jsx";
+import { isWinter, drawWinterMountain, WINTER_PEAKS, mountainBounds } from "./winterRegion.js";
+
+const mountainClearings = WINTER_PEAKS.map((peak) => mountainBounds(peak, 12));
 
 export function paintDetails(ctx, bounds, { trails }, land, hit) {
   const cell = 28;
@@ -19,6 +22,8 @@ export function paintDetails(ctx, bounds, { trails }, land, hit) {
         y = gy * cell + noise(gx, gy, 3) * 22;
       if (
         !land(x, y) ||
+        mountainClearings.some((area) => x >= area.left && x <= area.right &&
+          y >= area.top && y <= area.bottom + 18) ||
         LOCATIONS.some(
           (place) => Math.hypot(x - place.entry.x, y - place.entry.y) < 42,
         ) ||
@@ -29,31 +34,12 @@ export function paintDetails(ctx, bounds, { trails }, land, hit) {
         trails.some((path) => hit.isPointInStroke(path, x, y))
       )
         continue;
-      drawTree(ctx, x, y, 0.7 + noise(gx, gy, 4) * 0.7);
+      drawTree(ctx, x, y, 0.7 + noise(gx, gy, 4) * 0.7, isWinter(x, y));
     }
   }
-  for (let i = 0; i < 25; i++) {
-    const x = 3830 + i * 35,
-      y = 692 + Math.sin(i * 1.5) * 44;
-    if (!intersects(bounds, x, y, 38)) continue;
-    ctx.fillStyle = "#567264";
-    ctx.beginPath();
-    ctx.moveTo(x, y - 38);
-    ctx.lineTo(x - 27, y + 10);
-    ctx.lineTo(x + 29, y + 10);
-    ctx.fill();
-    ctx.fillStyle = "#91a18a";
-    ctx.beginPath();
-    ctx.moveTo(x, y - 38);
-    ctx.lineTo(x - 27, y + 10);
-    ctx.lineTo(x, y + 4);
-    ctx.fill();
-    ctx.fillStyle = "#d8dfc8";
-    ctx.beginPath();
-    ctx.moveTo(x, y - 38);
-    ctx.lineTo(x - 8, y - 22);
-    ctx.lineTo(x + 8, y - 23);
-    ctx.fill();
+  for (const [x, y, width, height] of WINTER_PEAKS) {
+    if (!intersects(bounds, x, y, Math.max(width, height) + 12)) continue;
+    drawWinterMountain(ctx, x, y, width, height);
   }
   for (const place of LOCATIONS) {
     if (!intersects(bounds, place.x, place.y, 140)) continue;
