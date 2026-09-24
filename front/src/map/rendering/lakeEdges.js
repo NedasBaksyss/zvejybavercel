@@ -81,6 +81,45 @@ export function drawFarEdge(ctx, scene) {
   }
 }
 
+// Side headlands anchor the distant docks directly to solid ground.
+export function landingWidth(scene, platform, y) {
+  const bottom = platform.y + 16;
+  if (y < scene.horizon || y > bottom) return 0;
+  const t = (y - scene.horizon) / (bottom - scene.horizon);
+  return Math.max(0, Math.round((132 * (1 - t) ** 0.7 + 12 * Math.sin(t * Math.PI)) / 3) * 3);
+}
+
+export function drawLandings(ctx, scene, platforms) {
+  const [ground, edge, sand, grass] = PALETTES[scene.biome];
+  for (const p of platforms.filter((p) => p.id !== "near-bank")) {
+    const left = p.x < 480;
+    for (let y = scene.horizon; y <= p.y + 16; y += 2) {
+      const width = landingWidth(scene, p, y);
+      const x = left ? 0 : 960 - width;
+      ctx.fillStyle = ground;
+      ctx.fillRect(x, y, width, 2);
+      const shore = left ? width : x;
+      ctx.fillStyle = edge;
+      ctx.fillRect(shore - (left ? 6 : 0), y, 6, 2);
+      ctx.fillStyle = sand;
+      ctx.fillRect(shore - (left ? 2 : 0), y, 2, 2);
+      ctx.fillStyle = scene.water[0] + "88";
+      ctx.fillRect(shore + (left ? 2 : -6), y + 2, 4, 2);
+      if (y % 8 === 0 && width > 20) {
+        ctx.fillStyle = grass;
+        const detailX = left ? width - 17 : x + 12;
+        ctx.fillRect(detailX, y, 5, 2);
+      }
+    }
+    // A short worn path reaches the shoreward end of the platform.
+    const startX = left ? p.x : p.x + p.width - 16;
+    ctx.fillStyle = edge;
+    ctx.fillRect(startX - 5, p.y - 7, 24, 7);
+    ctx.fillStyle = sand;
+    ctx.fillRect(startX, p.y - 4, 14, 3);
+  }
+}
+
 export function drawRock(ctx, x, y, size, snowy = false) {
   ctx.fillStyle = "#162d354d";
   ctx.fillRect(x - size, y + 2, size * 2 + 6, 4);
