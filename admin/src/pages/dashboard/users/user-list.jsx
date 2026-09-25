@@ -21,6 +21,7 @@ const TABS = [
   { label: "All", value: "all" },
   { label: "Admin", value: "admin" },
   { label: "User", value: "user" },
+  { label: "Guest", value: "guest" }
 ];
 
 const TABLE_HEAD = ["User", "Role", "Game's Info", "Account's Info", "Edit"];
@@ -31,7 +32,7 @@ export function UserList() {
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("all");           // "all" | "admin" | "user"
   const [q, setQ] = useState("");                  // search query
-  const [roleList, setRoleList] = useState(["admin", "user"]);     // rolių sąrašas
+  const [roleList, setRoleList] = useState(["admin", "user", "guest"]);     // rolių sąrašas
 
   // const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
@@ -64,16 +65,14 @@ export function UserList() {
         setLoading(false);
       }
     }
-  }
 
   useEffect(() => {
     // if (!token) return; // wait until token is available
 
     // vartotojų sąrašas
-
-  }
+  loadData()
+  },[])
 // [token]
-);
 
   // filter + search (case-insensitive)
   const filtered = useMemo(() => {
@@ -174,7 +173,8 @@ export function UserList() {
                       setRows={setRows} 
                       error={error} 
                       setError={setError} 
-                      roleList={roleList} 
+                      roleList={roleList}
+                      loadData={loadData}
                     />
                   );
                 }
