@@ -12,10 +12,9 @@ import { connectDB } from "./db.js";
 
 const port = 3000;
 
-import indexRouter  from "./routes/index.js";
-import usersRouter  from "./routes/users.js";
 import fishesRouter from "./routes/fishes.js";
 import fishingSpotsRouter from "./routes/fishing_spots.js";
+import usersRouter  from "./routes/users.js";
 
 var app = express();
 
@@ -88,10 +87,10 @@ app.use((req, res, next) => {
   }
 });
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
+
 app.use("/fishes", fishesRouter);
 app.use("/fishingspots", fishingSpotsRouter);
+app.use("/users", usersRouter);
 
 async function startServer() {
   await connectDB();

@@ -1,20 +1,49 @@
-const fishModel = require("../models/fishModel");
+import fs from "fs";
+import Fish from "../models/fish.js";
 
-async function getAll(req, res) {
+const uploadFile = async (req, field, folder, name) => {
   try {
-    const fishes = await fishModel.findAll();
+    if (req.files && req.files[field]) {
+      const file = req.files[field].data;
+      const fileMime = req.files[field].mimeType;
+
+      const extension = fileMime.split("/")[1];
+      const fileName = `${name}.${extension}`;
+
+      await fs.promises.writeFile(
+        `public/${folder}/${fileName}`,
+        file
+      );
+
+      return fileName;
+    }
+
+    return null;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+// GET /api/fish
+export const getFishes = async (req, res) => {
+  try {
+    const fishes = await Fish.find();
+
     res.status(200).json(fishes);
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       error: "Nepavyko gauti žuvų",
     });
   }
-}
+};
 
-async function getById(req, res) {
+// GET /api/fish/:id
+export const getFish = async (req, res) => {
   try {
-    const fish = await fishModel.findById(req.params.id);
+    const fish = await Fish.findById(req.params.id);
 
     if (!fish) {
       return res.status(404).json({
@@ -25,26 +54,28 @@ async function getById(req, res) {
     res.status(200).json(fish);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      error: "Nepavyko gauti žuvies",
+
+    res.status(400).json({
+      error: "Neteisingas žuvies ID",
     });
   }
-}
+};
 
-async function create(req, res) {
+// POST /api/fish
+export const createFish = async (req, res) => {
   try {
-    const fish = await fishModel.create(req.body);
+    const fish = await Fish.create({
+      gamesId: req.body.gamesId,
+      name: req.body.name,
+      description: req.body.description,
+      rarity: req.body.rarity || "common",
+    });
+
     res.status(201).json(fish);
   } catch (error) {
     console.error(error);
 
-    if (error.code === 11000) {
-      return res.status(409).json({
-        error: "Žuvis su tokiu ID jau egzistuoja",
-      });
-    }
-
-    if (error.message) {
+    if (error.name === "ValidationError") {
       return res.status(400).json({
         error: error.message,
       });
@@ -54,39 +85,94 @@ async function create(req, res) {
       error: "Nepavyko sukurti žuvies",
     });
   }
-}
+};
 
-async function update(req, res) {
+// PUT /api/fish/:id
+export const updateFish = async (req, res) => {
   try {
-    const updatedFish = await fishModel.updateById(req.params.id, req.body);
+    const fish = await Fish.findByIdAndUpdate(
+      req.params.id,
+      {
+        gamesId: req.body.gamesId,
+        name: req.body.name,
+        description: req.body.description,
+        rarity: req.body.rarity,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
-    if (!updatedFish) {
+    if (!fish) {
       return res.status(404).json({
         error: "Žuvis nerasta",
       });
     }
 
-    res.status(200).json(updatedFish);
+    res.status(200).json(fish);
   } catch (error) {
     console.error(error);
 
-    if (error.status === 400 || error.message) {
-      return res.status(error.status || 400).json({
-        error: error.message,
+    res.status(400).json({
+      error: error.message,
+    });
+  }
+};
+
+// PUT /api/fish/:id/sprite
+export const updateFishSprite = async (req, res) => {
+  try {
+    if (!req.files || !req.files.sprite) {
+      return res.status(400).json({
+        message: "Nuotrauka nepateikta",
       });
     }
 
+    const fish = await Fish.findById(req.params.id);
+
+    if (!fish) {
+      return res.status(404).json({
+        message: "Žuvis nerasta",
+      });
+    }
+
+    const uploadedSprite = await uploadFile(
+      req,
+      "sprite",
+      "images/fish",
+      req.params.id
+    );
+
+    if (!uploadedSprite) {
+      return res.status(500).json({
+        message: "Klaida įkeliant nuotrauką",
+      });
+    }
+
+    fish.sprite = uploadedSprite;
+
+    await fish.save();
+
+    res.status(200).json({
+      message: "Nuotrauka įkelta",
+      sprite: uploadedSprite,
+    });
+  } catch (error) {
+    console.error(error);
+
     res.status(500).json({
-      error: "Nepavyko atnaujinti žuvies",
+      message: "Klaida įkeliant nuotrauką",
     });
   }
-}
+};
 
-async function remove(req, res) {
+// DELETE /api/fish/:id
+export const deleteFish = async (req, res) => {
   try {
-    const deleted = await fishModel.deleteById(req.params.id);
+    const fish = await Fish.findByIdAndDelete(req.params.id);
 
-    if (!deleted) {
+    if (!fish) {
       return res.status(404).json({
         error: "Žuvis nerasta",
       });
@@ -97,16 +183,9 @@ async function remove(req, res) {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      error: "Nepavyko ištrinti žuvies",
+
+    res.status(400).json({
+      error: "Neteisingas žuvies ID",
     });
   }
-}
-
-module.exports = {
-  getAll,
-  getById,
-  create,
-  update,
-  remove,
 };
