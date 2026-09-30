@@ -35,6 +35,7 @@ export function createMapLoop({ runtime, keys, save, publish, getSlot, emit }) {
     runtime.renderer.draw(
       {
         ...runtime.state,
+        playerName: runtime.progress?.profile?.username || getSlot()?.owner || "Guest",
         fishing: runtime.fishing,
         locationsOpen: runtime.locationsOpen,
       },
