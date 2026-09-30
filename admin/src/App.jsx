@@ -47,31 +47,31 @@ function App() {
   };
   // end alerts state and functions
 
-  // useEffect(() => {
-  //   // tikriname ar yra token localStorage
-  //   const sessionToken = localStorage.getItem("token");
-  //   const sessionUser = localStorage.getItem("user");
+  useEffect(() => {
+    // tikriname ar yra token localStorage
+    const sessionToken = localStorage.getItem("token");
+    const sessionUser = localStorage.getItem("user");
 
-  //   if (sessionToken && sessionUser) {
-  //     setToken(sessionToken);
-  //     setUser(JSON.parse(sessionUser));
-  //   }
-  // }, []);
+    if (sessionToken && sessionUser) {
+      setToken(sessionToken);
+      setUser(JSON.parse(sessionUser));
+    }
+  }, []);
 
   return (
-    // <AuthContext.Provider value={{ user, setUser, token, setToken }}>
+    <AuthContext.Provider value={{ user, setUser, token, setToken }}>
       <AlertContext.Provider
         value={{ alerts, setAlerts, addAlert, hideAllAlerts }}
       >
         <Routes>
           <Route path="/admin/*" element={<Dashboard />} />
-          {/* <Route path="/auth/*" element={<Auth />} /> */}
+          <Route path="/auth/*" element={<Auth />} />
           <Route path="/demo/*" element={<Demo />} />
           <Route path="*" element={<Navigate to="/admin/home" replace />} />
         </Routes>
         <AlertList />
       </AlertContext.Provider>
-    // </AuthContext.Provider>
+    </AuthContext.Provider>
   );
 }
 

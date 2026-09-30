@@ -13,12 +13,14 @@ import {
 } from "@material-tailwind/react";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { useContext } from "react";
-import { AlertContext } from "@/context";
+import { AuthContext, AlertContext } from "@/context";
 import { fishingWorld } from "./fishing-spot-fields";
 import AddFishListItem from "./fish-list-item";
 
 export function DialogAddFish({handleSelect, selectedFish}) {
   const [open, setOpen] = useState(false);
+
+  const { token } = useContext(AuthContext);
 
   const [rows, setRows] = useState([]); 
   const [loading, setLoading] = useState(true);
@@ -37,7 +39,7 @@ export function DialogAddFish({handleSelect, selectedFish}) {
         method: "GET",
         headers: { 
           "Content-Type": "application/json", 
-          // "Authorization": `Bearer ${token}` 
+          "Authorization": `Bearer ${token}` 
         },
       });
 

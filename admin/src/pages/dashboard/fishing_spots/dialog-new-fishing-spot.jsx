@@ -13,11 +13,13 @@ import {
 } from "@material-tailwind/react";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { useContext } from "react";
-import { AlertContext } from "@/context";
+import { AuthContext, AlertContext } from "@/context";
 import { fishingWorld } from "./fishing-spot-fields";
 
 export function DialogNewFishingSpot({loadData}) {
   const [open, setOpen] = useState(false);
+
+  const { token } = useContext(AuthContext);
 
   // formos laukelių duomenys
   const [mapId, setMapId] = useState("");
@@ -106,6 +108,9 @@ export function DialogNewFishingSpot({loadData}) {
       formData.append("sprite", sprite);
       const responseSprite = await fetch(`/api/fishingspots/${createdFish._id}/sprite`, {
         method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}` 
+        },
         body: formData,
       });
 

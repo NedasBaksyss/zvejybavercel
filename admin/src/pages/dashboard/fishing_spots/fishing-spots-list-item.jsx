@@ -36,10 +36,8 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
-  // const { token } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
-
-  // const local_publish_date = publish_date ? new Date(publish_date).toLocaleDateString() : '';
 
   const sprite_element = fishSprite ? (<img src={fishSprite} alt="Sprite" className="h-12 w-12 object-cover" /> 
   ) : (
@@ -98,7 +96,7 @@ const updateSelectedFish = (fishId, changes) => {
         method: "DELETE",
         headers: { 
           "Content-Type": "application/json",
-          // "Authorization": `Bearer ${token}` 
+          "Authorization": `Bearer ${token}` 
         },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -144,8 +142,8 @@ const updateSelectedFish = (fishId, changes) => {
       const res = await fetch(`/api/fishingspots/${id}`, {
         method: "PUT",
         headers: { 
-          "Content-Type": "application/json"
-          // "Authorization": `Bearer ${token}` 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
         },
         body: JSON.stringify(updatedData),
       });
@@ -164,9 +162,9 @@ const updateSelectedFish = (fishId, changes) => {
       try {
         const res = await fetch(`/api/fishingspots/${id}/sprite`, {
           method: "PUT",
-          // headers: { 
-          //   "Authorization": `Bearer ${token}` 
-          // },
+          headers: { 
+            "Authorization": `Bearer ${token}` 
+          },
           body: formData,
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

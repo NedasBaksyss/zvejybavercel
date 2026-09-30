@@ -34,8 +34,6 @@ export function AddFishListItem({data, handleSelect, selectedFish}) {
     handleSelect(data)
   }
 
-  // const { token } = useContext(AuthContext);
-
     const sprite_element = fishSprite ? (<img src={fishSprite} alt="Sprite" className="h-[100px] w-[100px] [image-rendering:pixelated] " /> 
   ) : (
     <div className="h-[100px] w-[100px] flex items-center justify-center bg-gray-200 border-2 border-gray-600 rounded">
