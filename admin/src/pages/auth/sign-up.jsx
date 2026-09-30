@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AlertContext } from "@/context";
 
 export function SignUp() {
+  const [username, setUsername] = useState("")
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
@@ -22,7 +23,7 @@ export function SignUp() {
 
     hideAllAlerts();
 
-    if (!email || !password || !password2) {
+    if (!username || !email || !password || !password2) {
       addAlert("Visi laukai privalomi", "warning");
       return;
     }
@@ -33,12 +34,13 @@ export function SignUp() {
     }
 
     try {
-      const res = await fetch("/api/register", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          username,
           email,
           password,
         }),
@@ -106,6 +108,28 @@ export function SignUp() {
           className="mx-auto mb-2 mt-8 w-80 max-w-screen-lg lg:w-1/2"
           onSubmit={handleSubmit}
         >
+          <div className="mb-1 flex flex-col gap-6">
+            <Typography
+              variant="small"
+              color="blue-gray"
+              className="-mb-3 font-medium"
+            >
+              Username
+            </Typography>
+            <Input
+              size="lg"
+              type="text"
+              placeholder="Username"
+              value={username}
+              minLength={3}
+              maxLength={30}
+              onChange={(e) => setUsername(e.target.value)}
+              className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{
+                className: "before:content-none after:content-none",
+              }}
+            />
+          </div>
           <div className="mb-1 flex flex-col gap-6">
             <Typography
               variant="small"

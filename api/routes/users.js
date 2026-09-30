@@ -7,6 +7,7 @@ import {
   updateUserRole,
   updateUserStats,
   updateLastLogin,
+  deleteUser
 } from "../controllers/userController.js";
 
 import { isAdmin } from "../controllers/authController.js";
@@ -21,5 +22,7 @@ router.post("/", isAdmin, createUser);
 router.patch("/:id/role", isAdmin, updateUserRole);
 router.patch("/:id/stats", isAdmin, updateUserStats);
 router.patch("/:id/login", isAdmin, updateLastLogin);
+
+router.delete("/:id", isAdmin, deleteUser);
 
 export default router;

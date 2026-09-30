@@ -12,6 +12,7 @@ import { connectDB } from "./db.js";
 
 const port = 3000;
 
+import authRouter from "./routes/auth.js";
 import fishesRouter from "./routes/fishes.js";
 import fishingSpotsRouter from "./routes/fishing_spots.js";
 import usersRouter  from "./routes/users.js";
@@ -88,6 +89,7 @@ app.use((req, res, next) => {
 });
 
 
+app.use("/auth", authRouter);
 app.use("/fishes", fishesRouter);
 app.use("/fishingspots", fishingSpotsRouter);
 app.use("/users", usersRouter);

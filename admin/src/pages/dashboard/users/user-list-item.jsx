@@ -14,7 +14,7 @@ import DialogViewId from "./dialog-view-id";
 import DialogViewStats from "./dialog-view-stats";
 import DialogViewAccount from "./dialog-view-account";
 
-export function UserListItem({userData, isLast, setError, setRows, roleList}) {
+export function UserListItem({userData, isLast, setError, setRows, roleList, loadData}) {
   const { _id, username, role, passwordHash, googleId, stats, createdAt, lastLogin} = userData;
 
     const [confirmDelete, setConfirmDelete] = useState(false);
@@ -70,19 +70,18 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
 
     const handleDelete = async () => {
     try {
-      const res = await fetch(`/api/fishes/${id}`, {
+      const res = await fetch(`/api/users/${_id}`, {
         method: "DELETE",
         headers: { 
-          "Content-Type": "application/json",
           "Authorization": `Bearer ${token}` 
         },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       loadData();
-      addAlert("Fish successfully deleted.", "success");
+      addAlert("User successfully deleted.", "success");
     } catch (e) {
-      addAlert(e.message || "Failed to delete the fish.", "error");
+      addAlert(e.message || "Failed to delete the user.", "error");
     } 
   };
 
