@@ -17,7 +17,7 @@ export function SignIn() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // const { user, setUser, token, setToken } = useContext(AuthContext);
+  const { user, setUser, token, setToken } = useContext(AuthContext);
 
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
@@ -55,7 +55,7 @@ export function SignIn() {
           addAlert(data.message, "warning", details || null);
         }
 
-        // setError((data && data.message) || "Sign in failed");
+        setError((data && data.message) || "Sign in failed");
         setLoading(false);
         return;
       }
@@ -71,10 +71,10 @@ export function SignIn() {
       addAlert("Prisijungta sėkmingai", "success");
 
       // navigate to admin dashboard (adjust route if necessary)
-      // navigate("/");
+      navigate("/");
     } catch (err) {
       addAlert("Network error", "error");
-      // setError(err.message || "Network error");
+      setError(err.message || "Network error");
     } finally {
       setLoading(false);
     }

@@ -59,32 +59,30 @@ export const routes = [
       }
       ]
   },
-    // ,
-  // },
-  // {
-  //   title: "Autentifikacija",
-  //   layout: "auth",
-  //   pages: [
-  //     {
-  //       icon: <ServerStackIcon {...icon} />,
-  //       name: "Prisijungti",
-  //       path: "/prisijungti",
-  //       element: <SignIn />,
-  //     },
-  //     {
-  //       icon: <RectangleStackIcon {...icon} />,
-  //       name: "Registruotis",
-  //       path: "/registruotis",
-  //       element: <SignUp />,
-  //     },
-  //     {
-  //       icon: <RectangleStackIcon {...icon} />,
-  //       name: "Atsijungti",
-  //       path: "/atsijungti",
-  //       element: <SignOut />,
-  //     },
-  //   ],
-  // },
+  {
+    title: "Autentifikacija",
+    layout: "auth",
+    pages: [
+      {
+        icon: <ServerStackIcon {...icon} />,
+        name: "Prisijungti",
+        path: "/prisijungti",
+        element: <SignIn />,
+      },
+      {
+        icon: <RectangleStackIcon {...icon} />,
+        name: "Registruotis",
+        path: "/registruotis",
+        element: <SignUp />,
+      },
+      {
+        icon: <RectangleStackIcon {...icon} />,
+        name: "Atsijungti",
+        path: "/atsijungti",
+        element: <SignOut />,
+      },
+    ],
+  }
   // {
   //   title: "deomo puslapiai",
   //   layout: "demo",
