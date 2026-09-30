@@ -17,7 +17,6 @@ import fishesRouter from "./routes/fishes.js";
 import fishingSpotsRouter from "./routes/fishing_spots.js";
 import usersRouter  from "./routes/users.js";
 import progressRouter from "./routes/progress.js";
-import authRouter from "./routes/auth.js";
 import User from "./models/user.js";
 import Session from "./models/session.js";
 
