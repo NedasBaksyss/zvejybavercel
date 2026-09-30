@@ -28,6 +28,7 @@ export function createMap({
     renderer: null,
     active: false,
     stopped: false,
+    progress: null,
   };
   const keys = new Set();
   const language = () => (getLanguage() === "LT" ? "LT" : "EN");
@@ -40,6 +41,7 @@ export function createMap({
   function publish(force = false) {
     if (runtime.stopped) return;
     const next = createMapSnapshot(runtime.state, {
+      progress: runtime.progress,
       language: language(),
       active: runtime.active,
       locationsOpen: runtime.locationsOpen,
@@ -94,6 +96,7 @@ export function createMap({
   }
 
   return {
+    setProgress(value) { runtime.progress = value; publish(true); },
     applyLanguage: () => publish(true),
     showLocal: view.showLocal,
     showGlobe: view.showGlobe,

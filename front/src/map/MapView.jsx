@@ -49,6 +49,8 @@ export default function MapView({ ref }) {
         onMap={actions.showLocal}
         onGlobe={actions.showGlobe}
         onPause={actions.pause}
+        progress={snapshot.progress}
+        onRetryProgress={actions.retryProgress}
       />
       <MapLocations
         text={text}

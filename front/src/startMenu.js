@@ -8,6 +8,7 @@ import { createAuthController } from "./authController";
 import { createChoiceList } from "./components/choiceList";
 import { createFontGuard } from "./components/fontGuard";
 import { createGameHooks } from "./components/gameHooks";
+import { createGuestProgress } from "./guestProgress.js";
 
 export function startMenu(root, map) {
   let alive = true;
@@ -138,11 +139,19 @@ export function startMenu(root, map) {
     getSlot: () => slot,
   });
   const Hooks = gameHooks.hooks;
+  const progress = createGuestProgress({ onChange: (value) => map.setProgress(value) });
+  Hooks.on("fishCaught", () => progress.recordCatch());
+  Hooks.on("start", () => progress.refresh());
+  const refreshProgress = () => { if (current === "game") progress.refresh(); };
+  addEventListener("online", refreshProgress);
+  addEventListener("focus", refreshProgress);
+  const progressTimer = setInterval(refreshProgress, 15000);
   map.configure({
     getLanguage: () => Store.get("lang"),
     getSlot: () => slot,
     emit: (event, data) => Hooks.emit(event, data),
     onPause: () => UI.go("pause"),
+    retryProgress: () => progress.refresh(),
   });
   let pendingOwner = null;
   let settingsBack = "title";
@@ -570,6 +579,10 @@ export function startMenu(root, map) {
 
   return () => {
     alive = false;
+    progress.stop();
+    clearInterval(progressTimer);
+    removeEventListener("online", refreshProgress);
+    removeEventListener("focus", refreshProgress);
     map.stop();
     root.classList.remove("atlas-active");
     scene.stop();

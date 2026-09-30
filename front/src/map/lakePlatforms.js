@@ -1,13 +1,25 @@
 function platform(id, x, y, width, scale, direction, target) {
   const facing = direction === "right" ? 1 : -1;
-  const angler = { x: Math.round(x + width * 0.62), y: y - 10 * scale, direction };
+  const angler = {
+    x: Math.round(x + width * 0.62),
+    y: y - 10 * scale,
+    direction,
+  };
   return {
-    id, x, y, width, scale, angler, target,
-    rod: { tipX: angler.x + facing * 130 * scale, tipY: angler.y - 105 * scale },
+    id,
+    x,
+    y,
+    width,
+    scale,
+    angler,
+    target,
+    rod: {
+      tipX: angler.x + facing * 130 * scale,
+      tipY: angler.y - 105 * scale,
+    },
   };
 }
 
-// Stable platform IDs; the entrance chooses one once for the entire visit.
 export const LAKE_PLATFORMS = {
   "quiet-lake": [
     platform("near-bank", 40, 451, 200, 1, "right", { x: 548, y: 386 }),
@@ -52,8 +64,11 @@ export function getLakePlatform(lakeId, platformId) {
 }
 
 export function isOnLakePlatform(lakeId, x, y) {
-  return (LAKE_PLATFORMS[lakeId] || []).some((p) =>
-    x >= p.x - 5 && x <= p.x + p.width + 5 &&
-    y >= p.y - 5 && y <= p.y + 38 * p.scale,
+  return (LAKE_PLATFORMS[lakeId] || []).some(
+    (p) =>
+      x >= p.x - 5 &&
+      x <= p.x + p.width + 5 &&
+      y >= p.y - 5 &&
+      y <= p.y + 38 * p.scale,
   );
 }

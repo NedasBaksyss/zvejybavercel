@@ -16,8 +16,8 @@ const statsSchema = new mongoose.Schema(
 
     level: {
       type: Number,
-      default: 0,
-      min: 0,
+      default: 1,
+      min: 1,
     },
 
     experience: {
@@ -55,10 +55,12 @@ const userSchema = new mongoose.Schema(
 
     googleId: {
       type: String,
-      default: null,
       unique: true,
       sparse: true,
     },
+
+    guestTokenHash: { type: String, unique: true, sparse: true, select: false },
+    catchReceipts: { type: [String], default: undefined, select: false },
 
     stats: {
       type: statsSchema,

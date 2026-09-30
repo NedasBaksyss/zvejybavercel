@@ -84,7 +84,7 @@ export function UserList() {
     if (!term) return byTab;
 
     return byTab.filter((r) =>
-      [r.email]
+      [r.username, r.email]
         .filter(Boolean)
         .some((v) => v.toLowerCase().includes(term))
     );

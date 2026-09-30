@@ -49,6 +49,7 @@ export function useMap() {
         controllerRef.current?.applyLanguage();
       },
       applyLanguage: () => controllerRef.current?.applyLanguage(),
+      setProgress: (value) => controllerRef.current?.setProgress(value),
       reset: () => controllerRef.current?.reset(),
       enter: () => controllerRef.current?.enter(),
       exit: () => controllerRef.current?.exit(),
@@ -62,6 +63,7 @@ export function useMap() {
   const actions = useMemo(
     () => ({
       showLocal: () => controllerRef.current?.showLocal(),
+      retryProgress: () => bindingsRef.current.retryProgress?.(),
       showGlobe: () => controllerRef.current?.showGlobe(),
       zoomIn: () => controllerRef.current?.zoomIn(),
       zoomOut: () => controllerRef.current?.zoomOut(),

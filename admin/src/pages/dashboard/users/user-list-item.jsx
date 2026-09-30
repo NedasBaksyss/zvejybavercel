@@ -154,7 +154,9 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
       <td className={classes}>
         <div className="flex items-center gap-3">
           <div className="flex flex-col">
-            <DialogViewStats data={userData}/>
+            <DialogViewStats data={userData} onSaved={(updated) =>
+              setRows((rows) => rows.map((row) => row._id === updated._id ? updated : row))
+            }/>
           </div>
         </div>
       </td>

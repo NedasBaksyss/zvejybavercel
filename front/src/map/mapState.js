@@ -38,6 +38,7 @@ export function createMapSnapshot(
     locationsOpen = false,
     fishingCast = false,
     fishing = createFishingState(),
+    progress = null,
   } = {},
 ) {
   const globe = state.targetZoom < GLOBE_SWITCH;
@@ -51,6 +52,7 @@ export function createMapSnapshot(
 
   return {
     language,
+    progress,
     active,
     globe,
     region: regionName(state.player, language),

@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import { validateStats } from "../progression.js";
 
 // GET /api/users
 export const getUsers = async (req, res) => {
@@ -93,36 +94,7 @@ export const updateUserRole = async (req, res) => {
 // PATCH /api/users/:id/stats
 export const updateUserStats = async (req, res) => {
   try {
-    const {
-      totalFishCaught,
-      coins,
-      level,
-      experience,
-    } = req.body;
-
-    const update = {};
-
-    if (totalFishCaught !== undefined) {
-      update["stats.totalFishCaught"] = totalFishCaught;
-    }
-
-    if (coins !== undefined) {
-      update["stats.coins"] = coins;
-    }
-
-    if (level !== undefined) {
-      update["stats.level"] = level;
-    }
-
-    if (experience !== undefined) {
-      update["stats.experience"] = experience;
-    }
-
-    if (Object.keys(update).length === 0) {
-      return res.status(400).json({
-        error: "No stats provided",
-      });
-    }
+    const update = validateStats(req.body);
 
     const user = await User.findByIdAndUpdate(
       req.params.id,

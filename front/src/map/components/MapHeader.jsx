@@ -1,3 +1,5 @@
+import ProgressHud from "./ProgressHud.jsx";
+
 export default function MapHeader({
   text,
   language,
@@ -7,6 +9,8 @@ export default function MapHeader({
   onMap,
   onGlobe,
   onPause,
+  progress,
+  onRetryProgress,
 }) {
   const heading = destination
     ? destination.type === "lake"
@@ -22,6 +26,7 @@ export default function MapHeader({
         <span id="map-eyebrow">{text.title}</span>
         <strong id="map-heading">{heading}</strong>
       </div>
+      <ProgressHud progress={progress} language={language} onRetry={onRetryProgress} />
       <div
         className="atlas-modes"
         role="group"
