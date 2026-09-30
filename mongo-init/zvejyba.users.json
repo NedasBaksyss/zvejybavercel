@@ -1,0 +1,50 @@
+[{
+  "_id": {
+    "$oid": "6abcd1a1180d558f5dffb805"
+  },
+  "username": "admin",
+  "email": "admin@example.com",
+  "passwordHash": "$2b$10$oLUHciR2FsHqudIjz90prO3luk94M2YrHvILjyLOQ42zfoUd7Xs9m",
+  "role": "admin",
+  "stats": {
+    "totalFishCaught": 0,
+    "coins": 0,
+    "level": 0,
+    "experience": 0
+  },
+  "lastLogin": {
+    "$date": "2026-09-30T09:33:14.790Z"
+  },
+  "createdAt": {
+    "$date": "2026-09-30T09:08:49.739Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-30T09:33:14.799Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcd78fd161015108a17380"
+  },
+  "username": "user",
+  "email": "user@example.com",
+  "role": "user",
+  "passwordHash": "$2b$10$5lP0/hbiuxLyvqQzRi4MLO5ev.R9tY.Mt8yci/mQop5MrS5amDR/i",
+  "googleId": null,
+  "lastLogin": {
+    "$date": "2026-09-30T09:34:11.357Z"
+  },
+  "stats": {
+    "totalFishCaught": 0,
+    "coins": 0,
+    "level": 0,
+    "experience": 0
+  },
+  "createdAt": {
+    "$date": "2026-09-30T09:34:07.692Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-30T09:34:11.358Z"
+  },
+  "__v": 0
+}]

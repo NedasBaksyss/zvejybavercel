@@ -23,7 +23,7 @@ export function SignOut() {
   useEffect(() => {
     if (!user && !token) {
       // router navigate to sign in
-      // console.log("Redirecting to sign in...");
+      console.log("Redirecting to sign in...");
       setTimeout(doNavigateSignIn, 1000);
     }
   }, [user, token]);

@@ -14,13 +14,13 @@ import DialogViewId from "./dialog-view-id";
 import DialogViewStats from "./dialog-view-stats";
 import DialogViewAccount from "./dialog-view-account";
 
-export function UserListItem({userData, isLast, setError, setRows, roleList}) {
+export function UserListItem({userData, isLast, setError, setRows, roleList, loadData}) {
   const { _id, username, role, passwordHash, googleId, stats, createdAt, lastLogin} = userData;
 
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [editMode, setEditMode] = useState(false);
 
-  // const { token } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
   const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
@@ -32,8 +32,8 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
       const res = await fetch(`/api/users/${userId}/role`, {
         method: "PATCH",
         headers: { 
-          "Content-Type": "application/json"
-          // "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ role: nextRole }),
       });
@@ -70,19 +70,18 @@ export function UserListItem({userData, isLast, setError, setRows, roleList}) {
 
     const handleDelete = async () => {
     try {
-      const res = await fetch(`/api/fishes/${id}`, {
+      const res = await fetch(`/api/users/${_id}`, {
         method: "DELETE",
         headers: { 
-          "Content-Type": "application/json",
-          // "Authorization": `Bearer ${token}` 
+          "Authorization": `Bearer ${token}` 
         },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       loadData();
-      addAlert("Fish successfully deleted.", "success");
+      addAlert("User successfully deleted.", "success");
     } catch (e) {
-      addAlert(e.message || "Failed to delete the fish.", "error");
+      addAlert(e.message || "Failed to delete the user.", "error");
     } 
   };
 

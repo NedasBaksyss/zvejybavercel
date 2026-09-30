@@ -34,7 +34,7 @@ export function UserList() {
   const [q, setQ] = useState("");                  // search query
   const [roleList, setRoleList] = useState(["admin", "user", "guest"]);     // rolių sąrašas
 
-  // const { token } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
   const loadData = async () => {
@@ -44,7 +44,7 @@ export function UserList() {
           method: "GET",
           headers: { 
             "Content-Type": "application/json", 
-            // "Authorization": `Bearer ${token}` 
+            "Authorization": `Bearer ${token}` 
           },
         });
 
@@ -67,9 +67,8 @@ export function UserList() {
     }
 
   useEffect(() => {
-    // if (!token) return; // wait until token is available
+    if (!token) return; // wait until token is available
 
-    // vartotojų sąrašas
   loadData()
   },[])
 // [token]

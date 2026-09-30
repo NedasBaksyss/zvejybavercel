@@ -10,7 +10,7 @@ import {
 import routes from "@/routes";
 import { useMaterialTailwindController, setOpenConfigurator } from "@/context";
 import { useEffect, useRef, useContext } from "react";
-// import { AuthContext } from "@/context";
+import { AuthContext } from "@/context";
 import { useNavigate } from "react-router-dom";
 
 export function Dashboard() {
@@ -20,35 +20,34 @@ export function Dashboard() {
 
   // tikriname ar yra prisijungęs vartotojas
   // jei nėra, peradresuojame į /auth/sign-in
-  // const {user, token} = useContext(AuthContext);
+  const {user, token} = useContext(AuthContext);
 
-  // const timeoutRef = useRef(null);
-  // useEffect(() => {
-  //   if (!timeoutRef.current) {
-  //     timeoutRef.current = setTimeout(checkAuth, 1000);
-  //   } else {
-  //     clearTimeout(timeoutRef.current);
-  //     timeoutRef.current = setTimeout(checkAuth, 1000);
-  //   }
-  //   // console.log("user or token changed:", user, token, timeoutRef.current);
-  // }, [user, token]);
+  const timeoutRef = useRef(null);
+  useEffect(() => {
+    if (!timeoutRef.current) {
+      timeoutRef.current = setTimeout(checkAuth, 1000);
+    } else {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(checkAuth, 1000);
+    }
+    // console.log("user or token changed:", user, token, timeoutRef.current);
+  }, [user, token]);
 
-  // const checkAuth = () => {
-  //   if (!user || !token) {
-  //     console.log("No user or token, redirecting to sign-in...");
-  //     setTimeout(doNavigateSignIn, 1000);
-  //   }
-  // }
+  const checkAuth = () => {
+    if (!user || !token) {
+      console.log("No user or token, redirecting to sign-in...");
+      setTimeout(doNavigateSignIn, 1000);
+    }
+  }
 
 
   const navigate = useNavigate();
-  // const doNavigateSignIn = () => {
-  //   navigate("/auth/prisijungti");
-  // }
+  const doNavigateSignIn = () => {
+    navigate("/auth/prisijungti");
+  }
 
   return (
-    // user && token && 
-    <>  
+    user && token && (
       <div className="min-h-screen bg-blue-gray-50/50">
         <Sidenav
           routes={routes}
@@ -82,7 +81,7 @@ export function Dashboard() {
           </div>
         </div>
       </div>
-    </>
+    )
   );
 }
 

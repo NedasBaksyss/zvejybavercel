@@ -42,9 +42,18 @@ const userSchema = new mongoose.Schema(
       maxlength: 30,
     },
 
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      maxlength: 254,
+    },
+
     role: {
       type: String,
-      enum: ["guest" ,"user", "admin"],
+      enum: ["guest", "user", "admin"],
       default: "user",
     },
 

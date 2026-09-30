@@ -13,11 +13,13 @@ import {
 } from "@material-tailwind/react";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { useContext } from "react";
-import { AlertContext } from "@/context";
+import { AuthContext, AlertContext } from "@/context";
 import { fishRarities } from "./fish-fields";
 
 export function DialogNewFish({loadData}) {
   const [open, setOpen] = useState(false);
+
+  const { token } = useContext(AuthContext);
 
   // formos laukelių duomenys
   const [gamesId, setGamesId] = useState("");
@@ -81,6 +83,7 @@ export function DialogNewFish({loadData}) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
       },
       body: JSON.stringify(fishData),
     });
@@ -104,6 +107,9 @@ export function DialogNewFish({loadData}) {
       formData.append("sprite", sprite);
       const responseSprite = await fetch(`/api/fishes/${createdFish._id}/sprite`, {
         method: "PUT",
+        headers: {
+        "Authorization": `Bearer ${token}` 
+        },
         body: formData,
       });
 

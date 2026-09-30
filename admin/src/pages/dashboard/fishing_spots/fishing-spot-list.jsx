@@ -13,7 +13,7 @@ import {
   TabsHeader,
   Tab,
 } from "@material-tailwind/react";
-import { AlertContext } from "@/context";
+import { AuthContext, AlertContext } from "@/context";
 import LakeListItem from "./fishing-spots-list-item";
 import DialogNewFishingSpot from "./dialog-new-fishing-spot";
 
@@ -33,7 +33,7 @@ export function FishingSpotList() {
   const [q, setQ] = useState("");                  // search query
   const [roleList, setRoleList] = useState(["admin", "user"]);     // rolių sąrašas
 
-  // const { token } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
 
@@ -45,7 +45,7 @@ export function FishingSpotList() {
         method: "GET",
         headers: { 
           "Content-Type": "application/json", 
-          // "Authorization": `Bearer ${token}` 
+          "Authorization": `Bearer ${token}` 
         },
       });
 
@@ -58,8 +58,6 @@ export function FishingSpotList() {
       } catch (e) {
         data = [];
       }
-      
-      // console.log(data[0]._id)
 
       setRows(data);
     } catch (e) {
@@ -69,14 +67,11 @@ export function FishingSpotList() {
     }
   };
 
-// useEffect(() => {
-  //   if (!token) return; // wait until token is available
-  //   loadData();
-  // },[token]);
-  
-  useEffect(() => {
+useEffect(() => {
+    if (!token) return; // wait until token is available
     loadData();
-  }, []);
+  },[token]);
+
 
     // filter + search (case-insensitive)
   const filtered = useMemo(() => {
