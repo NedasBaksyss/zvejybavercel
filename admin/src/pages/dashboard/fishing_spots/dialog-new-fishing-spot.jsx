@@ -77,6 +77,7 @@ export function DialogNewFishingSpot({loadData}) {
       world,
       possibleFishes: []
     };
+
     // siunčiame į API
     const response = await fetch("/api/fishingspots", {
       method: "POST",
@@ -103,7 +104,7 @@ export function DialogNewFishingSpot({loadData}) {
     if (sprite) {
       const formData = new FormData();
       formData.append("sprite", sprite);
-      const responseSprite = await fetch(`/api/fishing-spot/${createdFish._id}/sprite`, {
+      const responseSprite = await fetch(`/api/fishingspots/${createdFish._id}/sprite`, {
         method: "PUT",
         body: formData,
       });

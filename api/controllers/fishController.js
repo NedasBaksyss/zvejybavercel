@@ -1,5 +1,6 @@
 import fs from "fs";
 import Fish from "../models/fish.js";
+import FishingSpot from "../models/fishingSpots.js";
 
 const uploadFile = async (req, field, folder, name) => {
   try {
@@ -177,6 +178,18 @@ export const deleteFish = async (req, res) => {
         error: "Žuvis nerasta",
       });
     }
+
+    // Remove this fish from all fishing spots
+    await FishingSpot.updateMany(
+      { "possibleFishes._id": fish._id },
+      {
+        $pull: {
+          possibleFishes: {
+            _id: fish._id,
+          },
+        },
+      }
+    );
 
     res.status(200).json({
       message: "Žuvis sėkmingai ištrinta",
