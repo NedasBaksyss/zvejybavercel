@@ -1,4 +1,6 @@
 import User from "../models/user.js";
+import bcryptjs from "bcryptjs";
+
 
 // GET /api/users
 export const getUsers = async (req, res) => {
@@ -35,6 +37,76 @@ export const getUser = async (req, res) => {
 
     res.status(400).json({
       error: "Invalid user ID",
+    });
+  }
+};
+
+
+// POST /api/users
+export const createUser = async (req, res) => {
+  try {
+    const {
+      username,
+      email,
+      password,
+    } = req.body;
+
+    // Validate required fields
+    if (!username || !email || !password) {
+      return res.status(400).json({
+        error: "Username, email and password are required",
+      });
+    }
+
+    // Check username
+    const existingUsername = await User.findOne({ username });
+
+    if (existingUsername) {
+      return res.status(409).json({
+        error: "Username already exists",
+      });
+    }
+
+    // Check email
+    const existingEmail = await User.findOne({ email });
+
+    if (existingEmail) {
+      return res.status(409).json({
+        error: "Email already exists",
+      });
+    }
+
+    // Hash password
+    const passwordHash = await bcryptjs.hash(password, 10);
+
+    // Create user
+    const user = await User.create({
+      username,
+      email,
+      passwordHash,
+      role: "user",
+    });
+
+    // Never return passwordHash
+    const safeUser = await User.findById(user._id)
+      .select("-passwordHash");
+
+    return res.status(201).json({
+      message: "User created successfully",
+      user: safeUser,
+    });
+  } catch (error) {
+    console.error(error);
+
+    // MongoDB duplicate key
+    if (error.code === 11000) {
+      return res.status(409).json({
+        error: "Username or email already exists",
+      });
+    }
+
+    res.status(500).json({
+      error: "Failed to create user",
     });
   }
 };
