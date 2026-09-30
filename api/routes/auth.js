@@ -1,4 +1,6 @@
 import express from "express";
+import { getGameSession, logout } from "../controllers/sessionController.js";
+import { requireSession, requireAuthRequest, createAuthRateLimit } from "../middleware/auth.js";
 
 
 import {
@@ -14,10 +16,13 @@ import {
 
 
 const router = express.Router();
+const rateLimit = createAuthRateLimit();
 
-router.post("/register", registerValidator(), register);
-router.post("/user/login", loginUserValidator(), loginUser);
+router.post("/register", rateLimit, registerValidator(), register);
+router.post("/user/login", requireAuthRequest, rateLimit, loginUserValidator(), loginUser);
 router.post("/admin/login", loginAdminValidator(), loginAdmin);
 router.get("/me", isAuth, me );
+router.get("/session", requireSession, getGameSession);
+router.post("/logout", requireAuthRequest, logout);
 
 export default router;

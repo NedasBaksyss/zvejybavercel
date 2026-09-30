@@ -16,8 +16,8 @@ const statsSchema = new mongoose.Schema(
 
     level: {
       type: Number,
-      default: 0,
-      min: 0,
+      default: 1,
+      min: 1,
     },
 
     experience: {
@@ -44,8 +44,9 @@ const userSchema = new mongoose.Schema(
 
     email: {
       type: String,
-      required: true,
+      required() { return this.role !== "guest"; },
       unique: true,
+      sparse: true,
       lowercase: true,
       trim: true,
       maxlength: 254,

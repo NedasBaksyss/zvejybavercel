@@ -11,6 +11,8 @@ import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 
 import User from "../models/user.js";
+import { verifyPassword } from "../services/passwords.js";
+import { startSession } from "../services/sessions.js";
 
 dotenv.config();
 
@@ -57,6 +59,7 @@ passport.use(
 
 export const registerValidator = () => [
   body("username")
+    .isString().withMessage("Username must be text").bail()
     .trim()
     .notEmpty()
     .withMessage("Username is required")
@@ -81,6 +84,7 @@ export const registerValidator = () => [
 
 export const loginUserValidator = () => [
   body("username")
+    .isString().withMessage("Username must be text").bail()
     .trim()
     .notEmpty()
     .withMessage("Username is required"),
@@ -131,7 +135,7 @@ export const register = async (req, res, next) => {
     const password = data.password;
 
     // Check username
-    const existingUsername = await User.findOne({ username });
+    const existingUsername = await User.findOne({ username }).collation({ locale: "en", strength: 2 });
 
     if (existingUsername) {
       return res.status(409).json({
@@ -167,6 +171,7 @@ export const register = async (req, res, next) => {
       createdAt: user.createdAt,
     };
 
+    if (req.get("X-Requested-With") === "zvejyba") await startSession(req, res, user);
     return res.status(201).json({
       status: "success",
       message: "User registered successfully",
@@ -236,7 +241,7 @@ export const loginAdmin = async (req, res, next) => {
       });
     }
 
-    const passwordMatches = await bcryptjs.compare(
+    const passwordMatches = await verifyPassword(
       password,
       user.passwordHash
     );
@@ -320,7 +325,7 @@ export const loginUser = async (req, res, next) => {
      */
     const user = await User.findOne({
       username,
-    }).select("+passwordHash");
+    }).collation({ locale: "en", strength: 2 }).select("+passwordHash");
 
     /*
      * Use the same error for a missing user
@@ -348,7 +353,7 @@ export const loginUser = async (req, res, next) => {
     /*
      * Compare password with stored hash.
      */
-    const passwordMatches = await bcryptjs.compare(
+    const passwordMatches = await verifyPassword(
       password,
       user.passwordHash
     );
@@ -357,7 +362,7 @@ export const loginUser = async (req, res, next) => {
       res.status(401);
 
       return next({
-        message: "Invalid email or password",
+        message: "Invalid username or password",
       });
     }
 
@@ -399,6 +404,7 @@ export const loginUser = async (req, res, next) => {
     };
 
 
+    await startSession(req, res, user);
     return res.status(200).json({
       status: "success",
       message: "Login successful",

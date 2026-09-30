@@ -4,9 +4,11 @@ import { randomBytes, randomUUID } from "node:crypto";
 import express from "express";
 import mongoose from "mongoose";
 import progressRouter from "./routes/progress.js";
-import usersRouter from "./routes/users.js";
+import jwt from "jsonwebtoken";
 import User from "./models/user.js";
 import { validateStats } from "./progression.js";
+process.env.JWT_SECRET ||= randomBytes(32).toString("hex");
+const { default: usersRouter } = await import("./routes/users.js");
 
 test("admin stats require whole numbers and XP within the current level", () => {
   for (const input of [{ level: 0 }, { experience: 100 }, { experience: -1 },
@@ -63,9 +65,11 @@ test("database persistence, guest isolation, concurrent catches and admin edits"
     assert.equal(raw.catchReceipts, undefined);
     assert.equal((await User.findById(other.id)).stats.totalFishCaught, 0);
 
-    assert.equal((await request(`/users/${first.id}/stats`, { experience: 100 }, token, "PATCH")).status, 400);
+    const admin = await User.create({ username: "stats_admin", email: "stats@example.test", role: "admin" });
+    const adminToken = jwt.sign({ id: String(admin._id) }, process.env.JWT_SECRET);
+    assert.equal((await request(`/users/${first.id}/stats`, { experience: 100 }, adminToken, "PATCH")).status, 400);
     assert.equal((await request(`/users/${first.id}/stats`,
-      { level: 7, experience: 90, coins: 42 }, token, "PATCH")).status, 200);
+      { level: 7, experience: 90, coins: 42 }, adminToken, "PATCH")).status, 200);
     const leveled = (await request("/progress/catches", { catchId: randomUUID() })).data;
     assert.equal(leveled.stats.level, 8);
     assert.equal(leveled.stats.experience, 15);

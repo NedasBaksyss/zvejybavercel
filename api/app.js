@@ -19,6 +19,7 @@ import usersRouter  from "./routes/users.js";
 import progressRouter from "./routes/progress.js";
 import User from "./models/user.js";
 import Session from "./models/session.js";
+import { notFound, apiError } from "./middleware/apiErrors.js";
 
 var app = express();
 
@@ -97,7 +98,8 @@ app.use("/fishes", fishesRouter);
 app.use("/fishingspots", fishingSpotsRouter);
 app.use("/users", usersRouter);
 app.use("/progress", progressRouter);
-app.use("/auth", authRouter);
+app.use(notFound);
+app.use(apiError);
 
 async function startServer() {
   await connectDB();

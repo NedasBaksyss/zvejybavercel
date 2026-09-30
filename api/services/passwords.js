@@ -1,5 +1,6 @@
 import { randomBytes, scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
+import bcryptjs from "bcryptjs";
 
 const derive = promisify(scrypt);
 const options = { N: 32768, r: 8, p: 3, maxmem: 64 * 1024 * 1024 };
@@ -11,6 +12,7 @@ export async function hashPassword(password) {
 }
 
 export async function verifyPassword(password, stored) {
+  if (/^\$2[aby]\$/.test(stored || "")) return bcryptjs.compare(password, stored);
   const match = /^scrypt\$32768\$8\$3\$([a-f0-9]{32})\$([a-f0-9]{128})$/.exec(stored || "");
   // Unknown users and old placeholder hashes still perform the password derivation.
   const salt = match?.[1] || "0".repeat(32);
