@@ -120,13 +120,23 @@ export function drawLandings(ctx, scene, platforms) {
   }
 }
 
+function rockShape(x, y, size) {
+  return [[x - size, y - 4, size * 2, 8], [x - size + 3, y - 9, size * 2 - 5, 7]];
+}
+
+export function isOnRock(px, py, x, y, size) {
+  return rockShape(x, y, size).some(([left, top, width, height]) =>
+    px >= left && px < left + width && py >= top && py < top + height);
+}
+
 export function drawRock(ctx, x, y, size, snowy = false) {
+  const [base, top] = rockShape(x, y, size);
   ctx.fillStyle = "#162d354d";
   ctx.fillRect(x - size, y + 2, size * 2 + 6, 4);
   ctx.fillStyle = "#485d60";
-  ctx.fillRect(x - size, y - 4, size * 2, 8);
+  ctx.fillRect(...base);
   ctx.fillStyle = "#748780";
-  ctx.fillRect(x - size + 3, y - 9, size * 2 - 5, 7);
+  ctx.fillRect(...top);
   ctx.fillStyle = snowy ? "#d6e0d8" : "#a0a895";
   ctx.fillRect(x - size + 4, y - 9, size + 2, 2);
 }

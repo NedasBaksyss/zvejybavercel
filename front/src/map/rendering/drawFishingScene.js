@@ -1,6 +1,6 @@
 import { VIEW, mix } from "../mapData.js";
 import { drawCharacter, drawPlayerName } from "./mapSprites.jsx";
-import { bankHeight, drawBank, drawFarEdge, drawRock, drawLandings, landingWidth } from "./lakeEdges.js";
+import { bankHeight, drawBank, drawFarEdge, drawRock, isOnRock, drawLandings, landingWidth } from "./lakeEdges.js";
 import { LAKE_PLATFORMS, getLakePlatform, isOnLakePlatform } from "../lakePlatforms.js";
 import {
   drawLakePine,
@@ -8,6 +8,13 @@ import {
   drawLakeDock,
   drawLakeIsland,
 } from "./lakeSprites.jsx";
+
+// Share rock positions between drawing and casting checks.
+const HIGHLAND_ROCKS = Array.from({ length: 16 }, (_, i) => ({
+  x: (i * 89) % VIEW.width + 12,
+  offsetY: 18 + (i % 3) * 19,
+  size: 9 + (i % 4) * 3,
+}));
 
 const PINE_COLORS = {
   trunk: "#102a25",
@@ -329,9 +336,8 @@ function drawSceneDetails(ctx, scene) {
       ctx.fillRect(15 + i * 53, scene.horizon - 8 + (i % 3) * 4, 3, 3);
     }
   } else if (scene.biome === "highland") {
-    for (let i = 0; i < 16; i++) {
-      const x = (i * 89) % VIEW.width;
-      drawRock(ctx, x + 12, scene.horizon + 18 + (i % 3) * 19, 9 + (i % 4) * 3, true);
+    for (const rock of HIGHLAND_ROCKS) {
+      drawRock(ctx, rock.x, scene.horizon + rock.offsetY, rock.size, true);
     }
   } else {
     ctx.fillStyle = "#251b32";
@@ -571,7 +577,8 @@ export function canCastAt(x, y, locationId = "quiet-lake") {
   if (scene.biome === "sunset" && x >= 150 && x <= 410 && y <= 362) return false;
   if (scene.biome === "pine" && x >= 565 && x <= 745 && y <= 333) return false;
   if (scene.biome === "reeds" && (x < 190 || x > 715) && y <= 366) return false;
-  if (scene.biome === "highland" && y < scene.horizon + 67) return false;
+  if (scene.biome === "highland" && HIGHLAND_ROCKS.some((rock) =>
+    isOnRock(x, y, rock.x, scene.horizon + rock.offsetY, rock.size))) return false;
   if (scene.biome === "quiet" && (x < 185 || x > 790) && y < 338) return false;
   if (
     scene.biome === "quiet" &&
