@@ -1,24 +1,26 @@
 const KEY = "zvejyba.guest-progress.v1";
 
-export function createGuestProgress({ onChange, storage = localStorage, request = fetch }) {
+export function createGuestProgress({ onChange, accountId = null, onSessionExpired,
+  storage = localStorage, request = fetch }) {
+  const storageKey = accountId ? `zvejyba.account-progress.${accountId}` : KEY;
   let state = { profile: null, status: "loading", pending: 0, leveledUp: false };
   let running = null;
   let stopped = false;
   let controller = null;
 
   function read() {
-    const saved = storage.getItem(KEY);
+    const saved = storage.getItem(storageKey);
     if (saved) {
       const data = JSON.parse(saved);
-      if (!/^[a-f0-9]{64}$/.test(data.token) || !Array.isArray(data.pending)) {
+      if ((!accountId && !/^[a-f0-9]{64}$/.test(data.token)) || !Array.isArray(data.pending)) {
         throw new Error("Invalid saved guest profile");
       }
       return data;
     }
-    const token = Array.from(crypto.getRandomValues(new Uint8Array(32)),
+    const token = accountId ? null : Array.from(crypto.getRandomValues(new Uint8Array(32)),
       (byte) => byte.toString(16).padStart(2, "0")).join("");
     const data = { token, pending: [] };
-    storage.setItem(KEY, JSON.stringify(data));
+    storage.setItem(storageKey, JSON.stringify(data));
     return data;
   }
 
@@ -32,10 +34,12 @@ export function createGuestProgress({ onChange, storage = localStorage, request 
     const timeout = setTimeout(() => controller?.abort(), 10000);
     try {
       const response = await request(`/api/progress/${path}`, {
-        method: "POST", signal: controller.signal,
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(body),
+        method: "POST", signal: controller.signal, credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-Requested-With": "zvejyba",
+          ...(!accountId ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ ...body, ...(accountId ? { accountId } : {}) }),
       });
+      if (accountId && [401, 409].includes(response.status) && !stopped) onSessionExpired?.();
       if (!response.ok) throw new Error(`Progress request failed (${response.status})`);
       return await response.json();
     } finally {
@@ -47,17 +51,17 @@ export function createGuestProgress({ onChange, storage = localStorage, request 
     try {
       const data = read();
       publish({ status: "saving", pending: data.pending.length, leveledUp: false });
-      const profile = await post("guest", {}, data.token);
+      const profile = await post(accountId ? "account" : "guest", {}, data.token);
       if (stopped) return;
       publish({ profile });
       while (!stopped) {
         const next = read().pending[0];
         if (!next) break;
-        const result = await post("catches", { catchId: next }, data.token);
+        const result = await post(accountId ? "account/catches" : "catches", { catchId: next }, data.token);
         // Remove only the acknowledged receipt, preserving catches added during the request.
         const current = read();
         current.pending = current.pending.filter((id) => id !== next);
-        storage.setItem(KEY, JSON.stringify(current));
+        storage.setItem(storageKey, JSON.stringify(current));
         publish({ profile: result, pending: current.pending.length,
           leveledUp: state.leveledUp || result.stats.level > state.profile.stats.level });
       }
@@ -79,7 +83,7 @@ export function createGuestProgress({ onChange, storage = localStorage, request 
       try {
         const data = read();
         data.pending.push(crypto.randomUUID());
-        storage.setItem(KEY, JSON.stringify(data));
+        storage.setItem(storageKey, JSON.stringify(data));
         publish({ pending: data.pending.length });
         return refresh();
       } catch {

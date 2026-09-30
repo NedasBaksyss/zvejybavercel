@@ -126,7 +126,9 @@ export function startMenu(root, map) {
     now: () => current,
   };
 
-  const Api = createAccountApi({ later, getText: t });
+  const Api = createAccountApi();
+  let sessionKnown = false;
+  let restoreSession;
 
   let player = null;
 
@@ -139,7 +141,33 @@ export function startMenu(root, map) {
     getSlot: () => slot,
   });
   const Hooks = gameHooks.hooks;
-  const progress = createGuestProgress({ onChange: (value) => map.setProgress(value) });
+  function makeProgress() {
+    return createGuestProgress({ accountId: player?.id,
+      onChange: (value) => map.setProgress(value),
+      onSessionExpired() {
+        setPlayer(null);
+        UI.go("auth");
+        auth.showError(t().sessionExpired);
+      },
+    });
+  }
+  let progress = makeProgress();
+  function setPlayer(value) {
+    if (!alive) return;
+    sessionKnown = true;
+    progress.stop();
+    player = value;
+    slot = null;
+    map.reset();
+    map.setProgress(null);
+    progress = makeProgress();
+  }
+  async function signOut() {
+    await Api.logout();
+    if (!alive) return;
+    setPlayer(null);
+    Hooks.emit("signOut");
+  }
   Hooks.on("fishCaught", () => progress.recordCatch());
   Hooks.on("start", () => progress.refresh());
   const refreshProgress = () => { if (current === "game") progress.refresh(); };
@@ -279,7 +307,10 @@ export function startMenu(root, map) {
     elementId: "conf-list",
   });
 
-  function startTrip() {
+  async function startTrip() {
+    await restoreSession;
+    if (!alive) return;
+    if (!sessionKnown) { UI.go("auth"); auth.showError(t().sessionError); return; }
     if (player) loadTrip(player.user);
     else {
       askMode = "new";
@@ -333,6 +364,7 @@ export function startMenu(root, map) {
     Sound.move();
   }
   function askConfirm() {
+    if (!alive) return;
     Sound.confirm();
     if (ASK_CARDS[askPick].id === "account") {
       UI.go("auth");
@@ -425,13 +457,16 @@ export function startMenu(root, map) {
         { text: L.no, run: () => UI.go("pause") },
         {
           text: L.yes,
-          run: () => {
-            player = null;
-            slot = null;
-            sel = 0;
-            Hooks.emit("signOut");
-            paintMenu();
-            UI.go("title");
+          run: async () => {
+            try {
+              await signOut();
+              if (!alive) return;
+              sel = 0;
+              paintMenu();
+              UI.go("title");
+            } catch (error) {
+              if (alive) $("conf-body").textContent = error.message;
+            }
           },
         },
       ]);
@@ -463,9 +498,8 @@ export function startMenu(root, map) {
     isAlive: () => alive,
     getText: t,
     getPlayer: () => player,
-    setPlayer: (value) => {
-      player = value;
-    },
+    setPlayer,
+    signOut,
     paintMenu,
     applyLanguage: applyLang,
     emit: (event, data) => Hooks.emit(event, data),
@@ -576,11 +610,18 @@ export function startMenu(root, map) {
   fit();
   applyLang();
   UI.go("title");
+  restoreSession = Api.current().then((value) => {
+    if (!alive) return;
+    setPlayer(value);
+    paintMenu();
+    applyLang();
+  }).catch(() => { sessionKnown = false; });
 
   return () => {
     alive = false;
     progress.stop();
     clearInterval(progressTimer);
+    auth.stop();
     removeEventListener("online", refreshProgress);
     removeEventListener("focus", refreshProgress);
     map.stop();

@@ -7,6 +7,8 @@ const profile = (user) => ({
   xpPerCatch: XP_PER_CATCH, xpPerLevel: XP_PER_LEVEL,
 });
 
+export const getAccountProgress = (req, res) => res.json(profile(req.user));
+
 export const getGuestProgress = async (req, res) => {
   try {
     const filter = { guestTokenHash: req.guestTokenHash };
@@ -34,7 +36,7 @@ export const recordCatch = async (req, res) => {
     return res.status(400).json({ error: "A valid catch ID is required" });
   }
   try {
-    const filter = { guestTokenHash: req.guestTokenHash };
+    const filter = req.user ? { _id: req.user._id } : { guestTokenHash: req.guestTokenHash };
     const updated = await User.findOneAndUpdate(
       { ...filter, catchReceipts: { $ne: catchId } }, catchUpdate(catchId),
       { new: true, updatePipeline: true },

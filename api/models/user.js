@@ -51,7 +51,10 @@ const userSchema = new mongoose.Schema(
     passwordHash: {
       type: String,
       default: null,
+      select: false,
     },
+
+    email: { type: String, trim: true, lowercase: true, unique: true, sparse: true },
 
     googleId: {
       type: String,

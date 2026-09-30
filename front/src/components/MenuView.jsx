@@ -38,7 +38,7 @@ export default function MenuView({ rootRef, mapRef }) {
 
               <div className="field">
                 <span id="lbl-user" />
-                <input id="f-user" autoComplete="username" maxLength={20} />
+                <input id="f-user" autoComplete="username" maxLength={30} />
               </div>
 
               <div className="field" id="f-mail-wrap" hidden>
@@ -47,7 +47,7 @@ export default function MenuView({ rootRef, mapRef }) {
                   id="f-mail"
                   type="email"
                   autoComplete="email"
-                  maxLength={60}
+                  maxLength={254}
                 />
               </div>
 
@@ -57,7 +57,7 @@ export default function MenuView({ rootRef, mapRef }) {
                   id="f-pass"
                   type="password"
                   autoComplete="current-password"
-                  maxLength={40}
+                  maxLength={128}
                 />
               </div>
 

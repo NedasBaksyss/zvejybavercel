@@ -16,6 +16,9 @@ import fishesRouter from "./routes/fishes.js";
 import fishingSpotsRouter from "./routes/fishing_spots.js";
 import usersRouter  from "./routes/users.js";
 import progressRouter from "./routes/progress.js";
+import authRouter from "./routes/auth.js";
+import User from "./models/user.js";
+import Session from "./models/session.js";
 
 var app = express();
 
@@ -93,9 +96,11 @@ app.use("/fishes", fishesRouter);
 app.use("/fishingspots", fishingSpotsRouter);
 app.use("/users", usersRouter);
 app.use("/progress", progressRouter);
+app.use("/auth", authRouter);
 
 async function startServer() {
   await connectDB();
+  await Promise.all([User.init(), Session.init()]);
 
   app.listen(port, () => {
     console.log(`API listening on port ${port}`);
