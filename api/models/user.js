@@ -16,8 +16,8 @@ const statsSchema = new mongoose.Schema(
 
     level: {
       type: Number,
-      default: 1,
-      min: 1,
+      default: 0,
+      min: 0,
     },
 
     experience: {
@@ -62,8 +62,6 @@ const userSchema = new mongoose.Schema(
       default: null,
       select: false,
     },
-
-    email: { type: String, trim: true, lowercase: true, unique: true, sparse: true },
 
     googleId: {
       type: String,

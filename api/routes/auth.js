@@ -3,9 +3,11 @@ import express from "express";
 
 import {
   registerValidator,
-  loginValidator,
+  loginUserValidator,
+  loginAdminValidator,
   register,
-  login,
+  loginUser,
+  loginAdmin,
   isAuth,
   me,
 } from "../controllers/authController.js";
@@ -14,7 +16,8 @@ import {
 const router = express.Router();
 
 router.post("/register", registerValidator(), register);
-router.post("/login", loginValidator(), login);
+router.post("/user/login", loginUserValidator(), loginUser);
+router.post("/admin/login", loginAdminValidator(), loginAdmin);
 router.get("/me", isAuth, me );
 
 export default router;

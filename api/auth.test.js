@@ -79,10 +79,10 @@ test("registration, session persistence, account progress, expiry and logout", {
     assert.equal((await request("/auth/me")).status, 401);
     assert.equal((await request("/auth/register", { ...credentials, username: "ANGLER_ONE" })).status, 409);
     assert.equal((await request("/auth/register", { ...credentials, username: "another" })).status, 409);
-    assert.equal((await request("/auth/login", { ...credentials, password: "wrong password" })).status, 401);
-    assert.equal((await request("/auth/login", { ...credentials, username: "unknown" })).status, 401);
+    assert.equal((await request("/auth/user/login", { ...credentials, password: "wrong password" })).status, 401);
+    assert.equal((await request("/auth/user/login", { ...credentials, username: "unknown" })).status, 401);
 
-    const loggedIn = await request("/auth/login", { ...credentials, username: "ANGLER_ONE" }, registered.cookie);
+    const loggedIn = await request("/auth/user/login", { ...credentials, username: "ANGLER_ONE" }, registered.cookie);
     assert.equal(loggedIn.status, 200);
     assert.notEqual(loggedIn.cookie, registered.cookie);
     assert.equal((await request("/auth/me", null, registered.cookie)).status, 401);
@@ -96,7 +96,7 @@ test("registration, session persistence, account progress, expiry and logout", {
     assert.equal((await request("/progress/account", { accountId: id }, loggedIn.cookie)).data.stats.experience, 25);
     assert.equal((await request("/auth/logout", {}, loggedIn.cookie)).status, 204);
     assert.equal((await request("/auth/me", null, loggedIn.cookie)).status, 401);
-    const next = await request("/auth/login", credentials);
+    const next = await request("/auth/user/login", credentials);
     assert.equal((await request("/progress/account", { accountId: id }, next.cookie)).data.stats.experience, 25);
     await Session.updateMany({}, { expiresAt: new Date(0) });
     assert.equal((await request("/auth/me", null, next.cookie)).status, 401);

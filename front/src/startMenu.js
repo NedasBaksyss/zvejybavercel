@@ -242,10 +242,11 @@ export function startMenu(root, map) {
     if (player) {
       whoEl.textContent = L.signedIn + " ";
       const b = document.createElement("b");
-      b.textContent = player.user;
+      b.textContent = player.user.username;
       whoEl.appendChild(b);
     }
   }
+
   function moveSel(d) {
     let i = sel,
       guard = 0;
@@ -311,7 +312,7 @@ export function startMenu(root, map) {
     await restoreSession;
     if (!alive) return;
     if (!sessionKnown) { UI.go("auth"); auth.showError(t().sessionError); return; }
-    if (player) loadTrip(player.user);
+    if (player) loadTrip(player.user.username);
     else {
       askMode = "new";
       UI.go("ask");

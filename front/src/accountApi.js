@@ -14,7 +14,7 @@ export function createAccountApi({ request = fetch } = {}) {
   }
   return {
     register: (username, password, email) => send("register", { username, password, email }),
-    login: (username, password) => send("login", { username, password }),
+    login: (username, password) => send("user/login", { username, password }),
     current: () => send("me"),
     logout: () => send("logout", {}),
   };

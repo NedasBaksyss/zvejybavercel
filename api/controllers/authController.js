@@ -79,11 +79,25 @@ export const registerValidator = () => [
 ];
 
 
-export const loginValidator = () => [
+export const loginUserValidator = () => [
   body("username")
     .trim()
     .notEmpty()
     .withMessage("Username is required"),
+
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required"),
+];
+
+export const loginAdminValidator = () => [
+  body("email")
+    .trim()
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email address")
+    .normalizeEmail(),
 
   body("password")
     .notEmpty()
@@ -104,9 +118,7 @@ export const register = async (req, res, next) => {
     const validation = validationResult(req);
 
     if (!validation.isEmpty()) {
-      res.status(400);
-
-      return next({
+      return res.status(400).json({
         message: "Validation error",
         errors: validation.array(),
       });
@@ -114,58 +126,30 @@ export const register = async (req, res, next) => {
 
     const data = matchedData(req);
 
-    const {
-      username,
-      email,
-      password,
-    } = data;
+    const username = data.username.trim();
+    const email = data.email.trim().toLowerCase();
+    const password = data.password;
 
-    /*
-     * Check whether username already exists.
-     */
-    const existingUsername = await User.findOne({
-      username,
-    });
+    // Check username
+    const existingUsername = await User.findOne({ username });
 
     if (existingUsername) {
-      res.status(409);
-
-      return next({
+      return res.status(409).json({
         message: "Username already exists",
       });
     }
 
-    /*
-     * Check whether email already exists.
-     */
-    const existingEmail = await User.findOne({
-      email,
-    });
+    // Check email
+    const existingEmail = await User.findOne({ email });
 
     if (existingEmail) {
-      res.status(409);
-
-      return next({
+      return res.status(409).json({
         message: "Email already exists",
       });
     }
 
-    /*
-     * Hash password.
-     */
-    const passwordHash = await bcryptjs.hash(
-      password,
-      10
-    );
+    const passwordHash = await bcryptjs.hash(password, 10);
 
-    /*
-     * Create user.
-     *
-     * IMPORTANT:
-     * We explicitly choose which fields can be created.
-     *
-     * The client cannot register as admin or modify stats.
-     */
     const user = await User.create({
       username,
       email,
@@ -173,11 +157,6 @@ export const register = async (req, res, next) => {
       role: "user",
     });
 
-    /*
-     * Return safe user data.
-     *
-     * passwordHash is never returned.
-     */
     const safeUser = {
       id: user._id,
       username: user.username,
@@ -194,22 +173,25 @@ export const register = async (req, res, next) => {
       user: safeUser,
     });
   } catch (error) {
-    console.error(error);
+    console.error("REGISTER ERROR:", error);
 
-    /*
-     * MongoDB duplicate-key error.
-     */
     if (error.code === 11000) {
-      res.status(409);
+      const field = Object.keys(error.keyPattern || {})[0];
 
-      return next({
-        message: "Username or email already exists",
+      return res.status(409).json({
+        message:
+          field === "username"
+            ? "Username already exists"
+            : field === "email"
+              ? "Email already exists"
+              : "A user with these details already exists",
       });
     }
 
     return next(error);
   }
 };
+
 
 /*
 |--------------------------------------------------------------------------
@@ -220,7 +202,100 @@ export const register = async (req, res, next) => {
 |
 */
 
-export const login = async (req, res, next) => {
+export const loginAdmin = async (req, res, next) => {
+  try {
+    const validation = validationResult(req);
+
+    if (!validation.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation error",
+        errors: validation.array(),
+      });
+    }
+
+    const { email, password } = matchedData(req);
+
+    const user = await User.findOne({ email })
+      .select("+passwordHash");
+
+    if (!user) {
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
+    }
+
+    if (user.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required",
+      });
+    }
+
+    if (!user.passwordHash) {
+      return res.status(401).json({
+        message: "This account does not have a password",
+      });
+    }
+
+    const passwordMatches = await bcryptjs.compare(
+      password,
+      user.passwordHash
+    );
+
+    if (!passwordMatches) {
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
+    }
+
+    // Update only lastLogin.
+    // Don't call user.save(), because that validates
+    // the entire existing user document.
+
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          lastLogin: new Date(),
+        },
+      }
+    );
+
+    const token = jwt.sign(
+      {
+        id: user._id.toString(),
+      },
+      JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    const safeUser = {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      stats: user.stats,
+      createdAt: user.createdAt,
+    };
+
+    return res.status(200).json({
+      status: "success",
+      message: "Admin login successful",
+      user: safeUser,
+      token,
+    });
+  } catch (error) {
+    console.error("ADMIN LOGIN ERROR:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+
+export const loginUser = async (req, res, next) => {
   try {
     const validation = validationResult(req);
 
@@ -289,9 +364,14 @@ export const login = async (req, res, next) => {
     /*
      * Update last login.
      */
-    user.lastLogin = new Date();
-
-    await user.save();
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          lastLogin: new Date(),
+        },
+      }
+    );
 
     /*
      * Create JWT.
@@ -315,9 +395,9 @@ export const login = async (req, res, next) => {
       email: user.email,
       role: user.role,
       stats: user.stats,
-      lastLogin: user.lastLogin,
       createdAt: user.createdAt,
     };
+
 
     return res.status(200).json({
       status: "success",

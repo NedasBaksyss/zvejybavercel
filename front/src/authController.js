@@ -71,14 +71,14 @@ export function createAuthController({
         authMode === "login"
           ? await Api.login(user, pass)
           : await Api.register(user, pass, mail);
-      if (!isAlive()) return;
-      setPlayer(player);
+          if (!isAlive()) return;
+          setPlayer(player);
       $("f-pass").value = "";
       msgEl.className = "msg ok";
       msgEl.textContent =
         authMode === "login"
-          ? language.welcome(player.user)
-          : language.created(player.user);
+          ? language.welcome(player.user.username)
+          : language.created(player.user.username);
       Sound.confirm();
       emit("login", player);
       paintMenu();
