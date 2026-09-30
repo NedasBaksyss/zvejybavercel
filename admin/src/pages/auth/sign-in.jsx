@@ -190,7 +190,7 @@ export function SignIn() {
               href="#"
               onClick={() => {
                 setEmail("admin@example.com");
-                setPassword("slaptazodis");
+                setPassword("adminpassword");
               }}
               className="ml-1 text-gray-900"
             >
@@ -202,7 +202,7 @@ export function SignIn() {
               href="#"
               onClick={() => {
                 setEmail("user@example.com");
-                setPassword("slaptazodis");
+                setPassword("userpassword");
               }}
               className="ml-1 text-gray-900"
             >
