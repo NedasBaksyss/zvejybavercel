@@ -152,6 +152,7 @@ export function startMenu(root, map) {
     });
   }
   let progress = makeProgress();
+  let signingOut = false;
   function setPlayer(value) {
     if (!alive) return;
     sessionKnown = true;
@@ -166,6 +167,7 @@ export function startMenu(root, map) {
     await Api.logout();
     if (!alive) return;
     setPlayer(null);
+    $("f-pass").value = "";
     Hooks.emit("signOut");
   }
   Hooks.on("fishCaught", () => progress.recordCatch());
@@ -190,9 +192,10 @@ export function startMenu(root, map) {
     { id: "continue", key: "cont", off: () => !slot },
     { id: "settings", key: "settings" },
     { id: "credits", key: "credits" },
+    { id: "signout", key: "btnOut", hidden: () => !player },
     { id: "quit", key: "quit" },
   ];
-  const isOff = (m) => !!(m.off && m.off());
+  const isOff = (m) => signingOut || !!(m.off && m.off());
   let vis = MENU.slice();
   let sel = 0;
   const menuEl = $("menu");
@@ -261,9 +264,11 @@ export function startMenu(root, map) {
     }
   }
   function choose(id) {
+    if (signingOut) return;
     Sound.confirm();
     if (id === "play") startTrip();
     else if (id === "continue") resumeTrip();
+    else if (id === "signout") signOutFromMenu();
     else if (id === "settings") {
       settingsBack = "title";
       UI.go("settings");
@@ -279,6 +284,24 @@ export function startMenu(root, map) {
       if (e.key === "Enter" || e.key === " ") choose(vis[sel].id);
     },
   });
+
+  async function signOutFromMenu() {
+    signingOut = true;
+    paintMenu();
+    try {
+      await signOut();
+      if (!alive) return;
+      sel = 0;
+      UI.go("title");
+    } catch (error) {
+      if (!alive) return;
+      UI.go("auth");
+      auth.showError(error.message);
+    } finally {
+      signingOut = false;
+      if (alive) paintMenu();
+    }
+  }
 
   function quit() {
     Hooks.emit("quit");
