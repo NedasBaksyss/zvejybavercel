@@ -1,11 +1,11 @@
 import { VIEW } from "../mapData.js";
 import { drawTree, drawShop } from "../terrain/terrainSprites.jsx";
-import { drawCharacter } from "./mapSprites.jsx";
+import { drawCharacter, drawPlayerName } from "./mapSprites.jsx";
 import { drawFishingScene } from "./drawFishingScene.js";
 
 export function drawDestination(ctx, location, time, state) {
   if (location.type === "lake") {
-    drawFishingScene(ctx, location, time, state.fishing, state.platformId);
+    drawFishingScene(ctx, location, time, state.fishing, state.platformId, state.playerName);
     return;
   }
   const sky = ctx.createLinearGradient(0, 0, 0, 320);
@@ -96,4 +96,6 @@ export function drawDestination(ctx, location, time, state) {
     for (let i = 0; i < 10; i++)
       drawTree(ctx, i * 15 - 15, 462 + (i % 3) * 10, 2.8);
   }
+  const player = location.type === "shop" ? { x: 313, y: 454 } : { x: 275, y: 406 };
+  drawPlayerName(ctx, state.playerName, player.x, player.y);
 }

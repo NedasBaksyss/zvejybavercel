@@ -14,6 +14,13 @@ export function label(ctx, value, x, y, color = "#e8ead0", selected = false) {
   ctx.fillText(value, left + 7, y + 15);
 }
 
+export function drawPlayerName(ctx, name, x, y, scale = 1) {
+  if (!name) return;
+  ctx.save();
+  label(ctx, name, x, y - 20 * scale - 28, "#f3cf83");
+  ctx.restore();
+}
+
 export function drawCharacter(ctx, x, y, time, moving, direction, holdingRod = true) {
   ctx.save();
   ctx.translate(Math.round(x), Math.round(y));

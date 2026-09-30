@@ -1,5 +1,5 @@
 import { VIEW, mix } from "../mapData.js";
-import { drawCharacter } from "./mapSprites.jsx";
+import { drawCharacter, drawPlayerName } from "./mapSprites.jsx";
 import { bankHeight, drawBank, drawFarEdge, drawRock, drawLandings, landingWidth } from "./lakeEdges.js";
 import { LAKE_PLATFORMS, getLakePlatform, isOnLakePlatform } from "../lakePlatforms.js";
 import {
@@ -541,7 +541,7 @@ function drawReeds(ctx, start, end, baseY, height, color) {
   }
 }
 
-export function drawFishingScene(ctx, location, time, fishing, platformId) {
+export function drawFishingScene(ctx, location, time, fishing, platformId, playerName) {
   const scene = sceneFor(location?.id);
   const selected = getLakePlatform(location?.id, platformId) || LAKE_PLATFORMS["quiet-lake"][0];
   drawSky(ctx, scene, time);
@@ -555,6 +555,7 @@ export function drawFishingScene(ctx, location, time, fishing, platformId) {
   drawPlatforms(ctx, scene, location?.id, selected, time);
   drawFishingGear(ctx, { ...scene, ...selected }, time, fishing);
   drawWeather(ctx, scene, time);
+  drawPlayerName(ctx, playerName, selected.angler.x, selected.angler.y, selected.scale);
 }
 
 export function canCastAt(x, y, locationId = "quiet-lake") {

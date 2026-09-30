@@ -1,5 +1,5 @@
 import { WORLD, VIEW, LOCATIONS, GLOBE_START, clamp, mix } from "../mapData.js";
-import { label, drawCharacter } from "./mapSprites.jsx";
+import { label, drawCharacter, drawPlayerName } from "./mapSprites.jsx";
 
 export function drawFlatMap(
   ctx,
@@ -81,9 +81,10 @@ export function drawFlatMap(
       ctx.restore();
     }
   }
-  if (state.zoom > 0.45)
+  if (state.zoom > 0.45) {
     drawCharacter(ctx, player.x, player.y, time, state.moving, state.direction);
-  else {
+    drawPlayerName(ctx, state.playerName, player.x, player.y);
+  } else {
     ctx.fillStyle = "#f6ce88";
     ctx.fillRect(player.x - 3, player.y - 3, 6, 6);
   }
