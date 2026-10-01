@@ -6,6 +6,7 @@ import MapLocations from "./components/MapLocations.jsx";
 import MapControls from "./components/MapControls.jsx";
 import MapContext from "./components/MapContext.jsx";
 import MapDestination from "./components/MapDestination.jsx";
+import ProgressHud from "./components/ProgressHud.jsx";
 import FishingHud from "./components/FishingHud.jsx";
 import "./map.css";
 
@@ -49,9 +50,10 @@ export default function MapView({ ref }) {
         onMap={actions.showLocal}
         onGlobe={actions.showGlobe}
         onPause={actions.pause}
-        progress={snapshot.progress}
-        onRetryProgress={actions.retryProgress}
       />
+      {snapshot.destination?.type === "lake" && (
+        <ProgressHud progress={snapshot.progress} language={snapshot.language} onRetry={actions.retryProgress} />
+      )}
       <MapLocations
         text={text}
         language={snapshot.language}
