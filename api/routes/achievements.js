@@ -7,26 +7,34 @@ import {
   updateAchievement,
   updateAchievementSprite,
   deleteAchievement,
+
+  addRequirement,
+  deleteRequirement,
+
+  addReward,
+  updateReward,
+  deleteReward,
 } from "../controllers/achievementController.js";
 
 const router = express.Router();
 
-// GET /api/achievements
+// Achievements
 router.get("/", getAchievements);
-
-// GET /api/achievements/:id
 router.get("/:id", getAchievement);
-
-// POST /api/achievements
 router.post("/", createAchievement);
-
-// PUT /api/achievements/:id
 router.put("/:id", updateAchievement);
+router.delete("/:id", deleteAchievement);
 
-// PUT /api/achievements/:id/sprite
+// Sprite
 router.put("/:id/sprite", updateAchievementSprite);
 
-// DELETE /api/achievements/:id
-router.delete("/:id", deleteAchievement);
+// Requirements
+router.post("/:id/requirements", addRequirement);
+router.delete("/:id/requirements", deleteRequirement);
+
+// Rewards
+router.post("/:id/rewards", addReward);
+router.put("/:id/rewards/:rewardIndex", updateReward);
+router.delete("/:id/rewards/:rewardIndex", deleteReward);
 
 export default router;

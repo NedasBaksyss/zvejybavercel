@@ -189,3 +189,142 @@ export const deleteAchievement = async (req, res) => {
     });
   }
 };
+
+// POST /api/achievements/:id/requirements
+export const addRequirement = async (req, res) => {
+  try {
+    const achievement = await Achievement.findById(req.params.id);
+
+    if (!achievement) {
+      return res.status(404).json({
+        error: "Achievement nerastas",
+      });
+    }
+
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({
+        error: "Requirement nepateiktas",
+      });
+    }
+
+    achievement.requirement = req.body;
+
+    await achievement.save();
+
+    res.status(200).json(achievement);
+  } catch (error) {
+    console.error(error);
+
+    res.status(400).json({
+      error: error.message,
+    });
+  }
+};
+
+// DELETE /api/achievements/:id/requirements
+export const deleteRequirement = async (req, res) => {
+  try {
+    const achievement = await Achievement.findById(req.params.id);
+
+    if (!achievement) {
+      return res.status(404).json({
+        error: "Achievement nerastas",
+      });
+    }
+
+    achievement.requirement = {};
+
+    await achievement.save();
+
+    res.status(200).json(achievement);
+  } catch (error) {
+    console.error(error);
+
+    res.status(400).json({
+      error: error.message,
+    });
+  }
+};
+
+// DELETE /api/achievements/:id/rewards/:rewardIndex
+export const deleteReward = async (req, res) => {
+  try {
+    const achievement = await Achievement.findById(req.params.id);
+
+    if (!achievement) {
+      return res.status(404).json({
+        error: "Achievement nerastas",
+      });
+    }
+
+    const rewardIndex = Number(req.params.rewardIndex);
+
+    if (
+      Number.isNaN(rewardIndex) ||
+      rewardIndex < 0 ||
+      rewardIndex >= achievement.reward.length
+    ) {
+      return res.status(400).json({
+        error: "Neteisingas reward indeksas",
+      });
+    }
+
+    achievement.reward.splice(rewardIndex, 1);
+
+    await achievement.save();
+
+    res.status(200).json(achievement);
+  } catch (error) {
+    console.error(error);
+
+    res.status(400).json({
+      error: error.message,
+    });
+  }
+};
+
+
+// PUT /api/achievements/:id/rewards/:rewardIndex
+export const updateReward = async (req, res) => {
+  try {
+    const achievement = await Achievement.findById(req.params.id);
+
+    if (!achievement) {
+      return res.status(404).json({
+        error: "Achievement nerastas",
+      });
+    }
+
+    const rewardIndex = Number(req.params.rewardIndex);
+
+    if (
+      Number.isNaN(rewardIndex) ||
+      rewardIndex < 0 ||
+      rewardIndex >= achievement.reward.length
+    ) {
+      return res.status(400).json({
+        error: "Neteisingas reward indeksas",
+      });
+    }
+
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({
+        error: "Reward nepateiktas",
+      });
+    }
+
+    achievement.reward[rewardIndex] = req.body;
+
+    await achievement.save();
+
+    res.status(200).json(achievement);
+  } catch (error) {
+    console.error(error);
+
+    res.status(400).json({
+      error: error.message,
+    });
+  }
+};
+
+
