@@ -11,12 +11,24 @@ const CONTINENTS = [
   "M0 744 L90 726 218 750 344 720 483 743 640 721 801 740 943 715 1091 739 1250 717 1424 742 1552 721 1600 738 1600 800 0 800Z",
 ];
 const RIVER =
-  "M1040 174 Q1009 196 1018 222 Q1027 252 996 275 Q968 296 973 310 Q981 333 996 353 Q1014 379 1000 412 Q985 448 969 463";
+  "M1040 174 Q1009 196 1018 222 Q1027 252 996 275 Q968 296 973 310 Q981 333 996 353 Q1014 379 1000 412 Q999 416 998 422";
 const entry = (id) => LOCATIONS.find((place) => place.id === id).entry;
-const trail = (...points) =>
-  points
-    .map((point, index) => `${index ? "L" : "M"}${point.x} ${point.y}`)
-    .join(" ");
+// Round bends without overshooting the route anchors or the bridge approaches.
+const trail = (...points) => {
+  let data = `M${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length - 1; i++) {
+    const previous = points[i - 1], point = points[i], next = points[i + 1];
+    const radius = Math.min(32, Math.hypot(point.x - previous.x, point.y - previous.y) / 4,
+      Math.hypot(next.x - point.x, next.y - point.y) / 4);
+    const before = radius / Math.hypot(point.x - previous.x, point.y - previous.y);
+    const after = radius / Math.hypot(next.x - point.x, next.y - point.y);
+    // Keep the entire bridge deck straight.
+    if (point.y === 1334) { data += ` L${point.x} ${point.y}`; continue; }
+    data += ` L${point.x + (previous.x - point.x) * before} ${point.y + (previous.y - point.y) * before}`;
+    data += ` Q${point.x} ${point.y} ${point.x + (next.x - point.x) * after} ${point.y + (next.y - point.y) * after}`;
+  }
+  return data + ` L${points.at(-1).x} ${points.at(-1).y}`;
+};
 const TRAILS = [
   trail(
     entry("quiet-lake"),
@@ -62,20 +74,44 @@ const TRAILS = [
 export const BRIDGES = [{ x: 3880, y: 1318, width: 155, height: 32 }];
 
 export function createTerrainGeometry() {
-  const paths = CONTINENTS.map((data) => new Path2D(data));
+  const paths = CONTINENTS.map((data, index) => {
+    // Small coves along the original coast preserve the world layout.
+    const coordinates = data.match(/-?\d+(?:\.\d+)?/g).map(Number);
+    const points = [];
+    for (let i = 0; i < coordinates.length; i += 2) {
+      const x = coordinates[i], y = coordinates[i + 1];
+      const nx = coordinates[(i + 2) % coordinates.length], ny = coordinates[(i + 3) % coordinates.length];
+      const length = Math.hypot(nx - x, ny - y), steps = Math.ceil(length / 5);
+      for (let j = 0; j < steps; j++) {
+        const t = j / steps;
+        const offset = Math.sin(t * Math.PI) * (Math.sin(j * 1.7 + i) * 1.1 + Math.sin(j * .63 + index) * 1.5);
+        points.push([x + (nx - x) * t - (ny - y) / length * offset,
+          y + (ny - y) * t + (nx - x) / length * offset]);
+      }
+    }
+    const path = new Path2D();
+    path.moveTo((points.at(-1)[0] + points[0][0]) / 2, (points.at(-1)[1] + points[0][1]) / 2);
+    points.forEach(([x, y], i) => {
+      const next = points[(i + 1) % points.length];
+      path.quadraticCurveTo(x, y, (x + next[0]) / 2, (y + next[1]) / 2);
+    });
+    path.closePath();
+    return path;
+  });
   const river = new Path2D(RIVER);
   const trails = TRAILS.map((data) => new Path2D(data));
   const lakes = LOCATIONS.filter((spot) => spot.type === "lake").map((spot) => {
     const path = new Path2D();
-    path.ellipse(
-      spot.x,
-      spot.y,
-      spot.radiusX,
-      spot.radiusY,
-      -0.35,
-      0,
-      Math.PI * 2,
-    );
+    for (let i = 0; i <= 96; i++) {
+      const angle = i / 96 * Math.PI * 2;
+      const radius = .93 + .045 * Math.sin(angle * 3 + spot.x) + .025 * Math.cos(angle * 5);
+      const x = Math.cos(angle) * spot.radiusX * radius;
+      const y = Math.sin(angle) * spot.radiusY * radius;
+      const px = spot.x + x * Math.cos(-.35) - y * Math.sin(-.35);
+      const py = spot.y + x * Math.sin(-.35) + y * Math.cos(-.35);
+      if (i === 0) path.moveTo(px, py); else path.lineTo(px, py);
+    }
+    path.closePath();
     return { spot, path };
   });
 

@@ -1,5 +1,6 @@
 import { LOCATIONS, CLEARINGS } from "../mapData.js";
 import { drawTree, drawShop } from "./terrainSprites.jsx";
+import { BRIDGES } from "./terrainGeometry.jsx";
 import { noise, intersects } from "./terrainUtils.jsx";
 import { isWinter, drawWinterMountain, WINTER_PEAKS, mountainBounds } from "./winterRegion.js";
 
@@ -8,20 +9,23 @@ const mountainClearings = WINTER_PEAKS.map((peak) => mountainBounds(peak, 12));
 export function paintDetails(ctx, bounds, { trails }, land, hit) {
   const cell = 28;
   for (
-    let gy = Math.floor((bounds.y - 24) / cell);
-    gy <= Math.ceil((bounds.y + bounds.height + 24) / cell);
+    let gy = Math.floor((bounds.y - 48) / cell);
+    gy <= Math.ceil((bounds.y + bounds.height + 48) / cell);
     gy++
   ) {
     for (
-      let gx = Math.floor((bounds.x - 24) / cell);
-      gx <= Math.ceil((bounds.x + bounds.width + 24) / cell);
+      let gx = Math.floor((bounds.x - 48) / cell);
+      gx <= Math.ceil((bounds.x + bounds.width + 48) / cell);
       gx++
     ) {
-      if (noise(gx, gy, 18) < 0.48) continue;
+      const grove = (Math.sin(gx * .23 + Math.cos(gy * .17) * 2) + Math.cos(gy * .29 - gx * .08)) / 2;
+      if (noise(gx, gy, 18) < .48 - grove * .36) continue;
       const x = gx * cell + noise(gx, gy, 2) * 22,
         y = gy * cell + noise(gx, gy, 3) * 22;
       if (
-        !land(x, y) ||
+        !land(x, y) || !land(x - 10, y) || !land(x + 10, y) ||
+        BRIDGES.some((bridge) => x > bridge.x - 18 && x < bridge.x + bridge.width + 18 &&
+          y > bridge.y - 8 && y < bridge.y + bridge.height + 36) ||
         mountainClearings.some((area) => x >= area.left && x <= area.right &&
           y >= area.top && y <= area.bottom + 18) ||
         LOCATIONS.some(
@@ -34,7 +38,7 @@ export function paintDetails(ctx, bounds, { trails }, land, hit) {
         trails.some((path) => hit.isPointInStroke(path, x, y))
       )
         continue;
-      drawTree(ctx, x, y, 0.7 + noise(gx, gy, 4) * 0.7, isWinter(x, y));
+      drawTree(ctx, x, y, 1.1 + noise(gx, gy, 4) * 1.1, isWinter(x, y));
     }
   }
   for (const [x, y, width, height] of WINTER_PEAKS) {
