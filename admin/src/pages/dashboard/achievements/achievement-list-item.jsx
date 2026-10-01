@@ -13,6 +13,8 @@ import { useState, useContext } from "react";
 import { AuthContext, AlertContext } from "@/context";
 import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon, FingerPrintIcon } from "@heroicons/react/24/outline";
 import DialogViewId from "./dialog-view-id";
+import DialogViewRequirements from "./dialog-view-requirement";
+import DialogViewRewards from "./dialog-view-rewards";
 
 export function AchievementListItem({data, isLast, rows, setRows, error, setError, loadData}) {
   const { _id, sprite} = data;
@@ -215,6 +217,10 @@ export function AchievementListItem({data, isLast, rows, setRows, error, setErro
         </div>
       </td>
       <td className={classes}>
+        <DialogViewRequirements data={data}/>
+      </td>
+      <td className={classes}>
+        <DialogViewRewards data={data}/>
       </td>
 
       {confirmDelete ? (
