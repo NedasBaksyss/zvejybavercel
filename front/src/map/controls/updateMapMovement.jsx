@@ -54,7 +54,7 @@ export function updateMapMovement(state, keys, terrain, dt, reducedMotion) {
       state.moving = before.x !== state.player.x || before.y !== state.player.y;
       movementRequested = true;
     }
-    state.camera = followCamera(state.camera, state.player, state.zoom);
+    state.camera = followCamera(state.camera, state.player, dt, reducedMotion);
   }
 
   return movementRequested;
