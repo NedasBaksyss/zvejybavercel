@@ -16,6 +16,11 @@ const achievementSchema = new mongoose.Schema(
       type: String,
     },
 
+    requirement: {
+      type: Object,
+      default: {}
+    },
+
     reward: {
       type: Array,
       default: [],

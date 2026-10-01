@@ -7,8 +7,9 @@ import {
   InformationCircleIcon,
   ServerStackIcon,
   RectangleStackIcon,
+  TrophyIcon
 } from "@heroicons/react/24/solid";
-import { Home, Profile, UserList, FishList, FishingSpotList} from "@/pages/dashboard";
+import { Home, Profile, UserList, FishList, FishingSpotList, AchievementList} from "@/pages/dashboard";
 import { SignIn, SignUp, SignOut } from "@/pages/auth";
 import { Notifications, Components, ProfileExample, Tables, Sorting } from "@/pages/demo";
 
@@ -56,6 +57,12 @@ export const routes = [
         name: "Fishing Spots",
         path: "/fishingspots",
         element: <FishingSpotList />,
+      },
+      {
+        icon: <TrophyIcon {...icon} />,
+        name: "Achievements",
+        path: "/achievements",
+        element: <AchievementList />,
       }
       ]
   },
