@@ -1,7 +1,7 @@
 export const WORLD_SCALE = 4;
 export const WORLD = { width: 6400, height: 3200 };
 export const WORLD_TEXTURE = { width: 1600, height: 800 };
-export const MAP_VERSION = 2;
+export const MAP_VERSION = 3;
 export const VIEW = { width: 960, height: 540 };
 export const SPAWN = { x: 3475, y: 1210 };
 export const LOCAL_ZOOM = 2.4;
@@ -18,11 +18,13 @@ export const LOCATIONS = [
   {
     id: "quiet-lake",
     type: "lake",
-    x: 3360,
-    y: 1100,
-    radiusX: 72,
-    radiusY: 48,
-    entry: { x: 3418, y: 1150 },
+    x: 3420,
+    y: 1060,
+    radiusX: 115,
+    radiusY: 80,
+    rotation: -0.55,
+    waterColor: "#397f80",
+    entry: { x: 3500, y: 1145 },
     name: { LT: "Tylusis ežeras", EN: "Quiet Lake" },
     description: {
       LT: "Nendrių apsuptas ežeras ir senas medinis lieptas.",
@@ -33,9 +35,9 @@ export const LOCATIONS = [
   {
     id: "angler-shop",
     type: "shop",
-    x: 3572,
-    y: 1516,
-    entry: { x: 3572, y: 1538 },
+    x: 3550,
+    y: 1430,
+    entry: { x: 3550, y: 1452 },
     name: { LT: "Žvejo krautuvė", EN: "Angler's Supply" },
     description: {
       LT: "Meškerės, masalai ir įranga kitai kelionei.",
@@ -72,11 +74,13 @@ export const LOCATIONS = [
   {
     id: "pine-lake",
     type: "lake",
-    x: 4240,
-    y: 1556,
-    radiusX: 84,
-    radiusY: 56,
-    entry: { x: 4172, y: 1496 },
+    x: 4280,
+    y: 1465,
+    radiusX: 95,
+    radiusY: 155,
+    rotation: -0.45,
+    waterColor: "#286773",
+    entry: { x: 4150, y: 1395 },
     name: { LT: "Pušų ežeras", EN: "Pine Lake" },
     description: {
       LT: "Ramus ežeras tarp pušyno ir smėlėto kranto.",
@@ -87,9 +91,9 @@ export const LOCATIONS = [
   {
     id: "riverside-shop",
     type: "shop",
-    x: 4536,
-    y: 1164,
-    entry: { x: 4536, y: 1186 },
+    x: 4380,
+    y: 1190,
+    entry: { x: 4380, y: 1212 },
     name: { LT: "Pakrantės masalai", EN: "Riverside Bait" },
     description: {
       LT: "Maža masalų parduotuvė prie upės tako.",
@@ -100,11 +104,13 @@ export const LOCATIONS = [
   {
     id: "reed-lake",
     type: "lake",
-    x: 3270,
-    y: 1430,
-    radiusX: 74,
-    radiusY: 46,
-    entry: { x: 3328, y: 1480 },
+    x: 3310,
+    y: 1450,
+    radiusX: 100,
+    radiusY: 135,
+    rotation: 0.25,
+    waterColor: "#477e68",
+    entry: { x: 3425, y: 1470 },
     name: { LT: "Nendrių ežeras", EN: "Reed Lake" },
     description: {
       LT: "Platūs vakariniai krantai ir ilgi takai tarp nendrių.",
@@ -115,11 +121,13 @@ export const LOCATIONS = [
   {
     id: "meadow-lake",
     type: "lake",
-    x: 4530,
-    y: 1260,
-    radiusX: 92,
-    radiusY: 60,
-    entry: { x: 4606, y: 1326 },
+    x: 4690,
+    y: 1210,
+    radiusX: 180,
+    radiusY: 95,
+    rotation: 0.25,
+    waterColor: "#348a91",
+    entry: { x: 4520, y: 1280 },
     name: { LT: "Pievų ežeras", EN: "Meadow Lake" },
     description: {
       LT: "Atvira pieva prie didelio ežero rytinėje pakrantėje.",
@@ -130,11 +138,13 @@ export const LOCATIONS = [
   {
     id: "highland-lake",
     type: "lake",
-    x: 4530,
-    y: 820,
-    radiusX: 78,
-    radiusY: 52,
-    entry: { x: 4590, y: 878 },
+    x: 4520,
+    y: 865,
+    radiusX: 135,
+    radiusY: 68,
+    rotation: -0.12,
+    waterColor: "#427f9b",
+    entry: { x: 4490, y: 951 },
     name: { LT: "Šalnų ežeras", EN: "Frostwater Lake" },
     description: {
       LT: "Ledinis ežeras tarp apsnigtų viršūnių ir šerkšnotų pušų.",
@@ -145,11 +155,13 @@ export const LOCATIONS = [
   {
     id: "sunset-lake",
     type: "lake",
-    x: 3480,
-    y: 1790,
-    radiusX: 80,
-    radiusY: 53,
-    entry: { x: 3546, y: 1845 },
+    x: 3510,
+    y: 1820,
+    radiusX: 125,
+    radiusY: 75,
+    rotation: -0.2,
+    waterColor: "#427d83",
+    entry: { x: 3500, y: 1910 },
     name: { LT: "Saulėlydžio ežeras", EN: "Sunset Lake" },
     description: {
       LT: "Pietinis ežeras su plačia smėlėta pakrante.",
@@ -161,8 +173,8 @@ export const LOCATIONS = [
     id: "southern-shop",
     type: "shop",
     x: 3410,
-    y: 1880,
-    entry: { x: 3410, y: 1902 },
+    y: 1960,
+    entry: { x: 3410, y: 1982 },
     name: { LT: "Pietų krautuvė", EN: "Southern Supply" },
     description: {
       LT: "Kelionės reikmenys ir erdvi aikštelė pietiniame take.",
@@ -187,9 +199,9 @@ export const LOCATIONS = [
 
 export const CLEARINGS = [
   { ...SPAWN, radius: 72 },
-  { x: 3572, y: 1590, radius: 78 },
-  { x: 4420, y: 1120, radius: 85 },
-  { x: 3410, y: 1960, radius: 70 },
+  { x: 3550, y: 1510, radius: 65 },
+  { x: 4320, y: 1120, radius: 75 },
+  { x: 3440, y: 2040, radius: 60 },
 ];
 
 export function regionName(player, language) {

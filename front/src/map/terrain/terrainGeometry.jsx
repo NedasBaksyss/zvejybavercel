@@ -18,58 +18,37 @@ const trail = (...points) => {
   let data = `M${points[0].x} ${points[0].y}`;
   for (let i = 1; i < points.length - 1; i++) {
     const previous = points[i - 1], point = points[i], next = points[i + 1];
-    const radius = Math.min(32, Math.hypot(point.x - previous.x, point.y - previous.y) / 4,
+    const radius = Math.min(100, Math.hypot(point.x - previous.x, point.y - previous.y) / 4,
       Math.hypot(next.x - point.x, next.y - point.y) / 4);
     const before = radius / Math.hypot(point.x - previous.x, point.y - previous.y);
     const after = radius / Math.hypot(next.x - point.x, next.y - point.y);
     // Keep the entire bridge deck straight.
-    if (point.y === 1334) { data += ` L${point.x} ${point.y}`; continue; }
+    if (point.y === 1334 || [westFork, eastFork, southFork, ...CLEARINGS,
+      entry("angler-shop"), entry("riverside-shop")].some((junction) =>
+      point.x === junction.x && point.y === junction.y)) { data += ` L${point.x} ${point.y}`; continue; }
     data += ` L${point.x + (previous.x - point.x) * before} ${point.y + (previous.y - point.y) * before}`;
     data += ` Q${point.x} ${point.y} ${point.x + (next.x - point.x) * after} ${point.y + (next.y - point.y) * after}`;
   }
   return data + ` L${points.at(-1).x} ${points.at(-1).y}`;
 };
+// A western woodland loop and an eastern ridge trail meet at the river bridge.
+const westFork = { x: 3660, y: 1300 };
+const eastFork = { x: 4160, y: 1230 };
+const southFork = { x: 3660, y: 1680 };
 const TRAILS = [
-  trail(
-    entry("quiet-lake"),
-    CLEARINGS[0],
-    { x: 3572, y: 1410 },
-    entry("angler-shop"),
-    CLEARINGS[1],
-  ),
-  trail(
-    CLEARINGS[0],
-    { x: 3730, y: 1290 },
-    entry("silver-river"),
-    { x: 3880, y: 1334 },
-    { x: 4035, y: 1334 },
-    entry("pine-lake"),
-  ),
-  trail(entry("silver-river"), { x: 3880, y: 1090 }, entry("mist-falls")),
-  trail(
-    { x: 4035, y: 1334 },
-    { x: 4280, y: 1170 },
-    CLEARINGS[2],
-    entry("riverside-shop"),
-  ),
-  trail(entry("angler-shop"), { x: 3420, y: 1550 }, entry("reed-lake")),
-  trail(
-    CLEARINGS[1],
-    { x: 3610, y: 1700 },
-    { x: 3610, y: 1845 },
-    entry("sunset-lake"),
-    entry("southern-shop"),
-    CLEARINGS[3],
-  ),
-  trail(
-    entry("riverside-shop"),
-    { x: 4680, y: 1186 },
-    { x: 4680, y: 1326 },
-    entry("meadow-lake"),
-  ),
-  trail(CLEARINGS[2], { x: 4410, y: 945 }, entry("highland-lake")),
-  trail(entry("highland-lake"), { x: 4730, y: 878 }, entry("eastern-shop")),
-  trail(entry("riverside-shop"), { x: 4710, y: 1130 }, entry("eastern-shop")),
+  trail(entry("quiet-lake"), CLEARINGS[0], { x: 3560, y: 1270 }, westFork,
+    { x: 3800, y: 1280 }, { x: 3880, y: 1334 }, { x: 4035, y: 1334 }, eastFork),
+  trail(westFork, { x: 3620, y: 1400 }, entry("angler-shop"), CLEARINGS[1],
+    { x: 3590, y: 1600 }, southFork, { x: 3670, y: 1900 }, { x: 3590, y: 1940 }, entry("sunset-lake"),
+    entry("southern-shop"), CLEARINGS[3]),
+  trail(entry("angler-shop"), entry("reed-lake"), { x: 3420, y: 1600 },
+    { x: 3490, y: 1690 }, southFork),
+  trail(westFork, { x: 3780, y: 1190 }, entry("silver-river")),
+  trail({ x: 3780, y: 1190 }, { x: 3780, y: 1050 }, { x: 3920, y: 970 }, entry("mist-falls")),
+  trail(eastFork, { x: 4230, y: 1130 }, CLEARINGS[2], entry("riverside-shop"), entry("meadow-lake")),
+  trail(eastFork, { x: 4110, y: 1320 }, entry("pine-lake")),
+  trail(CLEARINGS[2], { x: 4320, y: 1020 }, entry("highland-lake")),
+  trail(entry("highland-lake"), { x: 4650, y: 990 }, { x: 4780, y: 960 }, entry("eastern-shop")),
 ];
 export const BRIDGES = [{ x: 3880, y: 1318, width: 155, height: 32 }];
 
@@ -104,11 +83,11 @@ export function createTerrainGeometry() {
     const path = new Path2D();
     for (let i = 0; i <= 96; i++) {
       const angle = i / 96 * Math.PI * 2;
-      const radius = .93 + .045 * Math.sin(angle * 3 + spot.x) + .025 * Math.cos(angle * 5);
+      const radius = .88 + .12 * Math.sin(angle * 3 + spot.x) + .055 * Math.cos(angle * 5 + spot.y);
       const x = Math.cos(angle) * spot.radiusX * radius;
       const y = Math.sin(angle) * spot.radiusY * radius;
-      const px = spot.x + x * Math.cos(-.35) - y * Math.sin(-.35);
-      const py = spot.y + x * Math.sin(-.35) + y * Math.cos(-.35);
+      const px = spot.x + x * Math.cos(spot.rotation) - y * Math.sin(spot.rotation);
+      const py = spot.y + x * Math.sin(spot.rotation) + y * Math.cos(spot.rotation);
       if (i === 0) path.moveTo(px, py); else path.lineTo(px, py);
     }
     path.closePath();

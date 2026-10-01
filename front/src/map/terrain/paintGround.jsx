@@ -9,21 +9,21 @@ export function paintGround(
   { paths, river, trails, lakes },
   land,
 ) {
-  ctx.fillStyle = "#153e55";
+  ctx.fillStyle = "#173f4a";
   ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
   ctx.save();
   ctx.scale(WORLD_SCALE, WORLD_SCALE);
   for (const path of paths) {
-    ctx.strokeStyle = "#1d4c5b";
+    ctx.strokeStyle = "#245561";
     ctx.lineWidth = 10;
     ctx.stroke(path);
-    ctx.strokeStyle = "#32636a";
+    ctx.strokeStyle = "#4c8582";
     ctx.lineWidth = 4;
     ctx.stroke(path);
-    ctx.strokeStyle = "#99a77b";
+    ctx.strokeStyle = "#c2c097";
     ctx.lineWidth = 1.2;
     ctx.stroke(path);
-    ctx.fillStyle = "#71865a";
+    ctx.fillStyle = "#829b72";
     ctx.fill(path);
     ctx.save();
     ctx.clip(path);
@@ -34,8 +34,8 @@ export function paintGround(
         const radius = 45 + noise(x, y, 5) * 65;
         if (!intersects(bounds, px * WORLD_SCALE, py * WORLD_SCALE, radius * WORLD_SCALE)) continue;
         const wash = ctx.createRadialGradient(px, py, 0, px, py, radius);
-        wash.addColorStop(0, noise(x, y, 6) > .5 ? "#b1ad7270" : "#355e4b60");
-        wash.addColorStop(1, "#71865a00");
+        wash.addColorStop(0, noise(x, y, 6) > .5 ? "#d8c68a80" : "#346b5866");
+        wash.addColorStop(1, "#829b7200");
         ctx.fillStyle = wash;
         ctx.fillRect(px - radius, py - radius, radius * 2, radius * 2);
       }
@@ -84,7 +84,7 @@ export function paintGround(
   paths.forEach((path) => mainland.addPath(path));
   ctx.clip(mainland);
   ctx.lineCap = "round";
-  ctx.strokeStyle = "#9da87b";
+  ctx.strokeStyle = "#c0bd91";
   ctx.lineWidth = 34 / WORLD_SCALE;
   ctx.stroke(river);
   ctx.save();
@@ -97,40 +97,36 @@ export function paintGround(
   ctx.scale(WORLD_SCALE, WORLD_SCALE);
   // The channel darkens into the ocean and erases the coast at its mouth.
   const riverWater = ctx.createLinearGradient(0, 399, 0, 420);
-  riverWater.addColorStop(0, "#377f8b");
-  riverWater.addColorStop(1, "#153e55");
+  riverWater.addColorStop(0, "#519995");
+  riverWater.addColorStop(1, "#173f4a");
   ctx.strokeStyle = riverWater;
   ctx.lineWidth = 24 / WORLD_SCALE;
   ctx.lineCap = "round";
   ctx.stroke(river);
   const current = ctx.createLinearGradient(0, 395, 0, 420);
-  current.addColorStop(0, "#28647b");
-  current.addColorStop(1, "#153e55");
+  current.addColorStop(0, "#307579");
+  current.addColorStop(1, "#173f4a");
   ctx.strokeStyle = current;
   ctx.lineWidth = 12 / WORLD_SCALE;
   ctx.stroke(river);
   ctx.restore();
   for (const { spot, path } of lakes) {
-    if (!intersects(bounds, spot.x, spot.y, spot.radiusX + 15)) continue;
-    ctx.strokeStyle = isWinter(spot.x, spot.y) ? "#f0f5eb" : "#b5bb83";
+    if (!intersects(bounds, spot.x, spot.y, Math.max(spot.radiusX, spot.radiusY) + 20)) continue;
+    ctx.strokeStyle = isWinter(spot.x, spot.y) ? "#f0f5eb" : "#c8c39b";
     ctx.lineWidth = 10;
     ctx.stroke(path);
-    ctx.fillStyle = isWinter(spot.x, spot.y) ? "#a7cfd5" : "#398c93";
+    ctx.fillStyle = spot.waterColor;
     ctx.fill(path);
     ctx.save();
     ctx.clip(path);
-    ctx.fillStyle = "#266a83";
-    ctx.beginPath();
-    ctx.ellipse(
-      spot.x - 5,
-      spot.y - 6,
-      spot.radiusX * 0.82,
-      spot.radiusY * 0.8,
-      -0.35,
-      0,
-      7,
-    );
-    ctx.fill();
+    const depth = ctx.createRadialGradient(spot.x - 12, spot.y - 15, 0,
+      spot.x, spot.y, Math.max(spot.radiusX, spot.radiusY));
+    depth.addColorStop(0, "#143c5377");
+    depth.addColorStop(.65, "#245b6633");
+    depth.addColorStop(1, "#b5d9bb88");
+    ctx.fillStyle = depth;
+    ctx.fillRect(spot.x - spot.radiusX - spot.radiusY, spot.y - spot.radiusX - spot.radiusY,
+      (spot.radiusX + spot.radiusY) * 2, (spot.radiusX + spot.radiusY) * 2);
     ctx.fillStyle = "#75b8b0";
     for (let i = 0; i < 60; i++)
       ctx.fillRect(
@@ -154,10 +150,10 @@ export function paintGround(
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   for (const path of trails) {
-    ctx.strokeStyle = "#697b5055";
+    ctx.strokeStyle = "#59765a55";
     ctx.lineWidth = 18;
     ctx.stroke(path);
-    ctx.strokeStyle = "#b4a77b";
+    ctx.strokeStyle = "#d0b894";
     ctx.lineWidth = 10;
     ctx.stroke(path);
   }

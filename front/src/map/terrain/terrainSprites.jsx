@@ -61,3 +61,21 @@ export function drawShop(ctx, x, y, size = 1) {
   ctx.fillRect(-7, 9, 14, 3);
   ctx.restore();
 }
+
+export function drawBroadleaf(ctx, x, y, size = 1) {
+  ctx.fillStyle = "#345d4933";
+  ctx.beginPath();
+  ctx.ellipse(x + 4 * size, y + 2 * size, 9 * size, 3 * size, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#675943";
+  ctx.fillRect(x - size, y - 6 * size, 2 * size, 10 * size);
+  for (const [dx, dy, radius, color] of [
+    [2, -8, 7, "#396b50"], [-4, -10, 6, "#548357"],
+    [0, -15, 6, "#6b965f"], [-3, -16, 3, "#8ca967"],
+  ]) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x + dx * size, y + dy * size, radius * size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}

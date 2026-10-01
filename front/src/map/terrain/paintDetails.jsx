@@ -1,5 +1,5 @@
 import { LOCATIONS, CLEARINGS } from "../mapData.js";
-import { drawTree, drawShop } from "./terrainSprites.jsx";
+import { drawTree, drawShop, drawBroadleaf } from "./terrainSprites.jsx";
 import { BRIDGES } from "./terrainGeometry.jsx";
 import { noise, intersects } from "./terrainUtils.jsx";
 import { isWinter, drawWinterMountain, WINTER_PEAKS, mountainBounds } from "./winterRegion.js";
@@ -38,7 +38,10 @@ export function paintDetails(ctx, bounds, { trails }, land, hit) {
         trails.some((path) => hit.isPointInStroke(path, x, y))
       )
         continue;
-      drawTree(ctx, x, y, 1.1 + noise(gx, gy, 4) * 1.1, isWinter(x, y));
+      const snowy = isWinter(x, y);
+      const draw = !snowy && (x < 3750 || x > 4400) && noise(gx, gy, 22) > .3
+        ? drawBroadleaf : drawTree;
+      draw(ctx, x, y, 1.1 + noise(gx, gy, 4) * 1.1, snowy);
     }
   }
   for (const [x, y, width, height] of WINTER_PEAKS) {
@@ -58,11 +61,19 @@ export function paintDetails(ctx, bounds, { trails }, land, hit) {
       ctx.fillRect(place.x - 14, place.y + 15, 28, 4);
     }
     if (place.type === "lake") {
-      ctx.fillStyle = "#a88a54";
-      ctx.fillRect(place.entry.x - 5, place.entry.y - 17, 10, 21);
-      ctx.fillStyle = "#655234";
-      for (let y = 0; y < 20; y += 4)
-        ctx.fillRect(place.entry.x - 5, place.entry.y - 16 + y, 10, 1);
+      // Point each jetty toward its own shoreline rather than due north.
+      const angle = Math.atan2(place.y - place.entry.y, place.x - place.entry.x);
+      let length = 12;
+      while (length < 100 && land(place.entry.x + Math.cos(angle) * length,
+        place.entry.y + Math.sin(angle) * length)) length += 4;
+      ctx.save();
+      ctx.translate(place.entry.x, place.entry.y);
+      ctx.rotate(angle);
+      ctx.fillStyle = "#745b40";
+      ctx.fillRect(-4, -6, length + 12, 12);
+      ctx.fillStyle = "#c9a578";
+      for (let x = -2; x < length + 8; x += 5) ctx.fillRect(x, -5, 4, 10);
+      ctx.restore();
     }
   }
 }
