@@ -15,6 +15,7 @@ const port = 3000;
 import authRouter from "./routes/auth.js";
 import fishesRouter from "./routes/fishes.js";
 import fishingSpotsRouter from "./routes/fishing_spots.js";
+import achievementsRouter from "./routes/achievements.js";
 import usersRouter  from "./routes/users.js";
 import progressRouter from "./routes/progress.js";
 import User from "./models/user.js";
@@ -95,6 +96,7 @@ app.use((req, res, next) => {
 
 app.use("/auth", authRouter);
 app.use("/fishes", fishesRouter);
+app.use("/achievements", achievementsRouter);
 app.use("/fishingspots", fishingSpotsRouter);
 app.use("/users", usersRouter);
 app.use("/progress", progressRouter);
