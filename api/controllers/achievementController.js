@@ -190,8 +190,8 @@ export const deleteAchievement = async (req, res) => {
   }
 };
 
-// POST /api/achievements/:id/requirements
-export const addRequirement = async (req, res) => {
+// PUT /api/achievements/:id/requirements
+export const updateRequirements = async (req, res) => {
   try {
     const achievement = await Achievement.findById(req.params.id);
 
@@ -201,9 +201,9 @@ export const addRequirement = async (req, res) => {
       });
     }
 
-    if (!req.body || Object.keys(req.body).length === 0) {
+    if (!Array.isArray(req.body)) {
       return res.status(400).json({
-        error: "Requirement nepateiktas",
+        error: "Requirements must be an array",
       });
     }
 
@@ -222,7 +222,7 @@ export const addRequirement = async (req, res) => {
 };
 
 // DELETE /api/achievements/:id/requirements
-export const deleteRequirement = async (req, res) => {
+export const deleteRequirements = async (req, res) => {
   try {
     const achievement = await Achievement.findById(req.params.id);
 
@@ -232,7 +232,7 @@ export const deleteRequirement = async (req, res) => {
       });
     }
 
-    achievement.requirement = {};
+    achievement.requirement = [];
 
     await achievement.save();
 
@@ -246,8 +246,8 @@ export const deleteRequirement = async (req, res) => {
   }
 };
 
-// DELETE /api/achievements/:id/rewards/:rewardIndex
-export const deleteReward = async (req, res) => {
+// PUT /api/achievements/:id/rewards
+export const updateRewards = async (req, res) => {
   try {
     const achievement = await Achievement.findById(req.params.id);
 
@@ -257,19 +257,13 @@ export const deleteReward = async (req, res) => {
       });
     }
 
-    const rewardIndex = Number(req.params.rewardIndex);
-
-    if (
-      Number.isNaN(rewardIndex) ||
-      rewardIndex < 0 ||
-      rewardIndex >= achievement.reward.length
-    ) {
+    if (!Array.isArray(req.body)) {
       return res.status(400).json({
-        error: "Neteisingas reward indeksas",
+        error: "Rewards must be an array",
       });
     }
 
-    achievement.reward.splice(rewardIndex, 1);
+    achievement.reward = req.body;
 
     await achievement.save();
 
@@ -283,9 +277,8 @@ export const deleteReward = async (req, res) => {
   }
 };
 
-
-// PUT /api/achievements/:id/rewards/:rewardIndex
-export const updateReward = async (req, res) => {
+// DELETE /api/achievements/:id/rewards
+export const deleteRewards = async (req, res) => {
   try {
     const achievement = await Achievement.findById(req.params.id);
 
@@ -295,25 +288,7 @@ export const updateReward = async (req, res) => {
       });
     }
 
-    const rewardIndex = Number(req.params.rewardIndex);
-
-    if (
-      Number.isNaN(rewardIndex) ||
-      rewardIndex < 0 ||
-      rewardIndex >= achievement.reward.length
-    ) {
-      return res.status(400).json({
-        error: "Neteisingas reward indeksas",
-      });
-    }
-
-    if (!req.body || Object.keys(req.body).length === 0) {
-      return res.status(400).json({
-        error: "Reward nepateiktas",
-      });
-    }
-
-    achievement.reward[rewardIndex] = req.body;
+    achievement.reward = [];
 
     await achievement.save();
 
@@ -326,5 +301,6 @@ export const updateReward = async (req, res) => {
     });
   }
 };
+
 
 

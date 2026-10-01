@@ -16,16 +16,20 @@ const achievementSchema = new mongoose.Schema(
       type: String,
     },
 
-    requirement: {
-      type: {
-        type: String,
-        required: true,
+    requirement: [
+      {
+        type: {
+          type: String,
+          required: true,
+        },
+        amount: {
+          type: Number,
+        },
+        value: {
+          type: String,
+        },
       },
-      amount: {
-        type: Number,
-      },
-    },
-
+    ],
 
     reward: [
       {
@@ -38,10 +42,9 @@ const achievementSchema = new mongoose.Schema(
       },
     ],
 
-
     sprite: {
       type: String,
-    }
+    },
   }
 );
 

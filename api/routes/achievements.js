@@ -8,12 +8,12 @@ import {
   updateAchievementSprite,
   deleteAchievement,
 
-  addRequirement,
-  deleteRequirement,
+  updateRequirements,
+  deleteRequirements,
 
-  addReward,
-  updateReward,
-  deleteReward,
+  updateRewards,
+  deleteRewards
+
 } from "../controllers/achievementController.js";
 
 const router = express.Router();
@@ -29,12 +29,11 @@ router.delete("/:id", deleteAchievement);
 router.put("/:id/sprite", updateAchievementSprite);
 
 // Requirements
-router.post("/:id/requirements", addRequirement);
-router.delete("/:id/requirements", deleteRequirement);
+router.put("/:id/requirements", updateRequirements);
+router.delete("/:id/requirements", deleteRequirements);
 
 // Rewards
-router.post("/:id/rewards", addReward);
-router.put("/:id/rewards/:rewardIndex", updateReward);
-router.delete("/:id/rewards/:rewardIndex", deleteReward);
+router.put("/:id/rewards", updateRewards);
+router.delete("/:id/rewards", deleteRewards);
 
 export default router;

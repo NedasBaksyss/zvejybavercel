@@ -81,9 +81,7 @@ export function AchievementListItem({data, isLast, rows, setRows, error, setErro
     const updatedData = {
       gamesId,
       name,
-      description,
-      requirement,
-      reward
+      description
     };
 
     // jei laukeliai tušti, pranešame klaidą
@@ -217,10 +215,10 @@ export function AchievementListItem({data, isLast, rows, setRows, error, setErro
         </div>
       </td>
       <td className={classes}>
-        <DialogViewRequirements data={data}/>
+        <DialogViewRequirements data={data} loadData={loadData} editMode={editMode}/>
       </td>
       <td className={classes}>
-        <DialogViewRewards data={data}/>
+        <DialogViewRewards data={data} loadData={loadData} editMode={editMode}/>
       </td>
 
       {confirmDelete ? (
