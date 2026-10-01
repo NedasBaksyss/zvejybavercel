@@ -6,8 +6,14 @@ export default function ProgressHud({ progress, language, onRetry }) {
     <aside className="atlas-progress" aria-label={lt ? "Žaidėjo progresas" : "Player progress"}
       title={profile ? `${profile.username} · ${lt ? "Pagauta" : "Fish caught"}: ${stats.totalFishCaught} · +${profile.xpPerCatch} XP` : undefined}>
       {stats && <>
-        <strong>{lt ? "Lygis" : "Level"} {stats.level} · {stats.experience}/{profile.xpPerLevel} XP</strong>
-        <progress value={stats.experience} max={profile.xpPerLevel} aria-label="XP" />
+        <strong className="xp-level" aria-label={`${lt ? "Lygis" : "Level"} ${stats.level}`}>{stats.level}</strong>
+        <div className="xp-track" role="progressbar" aria-label="XP"
+          aria-valuemin={0} aria-valuemax={profile.xpPerLevel} aria-valuenow={stats.experience}
+          aria-valuetext={`${stats.experience} / ${profile.xpPerLevel} XP`}>
+          <span className="xp-fill" style={{ width: `${Math.min(100, Math.max(0, stats.experience / profile.xpPerLevel * 100))}%` }} />
+          <span className="xp-segments" aria-hidden="true" />
+          <span className="xp-value" aria-hidden="true">{stats.experience}/{profile.xpPerLevel} XP</span>
+        </div>
       </>}
       <span role="status">
         {progress?.status === "error"

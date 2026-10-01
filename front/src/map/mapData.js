@@ -334,20 +334,12 @@ export const nearestLocation = (player) =>
     null,
   );
 
-export function followCamera(camera, player, zoom) {
-  const halfWidth = VIEW.width / (2 * zoom);
-  const halfHeight = VIEW.height / (2 * zoom);
-  const edgeX = halfWidth * 0.48;
-  const edgeY = halfHeight * 0.42;
+export function followCamera(camera, player, dt, reducedMotion = false) {
+  // Follow immediately, with the same easing speed at every frame rate.
+  const amount = reducedMotion ? 1 : 1 - Math.exp(-dt * 12);
   return {
-    x:
-      clamp(player.x, camera.x - edgeX, camera.x + edgeX) === player.x
-        ? camera.x
-        : player.x - Math.sign(player.x - camera.x) * edgeX,
-    y:
-      clamp(player.y, camera.y - edgeY, camera.y + edgeY) === player.y
-        ? camera.y
-        : player.y - Math.sign(player.y - camera.y) * edgeY,
+    x: mix(camera.x, player.x, amount),
+    y: mix(camera.y, player.y, amount),
   };
 }
 

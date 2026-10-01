@@ -3,19 +3,23 @@ import { label } from "./mapSprites.jsx";
 
 export function createGlobeRenderer(ctx, terrain, getLanguage) {
   const sphere = document.createElement("canvas");
-  sphere.width = sphere.height = 280;
+  const size = 512;
+  const half = size / 2;
+  const sphereRadius = half - 1;
+  sphere.width = sphere.height = size;
   const sphereCtx = sphere.getContext("2d");
-  const sphereImage = sphereCtx.createImageData(280, 280);
+  const sphereImage = sphereCtx.createImageData(size, size);
   const samples = [];
-  for (let y = 0; y < 280; y++)
-    for (let x = 0; x < 280; x++) {
-      const nx = (x + 0.5 - 140) / 139,
-        ny = (140 - y - 0.5) / 139;
+  for (let y = 0; y < size; y++)
+    for (let x = 0; x < size; x++) {
+      const nx = (x + 0.5 - half) / sphereRadius,
+        ny = (half - y - 0.5) / sphereRadius;
       const square = nx * nx + ny * ny;
       if (square > 1) continue;
       const z = Math.sqrt(1 - square);
       samples.push({
-        offset: (y * 280 + x) * 4,
+        offset: (y * size + x) * 4,
+        alpha: Math.min(1, (1 - Math.sqrt(square)) * sphereRadius) * 255,
         nx,
         ny,
         z,
@@ -42,25 +46,29 @@ export function createGlobeRenderer(ctx, terrain, getLanguage) {
     const sinLat = Math.sin(latitude),
       cosLat = Math.cos(latitude);
     const data = sphereImage.data;
-    for (const { offset, nx, ny, z, light, rim } of samples) {
+    for (const { offset, alpha, nx, ny, z, light, rim } of samples) {
       const worldY = ny * cosLat + z * sinLat;
       const worldZ = z * cosLat - ny * sinLat;
       const lon = Math.atan2(nx, worldZ) + longitude;
       const lat = Math.asin(clamp(worldY, -1, 1));
       const u = (((lon / (Math.PI * 2) + 0.5) % 1) + 1) % 1;
-      const px = Math.floor(u * terrain.textureWidth);
-      const py = clamp(
-        Math.floor((0.5 - lat / Math.PI) * terrain.textureHeight),
-        0,
-        terrain.textureHeight - 1,
-      );
-      const source = (py * terrain.textureWidth + px) * 4;
-      data[offset] = terrain.pixels[source] * light * (1 - rim) + 89 * rim;
-      data[offset + 1] =
-        terrain.pixels[source + 1] * light * (1 - rim) + 183 * rim;
-      data[offset + 2] =
-        terrain.pixels[source + 2] * light * (1 - rim) + 204 * rim;
-      data[offset + 3] = 255;
+      // Bilinear sampling avoids hard texture pixels and shimmer during rotation.
+      const width = terrain.textureWidth, height = terrain.textureHeight;
+      const tx = u * width - 0.5;
+      const ty = clamp((0.5 - lat / Math.PI) * height - 0.5, 0, height - 1);
+      const ix = Math.floor(tx), iy = Math.floor(ty);
+      const fx = tx - ix, fy = ty - iy;
+      const x0 = (ix + width) % width, x1 = (x0 + 1) % width;
+      const y1 = Math.min(iy + 1, height - 1);
+      const topLeft = (iy * width + x0) * 4, topRight = (iy * width + x1) * 4;
+      const bottomLeft = (y1 * width + x0) * 4, bottomRight = (y1 * width + x1) * 4;
+      for (let channel = 0; channel < 3; channel++) {
+        const top = mix(terrain.pixels[topLeft + channel], terrain.pixels[topRight + channel], fx);
+        const bottom = mix(terrain.pixels[bottomLeft + channel], terrain.pixels[bottomRight + channel], fx);
+        const rimColor = channel === 0 ? 89 : channel === 1 ? 183 : 204;
+        data[offset + channel] = mix(top, bottom, fy) * light * (1 - rim) + rimColor * rim;
+      }
+      data[offset + 3] = alpha;
     }
     sphereCtx.putImageData(sphereImage, 0, 0);
   }
@@ -86,7 +94,8 @@ export function createGlobeRenderer(ctx, terrain, getLanguage) {
     ctx.beginPath();
     ctx.arc(center.x, center.y, radius + 20, 0, 7);
     ctx.fill();
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
     ctx.drawImage(
       sphere,
       center.x - radius,
