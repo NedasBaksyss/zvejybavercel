@@ -26,7 +26,7 @@ const TABS = [
   // { label: "Legendary", value: "legendary" }
 ];
 
-const TABLE_HEAD = ["GamesId", "Sprite", "Name", "Description", "Requirement", "Reward", "Edit"];
+const TABLE_HEAD = ["Achievement Id", "Sprite", "Name", "Description", "Requirement", "Reward", "Edit"];
 
 export function AchievementList() {
   const [rows, setRows] = useState([]);            // fetched members
@@ -86,7 +86,7 @@ export function AchievementList() {
     if (!term) return byTab;
 
     return byTab.filter((r) =>
-      [r.gamesId]
+      [r.achievementId]
         .filter(Boolean)
         .some((v) => v.toLowerCase().includes(term))
     );

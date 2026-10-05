@@ -241,7 +241,7 @@ export function DialogViewRequirements({
         size="md"
       >
         <DialogHeader className="justify-center">
-          {data.name}'s Requirements
+          {data.achievementId} Requirements
         </DialogHeader>
 
         <DialogBody className="max-h-[500px] overflow-y-auto">

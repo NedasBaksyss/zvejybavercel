@@ -20,7 +20,7 @@ export function AchievementListItem({data, isLast, rows, setRows, error, setErro
   const { _id, sprite} = data;
 
   const [id, setId] = useState(data._id)
-  const [gamesId, setGamesId] = useState(data.gamesId)
+  const [achievementId, setAchievementId] = useState(data.achievementId)
   const [name, setName] = useState(data.name);
   const [description, setDescription] = useState(data.description);
   const [requirement, setRequirement] = useState(data.requirement);
@@ -79,13 +79,13 @@ export function AchievementListItem({data, isLast, rows, setRows, error, setErro
 
     // surenkame duomenis
     const updatedData = {
-      gamesId,
+      achievementId,
       name,
       description
     };
 
     // jei laukeliai tušti, pranešame klaidą
-    if (!updatedData.gamesId || !updatedData.name || !updatedData.description) {
+    if (!updatedData.achievementId || !updatedData.name || !updatedData.description) {
       addAlert("Fill in all fields before submitting.", "error");
       return;
     }
@@ -135,7 +135,7 @@ export function AchievementListItem({data, isLast, rows, setRows, error, setErro
   };
 
   const cancelEdit = () => {
-    setGamesId(data.gamesId);
+    setAchievementId(data.achievementId);
     setName(data.name);
     setDescription(data.description);
     setRequirement(data.requirement);
@@ -157,12 +157,12 @@ export function AchievementListItem({data, isLast, rows, setRows, error, setErro
             <Input 
               type="text" 
               label="Id"
-              value={gamesId} 
-              onChange={(e) => setGamesId(e.target.value)} 
+              value={achievementId} 
+              onChange={(e) => setAchievementId(e.target.value)} 
             />
           ) : (
             <Typography variant="small" color="blue-gray" className="font-normal">
-              {gamesId}
+              {achievementId}
             </Typography>
           )}
         </div>

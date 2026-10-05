@@ -32,7 +32,7 @@ export function DialogViewId({data}) {
         </IconButton>
       </Tooltip>
       <Dialog open={open} handler={handleOpen}>
-        <DialogHeader className="justify-center">{data.name}'s ID</DialogHeader>
+        <DialogHeader className="justify-center">{data.fishId} ID</DialogHeader>
         <DialogBody className="flex justify-center">
           <p>{data._id}</p>
         </DialogBody>

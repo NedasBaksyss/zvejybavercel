@@ -21,7 +21,7 @@ export function DialogNewAchievement({loadData}) {
   const { token } = useContext(AuthContext);
 
   // formos laukelių duomenys
-  const [gamesId, setGamesId] = useState("");
+  const [achievementId, setAchievementId] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [sprite, setSprite] = useState(null);
@@ -50,7 +50,7 @@ export function DialogNewAchievement({loadData}) {
   }
 
   function handleClear() {
-    setGamesId("")
+    setAchievementId("")
     setName("");
     setDescription("");
     setRarity("");
@@ -72,7 +72,7 @@ export function DialogNewAchievement({loadData}) {
     // surenkame duomenis iš formos
     // paprastų duomenų siuntimui JSON formatu
     const achievementData = {
-      gamesId,
+      achievementId,
       name,
       description,
     };
@@ -147,7 +147,7 @@ export function DialogNewAchievement({loadData}) {
             </div>
             <Input type="file" label="Sprite" size="lg" onChange={handleFileChange} />
           </div>
-          <Input label="ID" size="md" value={gamesId} onChange={(e) => setGamesId(e.target.value)} />
+          <Input label="ID" size="md" value={achievementId} onChange={(e) => setAchievementId(e.target.value)} />
           <Input label="Name" size="md" value={name} onChange={(e) => setName(e.target.value)} />
           <Textarea label="Description" size="md" value={description} onChange={(e) => setDescription(e.target.value)} />
         </DialogBody>

@@ -261,7 +261,7 @@ export function DialogViewRewards({
         size="md"
       >
         <DialogHeader className="justify-center">
-          {data.name}'s Rewards
+          {data.achievementId} Rewards
         </DialogHeader>
 
         <DialogBody className="max-h-[500px] overflow-y-auto">
