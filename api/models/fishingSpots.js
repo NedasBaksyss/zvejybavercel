@@ -58,8 +58,16 @@ const fishingSpotSchema = new mongoose.Schema(
     },
 
     position: {
-      type: Object,
-      default: {}
+      x: {
+        type: Number,
+        required: true,
+        default: 0
+      },
+      y: {
+        type: Number,
+        required: true,
+        default: 0
+      },
     },
 
     possibleFishes: {

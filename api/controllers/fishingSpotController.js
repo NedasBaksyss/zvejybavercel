@@ -66,6 +66,7 @@ export const createFishingSpot = async (req, res) => {
       name: req.body.name,
       description: req.body.description,
       world: req.body.world,
+      position : req.body.position,
       possibleFishes: req.body.possibleFishes,
     });
 
@@ -92,6 +93,7 @@ export const updateFishingSpot = async (req, res) => {
       name: req.body.name,
       description: req.body.description,
       world: req.body.world,
+      position : req.body.position,
       possibleFishes: req.body.possibleFishes,
     };
 

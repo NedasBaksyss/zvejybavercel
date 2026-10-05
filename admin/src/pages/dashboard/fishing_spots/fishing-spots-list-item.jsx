@@ -25,6 +25,8 @@ export function FishingSpotListItem({data, isLast, rows, setRows, error, setErro
   const [mapId, setMapId] = useState(data.mapId)
   const [name, setName] = useState(data.name);
   const [description, setDescription] = useState(data.description);
+  const [positionX, setPositionX] = useState(data.position?.x ?? 0);
+  const [positionY, setPositionY] = useState(data.position?.y ?? 0);
   const [world, setWorld] = useState(data.world);
 
   const [selectedFish, setSelectedFish] = useState(data.possibleFishes);
@@ -121,12 +123,18 @@ const updateSelectedFish = (fishId, changes) => {
       experienceReward: fish.experienceReward,
     }));
 
+    const position = {
+      x: positionX,
+      y: positionY
+    }
+
     // surenkame duomenis
     const updatedData = {
       mapId,
       name,
       description,
       world,
+      position,
       possibleFishes
     };
 
@@ -187,6 +195,8 @@ const updateSelectedFish = (fishId, changes) => {
     setName(data.name);
     setDescription(data.description);
     setWorld(data.world);
+    setPositionX(data.positionX)
+    setPositionY(data.positionY)
     setEditMode(false);
     setSpriteName('');
     setSpriteFile(null);
@@ -256,6 +266,30 @@ const updateSelectedFish = (fishId, changes) => {
           ) : (
             <Typography variant="small" color="blue-gray" className="font-normal">
               {description}
+            </Typography>
+          )}
+        </div>
+      </td>
+            <td className={classes}>
+        <div className=""> 
+          {editMode ? (
+            <>
+            <Input
+            type="number"
+            label="X"
+            value={positionX}
+            onChange={(e) => setPositionX(Number(e.target.value))}
+            />
+            <Input
+            type="number"
+            label="Y"
+            value={positionY}
+            onChange={(e) => setPositionY(Number(e.target.value))}
+            />
+            </>
+          ) : (
+            <Typography variant="small" color="blue-gray" className="font-normal">
+              {positionX} {positionY}
             </Typography>
           )}
         </div>
