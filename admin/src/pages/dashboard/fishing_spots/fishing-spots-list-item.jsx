@@ -114,7 +114,6 @@ const updateSelectedFish = (fishId, changes) => {
 
     const possibleFishes = selectedFish.map((fish) => ({
       _id: fish._id,
-      gamesId: fish.gamesId,
       minWeight: fish.minWeight,
       maxWeight: fish.maxWeight,
       baseValue: fish.baseValue,
@@ -216,9 +215,7 @@ const updateSelectedFish = (fishId, changes) => {
       </td>
       <td className={classes}>
         <div className=""> 
-          <Typography variant="small" color="blue-gray" className="font-normal">
             {sprite_element}
-          </Typography>
 
           {editMode ? (
           <input

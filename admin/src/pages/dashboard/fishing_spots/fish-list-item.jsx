@@ -21,7 +21,7 @@ import DialogEditPossible from "./dialog-edit-possible";
 export function AddFishListItem({data, handleSelect, selectedFish}) {
   const { _id, sprite} = data;
   
-  const [gamesId, setGamesId] = useState(data.gamesId)
+  const [fishId, setFishId] = useState(data.fishId)
   const [selected, setSelected] = useState(false)
 
   const [fishSprite, setFishSprite] = useState(sprite ? `/api/images/fish/` + sprite : null);
@@ -46,7 +46,7 @@ export function AddFishListItem({data, handleSelect, selectedFish}) {
   return (
     <div className={classes} onClick={() => {handleClick()}}>
         {sprite_element}
-        <p>{gamesId}</p>
+        <p>{fishId}</p>
     </div>
   );
 }

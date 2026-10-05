@@ -23,7 +23,7 @@ const TABS = [
   { label: "Hell", value: "hell" }
 ];
 
-const TABLE_HEAD = ["MapId", "Sprite", "Name", "Description",  "World", "Possible fishes", "Edit"];
+const TABLE_HEAD = ["Map Id", "Sprite", "Name", "Description",  "World", "Possible fishes", "Edit"];
 
 export function FishingSpotList() {
   const [rows, setRows] = useState([]);            // fetched members
@@ -83,7 +83,7 @@ useEffect(() => {
     if (!term) return byTab;
 
     return byTab.filter((r) =>
-      [r.gamesId]
+      [r.mapId]
         .filter(Boolean)
         .some((v) => v.toLowerCase().includes(term))
     );
