@@ -8,10 +8,6 @@ const possibleFishSchema = new mongoose.Schema(
       required: true,
     },
 
-    gamesId: {
-      type: String,
-    },
-
     minWeight: {
       type: Number,
       required: true,
@@ -59,6 +55,11 @@ const fishingSpotSchema = new mongoose.Schema(
 
     world: {
       type: String,
+    },
+
+    position: {
+      type: Object,
+      default: {}
     },
 
     possibleFishes: {

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const achievementSchema = new mongoose.Schema(
   {
-    gamesId: {
+    achievementId: {
       type: String,
       required: true,
     },

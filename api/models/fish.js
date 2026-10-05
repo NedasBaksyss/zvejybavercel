@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const fishSchema = new mongoose.Schema(
   {
-    gamesId: {
+    fishId: {
       type: String,
     },
 
