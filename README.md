@@ -104,23 +104,6 @@ Open PowerShell in the project directory and run:
 cd api
 npm install
 
-
-The API currently uses:
-
-- Express
-- MongoDB
-- Mongoose
-- bcryptjs
-- Busboy
-- cookie-parser
-- dotenv
-- express-validator
-- jsonwebtoken
-- morgan
-- passport
-- passport-jwt
-
-
 Start the API with:
 
 npm start
@@ -134,18 +117,6 @@ Run:
 cd front
 npm install
 
-
-The frontend currently uses:
-
-- React
-- React DOM
-- Vite
-- Vite React plugin
-- Babel
-- React Compiler
-- oxlint
-
-
 Start the frontend development server with:
 
 npm run dev
@@ -158,25 +129,6 @@ Run:
 
 cd admin
 npm install
-
-
-The admin dashboard currently uses:
-
-- React
-- React DOM
-- React Router
-- Material Tailwind
-- Tailwind CSS
-- Heroicons
-- ApexCharts
-- React ApexCharts
-- DnD Kit
-- bcrypt
-- Vite
-- PostCSS
-- Autoprefixer
-- Prettier
-
 
 Start the admin development server with:
 
