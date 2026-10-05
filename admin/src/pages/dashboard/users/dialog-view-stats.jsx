@@ -3,7 +3,7 @@ import {
   Button, Dialog, DialogHeader, DialogBody, DialogFooter, Input, Tooltip, IconButton,
 } from "@material-tailwind/react";
 import { PuzzlePieceIcon } from "@heroicons/react/24/outline";
-import { AlertContext } from "@/context";
+import { AuthContext, AlertContext } from "@/context";
 
 const fields = [
   ["level", "Level", 1, 1000000000],
@@ -12,11 +12,14 @@ const fields = [
   ["coins", "Coins", 0, 1000000000],
 ];
 
-export function DialogViewStats({ data, onSaved }) {
+export function DialogViewStats({ data, onSaved, editMode }) {
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const { token } = useContext(AuthContext);
+
   const { addAlert } = useContext(AlertContext);
 
   const handleOpen = () => {
@@ -42,7 +45,10 @@ export function DialogViewStats({ data, onSaved }) {
     setError("");
     try {
       const response = await fetch(`/api/users/${data._id}/stats`, {
-        method: "PATCH", headers: { "Content-Type": "application/json" },
+        method: "PATCH", headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
         body: JSON.stringify(stats),
       });
       const updated = await response.json();
@@ -58,7 +64,7 @@ export function DialogViewStats({ data, onSaved }) {
   }
 
   return <>
-    <Tooltip content="View / edit stats">
+    <Tooltip content={editMode ? ("Edit Stats") : ("View Stats")}>
       <IconButton variant="text" onClick={handleOpen}>
         <PuzzlePieceIcon className="h-4 w-4 text-blue-300" />
       </IconButton>
@@ -67,17 +73,42 @@ export function DialogViewStats({ data, onSaved }) {
       <form onSubmit={save}>
         <DialogHeader>{data.username}'s stats</DialogHeader>
         <DialogBody className="flex flex-col gap-5">
-          <p>Each catch earns 25 XP. Every 100 XP advances one level.</p>
-          {fields.map(([key, label, min, max]) => <Input
-            key={key} label={label} type="number" min={min} max={max} step="1" required
-            value={values[key] ?? ""} disabled={saving}
-            onChange={(event) => setValues({ ...values, [key]: event.target.value })}
-          />)}
-          {error && <p role="alert" className="text-red-600">{error}</p>}
+        {editMode ? (
+          <>
+            <p>Each catch earns 25 XP. Every 100 XP advances one level.</p>
+            {fields.map(([key, label, min, max]) => <Input
+              key={key} label={label} type="number" min={min} max={max} step="1" required
+              value={values[key] ?? ""} disabled={saving}
+              onChange={(event) => setValues({ ...values, [key]: event.target.value })}
+            />)}
+            {error && <p role="alert" className="text-red-600">{error}</p>}
+          </>
+        ) : (
+          <div className="flex flex-col gap-3">
+          {fields.map(([key, label]) => (
+            <div
+              key={key}
+              className="flex justify-between items-center border-b border-gray-200 pb-2"
+            >
+              <span className="font-medium text-gray-700">
+                {label}
+              </span>
+
+              <span className="font-semibold text-gray-900">
+                {data.stats?.[key] ?? 0}
+              </span>
+            </div>
+      ))}
+    </div>
+        )}
         </DialogBody>
         <DialogFooter className="gap-2">
-          <Button variant="text" type="button" onClick={handleOpen} disabled={saving}>Cancel</Button>
-          <Button type="submit" disabled={saving}>{saving ? "Saving…" : "Save stats"}</Button>
+          <Button variant="text" type="button" onClick={handleOpen} disabled={saving}>Close</Button>
+          {editMode ? (
+            <Button type="submit" disabled={saving}>{saving ? "Saving…" : "Save stats"}</Button>
+          ) : (
+            null
+          )}
         </DialogFooter>
       </form>
     </Dialog>
