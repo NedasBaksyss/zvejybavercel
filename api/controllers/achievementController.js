@@ -65,7 +65,7 @@ export const getAchievement = async (req, res) => {
 export const createAchievement = async (req, res) => {
   try {
     const achievement = await Achievement.create({
-      gamesId: req.body.gamesId,
+      achievementId: req.body.achievementId,
       name: req.body.name,
       description: req.body.description,
       reward: req.body.reward || [],
@@ -93,7 +93,7 @@ export const updateAchievement = async (req, res) => {
     const achievement = await Achievement.findByIdAndUpdate(
       req.params.id,
       {
-        gamesId: req.body.gamesId,
+        achievementId: req.body.achievementId,
         name: req.body.name,
         description: req.body.description,
         reward: req.body.reward,

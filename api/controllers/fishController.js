@@ -66,7 +66,7 @@ export const getFish = async (req, res) => {
 export const createFish = async (req, res) => {
   try {
     const fish = await Fish.create({
-      gamesId: req.body.gamesId,
+      fishId: req.body.fishId,
       name: req.body.name,
       description: req.body.description,
       rarity: req.body.rarity || "common",
@@ -94,7 +94,7 @@ export const updateFish = async (req, res) => {
     const fish = await Fish.findByIdAndUpdate(
       req.params.id,
       {
-        gamesId: req.body.gamesId,
+        fishId: req.body.fishId,
         name: req.body.name,
         description: req.body.description,
         rarity: req.body.rarity,
