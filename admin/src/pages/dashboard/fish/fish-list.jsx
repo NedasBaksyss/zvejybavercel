@@ -26,7 +26,7 @@ const TABS = [
   { label: "Legendary", value: "legendary" }
 ];
 
-const TABLE_HEAD = ["GamesId", "Sprite", "Name", "Description", "Rarity", "Edit"];
+const TABLE_HEAD = ["Fish Id", "Sprite", "Name", "Description", "Rarity", "Edit"];
 
 export function FishList() {
   const [rows, setRows] = useState([]);            // fetched members
@@ -86,7 +86,7 @@ export function FishList() {
     if (!term) return byTab;
 
     return byTab.filter((r) =>
-      [r.gamesId]
+      [r.fishId]
         .filter(Boolean)
         .some((v) => v.toLowerCase().includes(term))
     );

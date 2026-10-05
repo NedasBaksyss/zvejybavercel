@@ -22,7 +22,7 @@ export function DialogNewFish({loadData}) {
   const { token } = useContext(AuthContext);
 
   // formos laukelių duomenys
-  const [gamesId, setGamesId] = useState("");
+  const [fishId, setFishId] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [sprite, setSprite] = useState(null);
@@ -51,7 +51,7 @@ export function DialogNewFish({loadData}) {
   }
 
   function handleClear() {
-    setGamesId("")
+    setFishId("")
     setName("");
     setDescription("");
     setRarity("");
@@ -73,7 +73,7 @@ export function DialogNewFish({loadData}) {
     // surenkame duomenis iš formos
     // paprastų duomenų siuntimui JSON formatu
     const fishData = {
-      gamesId,
+      fishId,
       name,
       description,
       rarity
@@ -149,7 +149,7 @@ export function DialogNewFish({loadData}) {
             </div>
             <Input type="file" label="Sprite" size="lg" onChange={handleFileChange} />
           </div>
-          <Input label="ID" size="md" value={gamesId} onChange={(e) => setGamesId(e.target.value)} />
+          <Input label="ID" size="md" value={fishId} onChange={(e) => setFishId(e.target.value)} />
           <Input label="Name" size="md" value={name} onChange={(e) => setName(e.target.value)} />
           <Textarea label="Description" size="md" value={description} onChange={(e) => setDescription(e.target.value)} />
           <Select label="Rarity" size="md" value={rarity} onChange={(value) => setRarity(value)}>

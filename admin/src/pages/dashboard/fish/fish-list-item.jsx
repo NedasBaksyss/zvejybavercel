@@ -19,7 +19,7 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
   const { _id, sprite} = data;
 
   const [id, setId] = useState(data._id)
-  const [gamesId, setGamesId] = useState(data.gamesId)
+  const [fishId, setFishId] = useState(data.fishId)
   const [name, setName] = useState(data.name);
   const [description, setDescription] = useState(data.description);
   const [rarity, setRarity] = useState(data.rarity);
@@ -77,14 +77,14 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
 
     // surenkame duomenis
     const updatedData = {
-      gamesId,
+      fishId,
       name,
       description,
       rarity
     };
 
     // jei laukeliai tušti, pranešame klaidą
-    if (!updatedData.gamesId || !updatedData.name || !updatedData.description || !updatedData.rarity) {
+    if (!updatedData.fishId || !updatedData.name || !updatedData.description || !updatedData.rarity) {
       addAlert("Fill in all fields before submitting.", "error");
       return;
     }
@@ -134,7 +134,7 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
   };
 
   const cancelEdit = () => {
-    setGamesId(data.gamesId);
+    setFishId(data.fishId);
     setName(data.name);
     setDescription(data.description);
     setRarity(data.rarity);
@@ -155,12 +155,12 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
             <Input 
               type="text" 
               label="Id"
-              value={gamesId} 
-              onChange={(e) => setGamesId(e.target.value)} 
+              value={fishId} 
+              onChange={(e) => setFishId(e.target.value)} 
             />
           ) : (
             <Typography variant="small" color="blue-gray" className="font-normal">
-              {gamesId}
+              {fishId}
             </Typography>
           )}
         </div>
