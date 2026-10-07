@@ -15,6 +15,8 @@ export function createMapLoop({
   let lastPublishTime = 0;
   let lastNetworkUpdate = 0;
 
+  let wasMoving = false;
+
   function frame(now) {
     if (!runtime.active || runtime.stopped) return;
 
@@ -43,20 +45,34 @@ export function createMapLoop({
      *
      * 50ms = roughly 20 network updates per second.
      */
-    if (
-      movementRequested &&
-      runtime.state.moving &&
-      now - lastNetworkUpdate >= 50
-    ) {
-      socket.emit("player:move", {
-        x: runtime.state.player.x,
-        y: runtime.state.player.y,
-        moving: runtime.state.moving,
-        direction: runtime.state.direction,
-      });
+    const movementChanged = runtime.state.moving !== wasMoving;
 
-      lastNetworkUpdate = now;
-    }
+      if (
+        movementRequested &&
+        runtime.state.moving &&
+        now - lastNetworkUpdate >= 50
+      ) {
+        socket.emit("player:move", {
+          x: runtime.state.player.x,
+          y: runtime.state.player.y,
+          moving: true,
+          direction: runtime.state.direction,
+        });
+
+        lastNetworkUpdate = now;
+      } else if (movementChanged && !runtime.state.moving) {
+        // Tell other players that we stopped.
+        socket.emit("player:move", {
+          x: runtime.state.player.x,
+          y: runtime.state.player.y,
+          moving: false,
+          direction: runtime.state.direction,
+        });
+
+        lastNetworkUpdate = now;
+      }
+      
+      wasMoving = runtime.state.moving;
 
     const outcome = updateFishing(
       runtime.fishing,
@@ -121,6 +137,7 @@ export function createMapLoop({
 
       lastTime = performance.now();
       lastNetworkUpdate = 0;
+      wasMoving = false;
 
       frameId = requestAnimationFrame(frame);
     },

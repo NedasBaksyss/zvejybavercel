@@ -45,6 +45,8 @@ export function createPlayerSync(socket, runtime, publish) {
     if (existing) {
       existing.x = player.x;
       existing.y = player.y;
+      existing.moving = player.moving;
+      existing.direction = player.direction;
     } else {
       runtime.remotePlayers.set(player.id, {
         ...player,
