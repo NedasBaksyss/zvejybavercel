@@ -9,7 +9,6 @@ import {
   drawLakeIsland,
 } from "./lakeSprites.jsx";
 
-// Share rock positions between drawing and casting checks.
 const HIGHLAND_ROCKS = Array.from({ length: 16 }, (_, i) => ({
   x: (i * 89) % VIEW.width + 12,
   offsetY: 18 + (i % 3) * 19,
@@ -109,30 +108,18 @@ const sceneFor = (id) => LAKE_SCENES[id] || LAKE_SCENES["quiet-lake"];
 
 function drawSky(ctx, scene, time) {
   const gradient = ctx.createLinearGradient(0, 0, 0, scene.horizon);
-  scene.sky.forEach((color, index) =>
-    gradient.addColorStop(index / (scene.sky.length - 1), color),
-  );
+  scene.sky.forEach((color, index) => gradient.addColorStop(index / (scene.sky.length - 1), color));
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, VIEW.width, scene.horizon);
-
   if (scene.weather === "stars") {
     for (let i = 0; i < 42; i++) {
       ctx.fillStyle = i % 3 ? "#fff4d8" : "#ffdca8";
-      ctx.fillRect(
-        (i * 173) % VIEW.width,
-        12 + ((i * 47) % 180),
-        i % 4 ? 2 : 3,
-        2,
-      );
+      ctx.fillRect((i * 173) % VIEW.width, 12 + ((i * 47) % 180), i % 4 ? 2 : 3, 2);
     }
   }
   if (scene.weather === "clouds") {
     ctx.fillStyle = "#e9e8d2b8";
-    for (const [x, y, width] of [
-      [90, 75, 150],
-      [560, 112, 190],
-      [790, 55, 120],
-    ]) {
+    for (const [x, y, width] of [[90, 75, 150], [560, 112, 190], [790, 55, 120]]) {
       ctx.fillRect(x, y, width, 12);
       ctx.fillRect(x + 24, y - 12, width - 55, 12);
       ctx.fillRect(x + 52, y - 20, width - 100, 8);
@@ -152,18 +139,12 @@ function drawSky(ctx, scene, time) {
 
 function drawSun(ctx, scene) {
   if (scene.biome === "pine" || scene.biome === "reeds") return;
-  const x =
-    scene.biome === "meadow" ? 180 : scene.biome === "highland" ? 760 : 644;
+  const x = scene.biome === "meadow" ? 180 : scene.biome === "highland" ? 760 : 644;
   const y = scene.biome === "meadow" ? 115 : scene.horizon - 12;
   const radius = scene.biome === "meadow" ? 27 : 34;
   for (let dy = -radius; dy <= radius; dy += 2) {
     const width = Math.floor(Math.sqrt(radius * radius - dy * dy));
-    ctx.fillStyle =
-      scene.biome === "highland"
-        ? "#e9eee2"
-        : dy < 0
-          ? "#ffdca8"
-          : "#f2b45c";
+    ctx.fillStyle = scene.biome === "highland" ? "#e9eee2" : dy < 0 ? "#ffdca8" : "#f2b45c";
     ctx.fillRect(x - width, y + dy, width * 2, 2);
   }
 }
@@ -173,44 +154,28 @@ function drawBackdrop(ctx, scene) {
     for (let layer = 0; layer < 3; layer++) {
       ctx.fillStyle = ["#8cae83", "#749968", "#608756"][layer];
       for (let x = 0; x < VIEW.width; x += 3) {
-        const top = scene.horizon - 65 + layer * 24 +
-          Math.round(18 * Math.sin(x * 0.009 + layer * 2) + 9 * Math.sin(x * 0.017 + layer));
+        const top = scene.horizon - 65 + layer * 24 + Math.round(18 * Math.sin(x * 0.009 + layer * 2) + 9 * Math.sin(x * 0.017 + layer));
         ctx.fillRect(x, top, 3, scene.horizon - top);
       }
     }
     ctx.fillStyle = "#9bb66f";
     ctx.fillRect(0, scene.horizon - 20, VIEW.width, 34);
-    for (let i = 0; i < 24; i++)
-      drawRoundTree(
-        ctx,
-        Math.round(noise(i + 31) * VIEW.width),
-        scene.horizon - 14 - Math.round(noise(i + 71) * 9),
-        12 + Math.round(noise(i + 81) * 16),
-      );
+    for (let i = 0; i < 24; i++) drawRoundTree(ctx, Math.round(noise(i + 31) * VIEW.width), scene.horizon - 14 - Math.round(noise(i + 71) * 9), 12 + Math.round(noise(i + 81) * 16));
     return;
   }
-
   if (scene.biome === "reeds") {
-    // Layered wetland woodland, with open gaps between beds of rushes.
     for (let layer = 0; layer < 2; layer++) {
       ctx.fillStyle = layer ? "#354f48" : "#667c73";
       for (let x = 0; x < VIEW.width; x += 3) {
-        const top = scene.horizon - 24 - layer * 7 -
-          Math.round(12 * Math.sin(x * 0.011 + layer) + 7 * Math.sin(x * 0.031));
+        const top = scene.horizon - 24 - layer * 7 - Math.round(12 * Math.sin(x * 0.011 + layer) + 7 * Math.sin(x * 0.031));
         ctx.fillRect(x, top, 3, scene.horizon - top);
       }
     }
-    for (const [x, width] of [[0, 120], [210, 95], [460, 145], [790, 170]])
-      drawReeds(ctx, x, x + width, scene.horizon - 2, 22, "#61745a");
+    for (const [x, width] of [[0, 120], [210, 95], [460, 145], [790, 170]]) drawReeds(ctx, x, x + width, scene.horizon - 2, 22, "#61745a");
     return;
   }
-
   const alpine = scene.biome === "highland";
-  ctx.fillStyle = alpine
-    ? "#526a72"
-    : scene.biome === "pine"
-      ? "#28454a"
-      : "#2e2157";
+  ctx.fillStyle = alpine ? "#526a72" : scene.biome === "pine" ? "#28454a" : "#2e2157";
   for (let i = 0; i < 7; i++) {
     const x = i * 170 - 100;
     const peak = alpine ? 105 + (i % 3) * 27 : 165 + (i % 3) * 22;
@@ -243,22 +208,13 @@ function drawBackdrop(ctx, scene) {
   ctx.fillStyle = alpine ? "#334e4e" : "#17352f";
   ctx.fillRect(0, scene.horizon - 14, VIEW.width, 25);
   for (let i = 0; i < (alpine ? 22 : 30); i++) {
-    drawLakePine(
-      ctx,
-      i * (alpine ? 45 : 34) - 12,
-      scene.horizon + 2,
-      25 + (i % 5) * 7,
-      9 + (i % 4) * 3,
-      alpine
-        ? {
-            ...PINE_COLORS,
-            0: "#274845",
-            1: "#365e57",
-            2: "#54766a",
-            highlight: "#cbd9cc",
-          }
-        : PINE_COLORS,
-    );
+    drawLakePine(ctx, i * (alpine ? 45 : 34) - 12, scene.horizon + 2, 25 + (i % 5) * 7, 9 + (i % 4) * 3, alpine ? {
+      ...PINE_COLORS,
+      0: "#274845",
+      1: "#365e57",
+      2: "#54766a",
+      highlight: "#cbd9cc",
+    } : PINE_COLORS);
   }
   if (scene.biome === "pine") {
     const mist = ctx.createLinearGradient(0, scene.horizon - 65, 0, scene.horizon);
@@ -277,32 +233,17 @@ function drawWater(ctx, scene, time) {
   ctx.fillStyle = water;
   ctx.fillRect(0, scene.horizon, VIEW.width, VIEW.height - scene.horizon);
   for (let i = 0; i < 72; i++) {
-    const y =
-      scene.horizon +
-      12 +
-      ((i * 31) % Math.max(40, VIEW.height - scene.horizon - 18));
+    const y = scene.horizon + 12 + ((i * 31) % Math.max(40, VIEW.height - scene.horizon - 18));
     ctx.fillStyle = i % 3 ? `${scene.ripple[0]}38` : `${scene.ripple[1]}50`;
-    ctx.fillRect(
-      Math.round((i * 137 + Math.sin(time * 0.7 + i) * 8) % VIEW.width),
-      y,
-      5 + (i % 7) * 3,
-      1,
-    );
+    ctx.fillRect(Math.round((i * 137 + Math.sin(time * 0.7 + i) * 8) % VIEW.width), y, 5 + (i % 7) * 3, 1);
   }
   const reflectX = scene.biome === "meadow" ? 180 : scene.biome === "highland" ? 760 : 644;
   for (let y = scene.horizon + 4; y < VIEW.height; y += 6) {
     const depth = (y - scene.horizon) / (VIEW.height - scene.horizon);
-    const width = Math.round(
-      (5 + depth * 42) * (0.5 + Math.abs(Math.sin(y * 0.16 + time))),
-    );
+    const width = Math.round((5 + depth * 42) * (0.5 + Math.abs(Math.sin(y * 0.16 + time))));
     ctx.globalAlpha = (1 - depth) * (["reeds", "pine"].includes(scene.biome) ? 0.12 : 0.62);
     ctx.fillStyle = depth < 0.45 ? scene.reflection[0] : scene.reflection[1];
-    ctx.fillRect(
-      reflectX - width / 2 + Math.sin(y * 0.12 + time) * 9,
-      y,
-      width,
-      2,
-    );
+    ctx.fillRect(reflectX - width / 2 + Math.sin(y * 0.12 + time) * 9, y, width, 2);
   }
   ctx.globalAlpha = 1;
 }
@@ -318,13 +259,10 @@ function drawSceneDetails(ctx, scene) {
     ctx.beginPath();
     ctx.ellipse(655, 309, 82, 15, 0, 0, 7);
     ctx.fill();
-    for (let i = 0; i < 5; i++) {
-      drawRock(ctx, 606 + i * 23, 307 + i % 2 * 4, 11 + i % 3 * 4);
-    }
+    for (let i = 0; i < 5; i++) drawRock(ctx, 606 + i * 23, 307 + i % 2 * 4, 11 + i % 3 * 4);
     drawLakePine(ctx, 670, 306, 39, 16, PINE_COLORS);
     drawLakeCabin(ctx, 110, 278, 0.55);
   } else if (scene.biome === "reeds") {
-    // Rushes are rooted on the shore, never scattered across open water.
     drawReeds(ctx, 0, 65, scene.horizon + 12, 29, "#72805a");
     drawReeds(ctx, 878, 960, scene.horizon + 10, 34, "#657c56");
   } else if (scene.biome === "meadow") {
@@ -336,9 +274,7 @@ function drawSceneDetails(ctx, scene) {
       ctx.fillRect(15 + i * 53, scene.horizon - 8 + (i % 3) * 4, 3, 3);
     }
   } else if (scene.biome === "highland") {
-    for (const rock of HIGHLAND_ROCKS) {
-      drawRock(ctx, rock.x, scene.horizon + rock.offsetY, rock.size, true);
-    }
+    for (const rock of HIGHLAND_ROCKS) drawRock(ctx, rock.x, scene.horizon + rock.offsetY, rock.size, true);
   } else {
     ctx.fillStyle = "#251b32";
     ctx.beginPath();
@@ -349,16 +285,14 @@ function drawSceneDetails(ctx, scene) {
       const dx = -112 + i * 12;
       ctx.fillRect(280 + dx, 337 + Math.round(17 * Math.sqrt(1 - (dx / 125) ** 2)), 7, 2);
     }
-    for (let i = 0; i < 5; i++)
-      drawLakePine(ctx, 225 + i * 30, 333, 39 + (i % 2) * 14, 14, {
-        ...PINE_COLORS,
-        0: "#21182c",
-        1: "#2f243a",
-        2: "#47314b",
-        highlight: "#734354",
-      });
+    for (let i = 0; i < 5; i++) drawLakePine(ctx, 225 + i * 30, 333, 39 + (i % 2) * 14, 14, {
+      ...PINE_COLORS,
+      0: "#21182c",
+      1: "#2f243a",
+      2: "#47314b",
+      highlight: "#734354",
+    });
   }
-
 }
 
 function drawWeather(ctx, scene, time) {
@@ -370,7 +304,6 @@ function drawWeather(ctx, scene, time) {
       ctx.fillStyle = depth > 0.6 ? "#d0dedb42" : "#c0d1cb24";
       ctx.fillRect(x, y, 1, 3 + Math.round(depth * 4));
     }
-    // Small, brief impacts sell rainfall better than a screen of long streaks.
     for (let i = 0; i < 24; i++) {
       const x = 155 + noise(i + 400) * 650;
       const y = scene.horizon + 30 + noise(i + 500) * 220;
@@ -397,7 +330,6 @@ function drawWeather(ctx, scene, time) {
 function drawForeground(ctx, scene, time) {
   const left = scene.bank === "left";
   drawBank(ctx, scene, time);
-
   if (scene.biome === "reeds") {
     for (const x of [8, 36, 78, 225, 264, 312]) {
       const y = bankHeight(scene, x) + 18;
@@ -411,7 +343,6 @@ function drawForeground(ctx, scene, time) {
       if (y < 530) drawRock(ctx, x, y, 10 + i % 8, true);
     }
   }
-
   if (["quiet", "pine", "sunset"].includes(scene.biome)) {
     for (let i = 0; i < 9; i++) {
       const x = left ? 12 + i * 38 : 948 - i * 38;
@@ -420,7 +351,6 @@ function drawForeground(ctx, scene, time) {
       drawLakePine(ctx, x, y, 42 + i % 4 * 12, 22 + i % 3 * 4, PINE_COLORS);
     }
   }
-
 }
 
 function drawPlatforms(ctx, scene, lakeId, selected, time) {
@@ -448,10 +378,7 @@ function drawFishingGear(ctx, scene, time, fishing) {
   const cast = fishing?.cast;
   const target = fishing?.target || scene.target;
   const bobberX = target.x + Math.sin(time * 0.7) * 7;
-  const bobberY =
-    target.y +
-    Math.sin(time * 1.8) * 2 +
-    (pulling ? Math.sin(time * 14) * 5 : 0);
+  const bobberY = target.y + Math.sin(time * 1.8) * 2 + (pulling ? Math.sin(time * 14) * 5 : 0);
   const castAmount = cast ? Math.min(1, fishing.elapsed / 0.45) : 0;
   const lineX = mix(rodTip.x, bobberX, castAmount);
   const lineY = mix(rodTip.y, bobberY, castAmount);
@@ -459,44 +386,23 @@ function drawFishingGear(ctx, scene, time, fishing) {
     x: scene.angler.x + (scene.angler.direction === "right" ? 9 : -9) * scene.scale,
     y: scene.angler.y - scene.scale,
   };
-
   ctx.strokeStyle = "#241c30";
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(hand.x, hand.y);
-  ctx.quadraticCurveTo(
-    (hand.x + rodTip.x) / 2,
-    scene.rod.tipY + 30 - tug,
-    rodTip.x,
-    rodTip.y,
-  );
+  ctx.quadraticCurveTo((hand.x + rodTip.x) / 2, scene.rod.tipY + 30 - tug, rodTip.x, rodTip.y);
   ctx.stroke();
-  // The line must not be drawn at all until cast. A closed quadratic
-  // curve still makes a visible loop even when its endpoints coincide.
   if (!cast) return;
   ctx.strokeStyle = "#cfe0f0aa";
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(rodTip.x, rodTip.y);
-  ctx.quadraticCurveTo(
-    (rodTip.x + lineX) / 2,
-    mix(rodTip.y, lineY, 0.5) + 18 * castAmount,
-    lineX,
-    lineY,
-  );
+  ctx.quadraticCurveTo((rodTip.x + lineX) / 2, mix(rodTip.y, lineY, 0.5) + 18 * castAmount, lineX, lineY);
   ctx.stroke();
   const ripple = (time * 18) % 38;
   ctx.strokeStyle = "#cfe0f080";
   ctx.beginPath();
-  ctx.ellipse(
-    bobberX,
-    bobberY + 4,
-    12 + ripple,
-    4 + ripple * 0.22,
-    0,
-    0,
-    7,
-  );
+  ctx.ellipse(bobberX, bobberY + 4, 12 + ripple, 4 + ripple * 0.22, 0, 0, 7);
   ctx.stroke();
   ctx.fillStyle = "#d4574e";
   ctx.fillRect(bobberX - 2, bobberY - 6, 4, 10);
@@ -506,12 +412,51 @@ function drawFishingGear(ctx, scene, time, fishing) {
     ctx.font = "bold 26px ui-monospace, monospace";
     ctx.textAlign = "center";
     ctx.fillStyle = "#ffdca8";
-    ctx.fillText(
-      "!",
-      bobberX,
-      bobberY - 20 - Math.abs(Math.sin(time * 7)) * 7,
-    );
+    ctx.fillText("!", bobberX, bobberY - 20 - Math.abs(Math.sin(time * 7)) * 7);
   }
+}
+
+function drawRemoteFishingPlayer(ctx, remotePlayer, time) {
+  const fishing = remotePlayer?.fishing;
+  if (!fishing) return;
+  const x = Number(fishing.x);
+  const y = Number(fishing.y);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+  const scale = Number(fishing.scale) || 1;
+  const direction = fishing.direction || "down";
+  drawCharacter(ctx, x, y, time, false, direction, true);
+  drawPlayerName(ctx, remotePlayer.name || "Player", x, y, scale);
+}
+
+function drawRemoteFishingGear(ctx, remotePlayer, time) {
+  const fishing = remotePlayer?.fishing;
+  if (!fishing?.active || !fishing.target) return;
+  const playerX = Number(fishing.x);
+  const playerY = Number(fishing.y);
+  const targetX = Number(fishing.target.x);
+  const targetY = Number(fishing.target.y);
+  if (!Number.isFinite(playerX) || !Number.isFinite(playerY) || !Number.isFinite(targetX) || !Number.isFinite(targetY)) return;
+  const scale = Number(fishing.scale) || 1;
+  const direction = fishing.direction || "right";
+  const handX = playerX + (direction === "right" ? 9 : -9) * scale;
+  const handY = playerY - scale;
+  const bobberX = targetX;
+  const bobberY = targetY + Math.sin(time * 1.8) * 2;
+  ctx.strokeStyle = "#cfe0f0aa";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(handX, handY);
+  ctx.quadraticCurveTo((handX + bobberX) / 2, (handY + bobberY) / 2 + 18, bobberX, bobberY);
+  ctx.stroke();
+  const ripple = (time * 18) % 38;
+  ctx.strokeStyle = "#cfe0f080";
+  ctx.beginPath();
+  ctx.ellipse(bobberX, bobberY + 4, 12 + ripple, 4 + ripple * 0.22, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = "#d4574e";
+  ctx.fillRect(bobberX - 2, bobberY - 6, 4, 10);
+  ctx.fillStyle = "#ffdca8";
+  ctx.fillRect(bobberX - 2, bobberY - 8, 4, 3);
 }
 
 function drawRoundTree(ctx, x, y, size) {
@@ -522,8 +467,7 @@ function drawRoundTree(ctx, x, y, size) {
     ctx.fillStyle = row > size * 0.65 ? "#426b46" : "#638e52";
     ctx.fillRect(x - half, y - size + row, half * 2, 2);
     ctx.fillStyle = "#8eae65";
-    if (row > 2 && row < size * 0.55)
-      ctx.fillRect(x - half + 2, y - size + row, Math.max(2, half - 2), 2);
+    if (row > 2 && row < size * 0.55) ctx.fillRect(x - half + 2, y - size + row, Math.max(2, half - 2), 2);
   }
 }
 
@@ -547,36 +491,6 @@ function drawReeds(ctx, start, end, baseY, height, color) {
   }
 }
 
-function drawRemoteFishingPlayer(ctx, remotePlayer, time) {
-  const fishing = remotePlayer?.fishing;
-
-  if (!fishing?.active) return;
-
-  const x = Number(fishing.x);
-  const y = Number(fishing.y);
-
-  if (!Number.isFinite(x) || !Number.isFinite(y)) return;
-
-  drawCharacter(
-    ctx,
-    x,
-    y,
-    time,
-    false,
-    fishing.direction || "down",
-    true,
-  );
-
-  drawPlayerName(
-    ctx,
-    remotePlayer.name || "Player",
-    x,
-    y,
-    fishing.scale || 1,
-  );
-}
-
-
 export function drawFishingScene(ctx, location, time, fishing, platformId, playerName, remotePlayers) {
   const scene = sceneFor(location?.id);
   const selected = getLakePlatform(location?.id, platformId) || LAKE_PLATFORMS["quiet-lake"][0];
@@ -592,19 +506,37 @@ export function drawFishingScene(ctx, location, time, fishing, platformId, playe
   drawFishingGear(ctx, { ...scene, ...selected }, time, fishing);
   drawWeather(ctx, scene, time);
 
-    // Local player
   drawPlayerName(ctx, playerName, selected.angler.x, selected.angler.y, selected.scale);
 
-// Remote players who are fishing in this lake.
-if (remotePlayers) {
-  for (const remotePlayer of remotePlayers.values()) {
-    if (remotePlayer.fishing?.lakeId !== location?.id) {
-      continue;
-    }
+  if (remotePlayers) {
+    for (const remotePlayer of remotePlayers.values()) {
+      const remoteFishing = remotePlayer?.fishing;
 
-    drawRemoteFishingPlayer(ctx, remotePlayer, time);
+      /*
+       * No fishing presence means the player is not
+       * currently inside a lake.
+       */
+      if (!remoteFishing) continue;
+
+      /*
+       * Only show them in the lake they are actually in.
+       */
+      if (remoteFishing.lakeId !== location?.id) continue;
+
+      /*
+       * Draw player immediately when they enter.
+       * This does NOT depend on active === true.
+       */
+      drawRemoteFishingPlayer(ctx, remotePlayer, time);
+
+      /*
+       * Bobber/line only exists after an actual cast.
+       */
+      if (remoteFishing.active) {
+        drawRemoteFishingGear(ctx, remotePlayer, time);
+      }
+    }
   }
-}
 }
 
 export function canCastAt(x, y, locationId = "quiet-lake") {
@@ -620,22 +552,9 @@ export function canCastAt(x, y, locationId = "quiet-lake") {
   if (scene.biome === "sunset" && x >= 150 && x <= 410 && y <= 362) return false;
   if (scene.biome === "pine" && x >= 565 && x <= 745 && y <= 333) return false;
   if (scene.biome === "reeds" && (x < 190 || x > 715) && y <= 366) return false;
-  if (scene.biome === "highland" && HIGHLAND_ROCKS.some((rock) =>
-    isOnRock(x, y, rock.x, scene.horizon + rock.offsetY, rock.size))) return false;
+  if (scene.biome === "highland" && HIGHLAND_ROCKS.some((rock) => isOnRock(x, y, rock.x, scene.horizon + rock.offsetY, rock.size))) return false;
   if (scene.biome === "quiet" && (x < 185 || x > 790) && y < 338) return false;
-  if (
-    scene.biome === "quiet" &&
-    x >= 500 &&
-    x <= 650 &&
-    y <= 365
-  )
-    return false;
-  if (
-    scene.biome === "pine" &&
-    x >= 200 &&
-    x <= 400 &&
-    y <= 365
-  )
-    return false;
+  if (scene.biome === "quiet" && x >= 500 && x <= 650 && y <= 365) return false;
+  if (scene.biome === "pine" && x >= 200 && x <= 400 && y <= 365) return false;
   return true;
 }

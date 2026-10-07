@@ -1,5 +1,5 @@
 import { createFishingState, castLine, hookFish } from "../fishing.js";
-import { chooseLakePlatform } from "../lakePlatforms.js";
+import { chooseLakePlatform, getLakePlatform } from "../lakePlatforms.js";
 import {
   LOCATIONS,
   MAP_VERSION,
@@ -21,14 +21,47 @@ export function createLocationActions({
   publish,
   socket,
 }) {
+  function publishFishingState(fishing) {
+    socket.emit("player:fishing", { fishing });
+  }
+
+  function getCurrentPlatform() {
+    if (!runtime.state.destination || runtime.state.destination.type !== "lake") return null;
+    return getLakePlatform(
+      runtime.state.destination.id,
+      runtime.state.platformId,
+    );
+  }
+
+  function buildFishingPresence(active = false) {
+    const destination = runtime.state.destination;
+    if (!destination || destination.type !== "lake") return null;
+    const platform = getCurrentPlatform();
+    if (!platform) return null;
+    return {
+      active,
+      lakeId: destination.id,
+      platformId: platform.id,
+      x: platform.angler.x,
+      y: platform.angler.y,
+      direction: platform.angler.direction || "down",
+      scale: platform.scale || 1,
+      target: active && runtime.fishing?.cast && runtime.fishing?.target
+        ? {
+            x: runtime.fishing.target.x,
+            y: runtime.fishing.target.y,
+          }
+        : null,
+    };
+  }
+
   function enterLocation(id) {
     if (
       !runtime.active ||
       runtime.state.destination ||
       runtime.state.zoom < GLOBE_START ||
       isGlobe()
-    )
-      return false;
+    ) return false;
     const place = LOCATIONS.find((item) => item.id === id);
     if (!place) return false;
     runtime.state.selectedId = place.id;
@@ -36,30 +69,31 @@ export function createLocationActions({
       publish(true);
       return false;
     }
+    clearInput();
+    runtime.state.player = { ...place.entry };
+    runtime.state.destination = place;
+
     if (place.type === "lake") {
       const platform = chooseLakePlatform(place.id);
-
       runtime.state.platformId = platform?.id || null;
-
       runtime.fishing = createFishingState(
         platform ? { ...platform.target } : null,
       );
 
-      socket.emit("player:fishing", {
-        fishing: {
-          active: true,
-          lakeId: place.id,
-          platformId: runtime.state.platformId,
-          x: platform?.angler.x ?? 0,
-          y: platform?.angler.y ?? 0,
-          direction: platform?.angler.direction ?? "down",
-          scale: platform?.scale ?? 1,
-        },
-      });
+      /*
+       * Important:
+       * Tell other clients immediately that this player is
+       * inside this lake and where their character is.
+       *
+       * active:false means they are NOT fishing yet, so
+       * remote clients render the player but no bobber/line.
+       */
+      publishFishingState(buildFishingPresence(false));
+    } else {
+      runtime.state.platformId = null;
+      runtime.fishing = createFishingState();
     }
-    clearInput();
-    runtime.state.player = { ...place.entry };
-    runtime.state.destination = place;
+
     save();
     publish(true);
     emit("enterLocation", {
@@ -82,24 +116,43 @@ export function createLocationActions({
       !runtime.active ||
       !runtime.state.destination ||
       runtime.state.destination.type !== "lake"
-    )
-      return false;
+    ) return false;
+
     if (runtime.fishing.phase === "bite") {
       hookFish(runtime.fishing);
+      publishFishingState(buildFishingPresence(true));
       clearInput();
       onFocus("canvas");
       publish(true);
       return true;
     }
+
     if (!["idle", "waiting"].includes(runtime.fishing.phase)) return false;
-    runtime.fishing = runtime.fishing.cast
+
+    const wasCasting = Boolean(runtime.fishing.cast);
+
+    runtime.fishing = wasCasting
       ? createFishingState(runtime.fishing.target)
       : castLine(target || runtime.fishing.target);
+
+    /*
+     * Reuse the SAME platform selected on lake entry.
+     * Never call chooseLakePlatform() here.
+     */
+    publishFishingState(
+      buildFishingPresence(Boolean(runtime.fishing.cast)),
+    );
+
     publish(true);
-    emit(runtime.fishing.cast ? "castLine" : "reelLine", {
-      id: runtime.state.destination.id,
-      slot: getSlot(),
-    });
+
+    emit(
+      runtime.fishing.cast ? "castLine" : "reelLine",
+      {
+        id: runtime.state.destination.id,
+        slot: getSlot(),
+      },
+    );
+
     return true;
   }
 
@@ -118,32 +171,43 @@ export function createLocationActions({
   }
 
   function leaveLocation() {
-    if (!runtime.active || runtime.stopped || !runtime.state.destination)
-      return false;
+    if (
+      !runtime.active ||
+      runtime.stopped ||
+      !runtime.state.destination
+    ) return false;
+
     const locationId = runtime.state.destination.id;
+
+    /*
+     * Remove the player's remote lake presence BEFORE
+     * clearing the local state.
+     */
+    publishFishingState(null);
+
     runtime.state.destination = null;
     runtime.state.platformId = null;
     runtime.fishing = createFishingState();
     runtime.state.camera = { ...runtime.state.player };
-    publishFishingState(null);
+
     clearInput();
     save();
     publish(true);
+
     emit("leaveLocation", {
       id: locationId,
       mapId: "main_map",
       slot: getSlot(),
     });
+
     onFocus("canvas");
     return true;
   }
-  return { enterLocation, toggleFishing, interact, leaveLocation };
 
-  function publishFishingState(fishing) {
-    socket.emit("player:fishing", {
-      fishing,
-    });
-  }
+  return {
+    enterLocation,
+    toggleFishing,
+    interact,
+    leaveLocation,
+  };
 }
-
-
