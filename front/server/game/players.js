@@ -5,14 +5,14 @@ const SPAWN = {
 
 const players = new Map();
 
-function createPlayer(id) {
+function createPlayer(id, name) {
   const player = {
     id,
     x: SPAWN.x,
     y: SPAWN.y,
     moving: false,
     direction: "down",
-    name: "Guest",
+    name
   };
 
   players.set(id, player);

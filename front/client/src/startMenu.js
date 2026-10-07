@@ -10,6 +10,8 @@ import { createFontGuard } from "./components/fontGuard";
 import { createGameHooks } from "./components/gameHooks";
 import { createGuestProgress } from "./guestProgress.js";
 
+import { connectSocket, disconnectSocket } from "./multiplayer/socket.js";
+
 export function startMenu(root, map) {
   let alive = true;
   const timers = new Set();
@@ -141,16 +143,32 @@ export function startMenu(root, map) {
     getSlot: () => slot,
   });
   const Hooks = gameHooks.hooks;
-  function makeProgress() {
-    return createGuestProgress({ accountId: player?.id,
-      onChange: (value) => map.setProgress(value),
-      onSessionExpired() {
-        setPlayer(null);
-        UI.go("auth");
-        auth.showError(t().sessionExpired);
-      },
-    });
-  }
+
+function makeProgress() {
+  return createGuestProgress({
+    accountId: player?.id,
+
+    onChange: (value) => {
+      map.setProgress(value);
+
+      const username = value.profile?.username;
+
+      if (username) {
+        connectSocket(username);
+      }
+    },
+
+    onSessionExpired() {
+      disconnectSocket();
+
+      setPlayer(null);
+      UI.go("auth");
+      auth.showError(t().sessionExpired);
+    },
+  });
+}
+
+
   let progress = makeProgress();
   let signingOut = false;
   function setPlayer(value) {
@@ -166,6 +184,7 @@ export function startMenu(root, map) {
   async function signOut() {
     await Api.logout();
     if (!alive) return;
+    disconnectSocket();
     setPlayer(null);
     $("f-pass").value = "";
     Hooks.emit("signOut");

@@ -25,8 +25,10 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("Player connected:", socket.id);
+  
+  const name = socket.handshake.auth.name
 
-  const player = createPlayer(socket.id);
+  const player = createPlayer(socket.id, name);
 
   // Tell the new player where they spawned.
   socket.emit("player:spawn", player);

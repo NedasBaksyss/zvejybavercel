@@ -5,6 +5,8 @@ export function createPlayerSync(socket, runtime, publish) {
       y: player.y,
     };
 
+    runtime.state.playerName = player.name;
+
     runtime.state.camera = {
       x: player.x,
       y: player.y,

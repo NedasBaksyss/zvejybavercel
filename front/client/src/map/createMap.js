@@ -11,7 +11,7 @@ import {
   saveMapState,
 } from "./controls/mapStorage.jsx";
 
-import { socket } from "../multiplayer/socket.js";
+import { socket, connectSocket } from "../multiplayer/socket.js";
 import { createPlayerSync } from "../multiplayer/playerSync.js";
 
 export function createMap({
@@ -139,6 +139,7 @@ export function createMap({
         language,
         runtime.remotePlayers,
       );
+
       runtime.active = true;
       clearInput();
       publish(true);
