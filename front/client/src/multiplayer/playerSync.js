@@ -1,0 +1,76 @@
+export function createPlayerSync(socket, runtime, publish) {
+  function handleSpawn(player) {
+    runtime.state.player = {
+      x: player.x,
+      y: player.y,
+    };
+
+    runtime.state.camera = {
+      x: player.x,
+      y: player.y,
+    };
+
+    publish(true);
+  }
+
+  function handleInit(players) {
+    runtime.remotePlayers.clear();
+
+    for (const player of Object.values(players)) {
+      if (player.id === socket.id) continue;
+
+      runtime.remotePlayers.set(player.id, {
+        ...player,
+      });
+    }
+
+    publish(true);
+  }
+
+  function handleJoined(player) {
+    if (player.id === socket.id) return;
+
+    runtime.remotePlayers.set(player.id, {
+      ...player,
+    });
+
+    publish(true);
+  }
+
+  function handleMoved(player) {
+    const existing = runtime.remotePlayers.get(player.id);
+
+    if (existing) {
+      existing.x = player.x;
+      existing.y = player.y;
+    } else {
+      runtime.remotePlayers.set(player.id, {
+        ...player,
+      });
+    }
+
+    publish(true);
+  }
+
+  function handleLeft(id) {
+    runtime.remotePlayers.delete(id);
+
+    publish(true);
+  }
+
+  socket.on("player:spawn", handleSpawn);
+  socket.on("players:init", handleInit);
+  socket.on("player:joined", handleJoined);
+  socket.on("player:moved", handleMoved);
+  socket.on("player:left", handleLeft);
+
+  return {
+    dispose() {
+      socket.off("player:spawn", handleSpawn);
+      socket.off("players:init", handleInit);
+      socket.off("player:joined", handleJoined);
+      socket.off("player:moved", handleMoved);
+      socket.off("player:left", handleLeft);
+    },
+  };
+}

@@ -9,6 +9,7 @@ export function drawFlatMap(
   blend,
   getLanguage,
   markerHits,
+  remotePlayers,
 ) {
   const camera = {
     x: mix(state.camera.x, WORLD.width / 2, blend * 0.65),
@@ -50,17 +51,17 @@ export function drawFlatMap(
     const anchor = place.type === "shop" ? p : entry;
     if ((state.zoom > 0.7 || selected) && visible(anchor))
       label(
-        ctx,
-        place.name[getLanguage()],
-        anchor.x,
-        anchor.y - (place.type === "shop" ? 28 * state.zoom + 28 : 37),
-        undefined,
-        selected,
-      );
-    markerHits.push({ id: place.id, x: p.x, y: p.y, radius: 26 });
-    markerHits.push({ id: place.id, x: entry.x, y: entry.y, radius: 22 });
-  }
-  const player = point(state.player);
+    ctx,
+    place.name[getLanguage()],
+    anchor.x,
+    anchor.y - (place.type === "shop" ? 28 * state.zoom + 28 : 37),
+    undefined,
+    selected,
+  );
+  markerHits.push({ id: place.id, x: p.x, y: p.y, radius: 26 });
+  markerHits.push({ id: place.id, x: entry.x, y: entry.y, radius: 22 });
+}
+const player = point(state.player);
   if (state.selectedId && state.zoom >= GLOBE_START) {
     const target = LOCATIONS.find((place) => place.id === state.selectedId);
     const p = point(target.entry);
@@ -80,7 +81,49 @@ export function drawFlatMap(
       ctx.fill();
       ctx.restore();
     }
+    //Draw Remote Players.
+    }
+    for (const remote of remotePlayers?.values() ?? []) {
+      const remotePoint = point(remote);
+
+      if (
+      remotePoint.x < -60 ||
+      remotePoint.x > VIEW.width + 60 ||
+      remotePoint.y < -60 ||
+      remotePoint.y > VIEW.height + 60
+    ) {
+      continue;
+    }
+    
+    if (state.zoom > 0.45) {
+      drawCharacter(
+        ctx,
+        remotePoint.x,
+        remotePoint.y,
+        time,
+        remote.moving ?? false,
+        remote.direction ?? "down",
+      );
+      
+      drawPlayerName(
+        ctx,
+        remote.name ?? "Player",
+        remotePoint.x,
+        remotePoint.y,
+      );
+    } else {
+      ctx.fillStyle = "#8ec5ff";
+      ctx.fillRect(
+        remotePoint.x - 3,
+        remotePoint.y - 3,
+        6,
+        6,
+      );
+    }
   }
+
+  // Draw local player.
+
   if (state.zoom > 0.45) {
     drawCharacter(ctx, player.x, player.y, time, state.moving, state.direction);
     drawPlayerName(ctx, state.playerName, player.x, player.y);

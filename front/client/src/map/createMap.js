@@ -11,6 +11,9 @@ import {
   saveMapState,
 } from "./controls/mapStorage.jsx";
 
+import { socket } from "../multiplayer/socket.js";
+import { createPlayerSync } from "../multiplayer/playerSync.js";
+
 export function createMap({
   canvas,
   getLanguage,
@@ -20,9 +23,13 @@ export function createMap({
   onChange,
   onFocus,
 }) {
+
   const runtime = {
     state: createMapState(),
     fishing: createFishingState(),
+
+    remotePlayers: new Map(),
+
     locationsOpen: readLocationsPreference(),
     reducedMotion: matchMedia("(prefers-reduced-motion: reduce)"),
     renderer: null,
@@ -58,6 +65,12 @@ export function createMap({
     onChange(next);
   }
 
+  const playerSync = createPlayerSync(
+  socket,
+  runtime,
+  publish,
+);
+
   const locations = createLocationActions({
     runtime,
     isGlobe,
@@ -85,7 +98,7 @@ export function createMap({
     actions: { ...locations, ...view },
     onFocus,
   });
-  const loop = createMapLoop({ runtime, keys, save, publish, getSlot, emit });
+  const loop = createMapLoop({ runtime, keys, save, publish, getSlot, emit, socket });
 
   function exit() {
     runtime.active = false;
@@ -121,7 +134,11 @@ export function createMap({
     },
     enter() {
       if (runtime.stopped || runtime.active) return;
-      runtime.renderer ||= createMapRenderer(canvas, language);
+      runtime.renderer ||= createMapRenderer(
+        canvas,
+        language,
+        runtime.remotePlayers,
+      );
       runtime.active = true;
       clearInput();
       publish(true);
@@ -154,10 +171,15 @@ export function createMap({
     }),
     stop() {
       if (runtime.stopped) return;
+
       runtime.stopped = true;
+
       exit();
+
+      playerSync.dispose();
+
       input.stop();
       runtime.renderer?.dispose();
-    },
+    }
   };
 }

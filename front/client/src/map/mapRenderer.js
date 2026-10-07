@@ -5,7 +5,7 @@ import { createGlobeRenderer } from "./rendering/createGlobeRenderer.jsx";
 import { drawDestination } from "./rendering/drawDestination.jsx";
 import { canCastAt } from "./rendering/drawFishingScene.js";
 
-export function createMapRenderer(canvas, getLanguage) {
+export function createMapRenderer(canvas, getLanguage, remotePlayers) {
   const ctx = canvas.getContext("2d");
   const terrain = createTerrain();
   const globe = createGlobeRenderer(ctx, terrain, getLanguage);
@@ -49,7 +49,7 @@ export function createMapRenderer(canvas, getLanguage) {
         (GLOBE_START - state.zoom) / (GLOBE_START - GLOBE_END),
       );
       if (blend < 1)
-        drawFlatMap(ctx, terrain, state, time, blend, getLanguage, markerHits);
+        drawFlatMap(ctx, terrain, state, time, blend, getLanguage, markerHits, remotePlayers);
       if (blend > 0) globe.draw(state, blend, markerHits);
       if (blend > 0.98) {
         ctx.font = "11px ui-monospace, monospace";

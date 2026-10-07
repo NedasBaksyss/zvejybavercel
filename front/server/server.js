@@ -3,6 +3,13 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 
+const {
+  createPlayer,
+  getPlayer,
+  getPlayers,
+  removePlayer,
+} = require("./game/players");
+
 const app = express();
 
 app.use(cors());
@@ -16,44 +23,45 @@ const io = new Server(server, {
   },
 });
 
-const players = {};
-
 io.on("connection", (socket) => {
   console.log("Player connected:", socket.id);
 
-  // Create the player
-  players[socket.id] = {
-    id: socket.id,
-    x: 100,
-    y: 100,
-  };
+  const player = createPlayer(socket.id);
 
-  // Send all existing players to the new player
-  socket.emit("players:init", players);
+  // Tell the new player where they spawned.
+  socket.emit("player:spawn", player);
 
-  // Tell everyone else about the new player
-  socket.broadcast.emit("player:joined", players[socket.id]);
+  // Give the new player everyone already online.
+  socket.emit("players:init", getPlayers());
+
+  // Tell everyone else about the new player.
+  socket.broadcast.emit("player:joined", player);
 
   socket.on("player:move", (position) => {
-    const player = players[socket.id];
+    const player = getPlayer(socket.id);
 
     if (!player) return;
 
     player.x = position.x;
     player.y = position.y;
+    player.moving = Boolean(position.moving);
+    player.direction = position.direction || "down";
 
-    // Send updated position to everyone except sender
     socket.broadcast.emit("player:moved", {
-      id: socket.id,
+      id: player.id,
       x: player.x,
       y: player.y,
+      moving: player.moving,
+      direction: player.direction,
+      name: player.name,
     });
   });
+
 
   socket.on("disconnect", () => {
     console.log("Player disconnected:", socket.id);
 
-    delete players[socket.id];
+    removePlayer(socket.id);
 
     io.emit("player:left", socket.id);
   });
