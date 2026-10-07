@@ -51,8 +51,8 @@ export default function MapView({ ref }) {
         onGlobe={actions.showGlobe}
         onPause={actions.pause}
       />
-      {snapshot.destination?.type === "lake" && (
-        <ProgressHud progress={snapshot.progress} language={snapshot.language} onRetry={actions.retryProgress} />
+      {snapshot.active && (
+  <ProgressHud progress={snapshot.progress} language={snapshot.language} onRetry={actions.retryProgress} />
       )}
       <MapLocations
         text={text}
