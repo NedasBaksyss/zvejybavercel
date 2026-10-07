@@ -14,6 +14,7 @@ import {
 } from "@material-tailwind/react";
 import {
   UserCircleIcon,
+  ArrowRightOnRectangleIcon,
   Cog6ToothIcon,
   BellIcon,
   ClockIcon,
@@ -26,6 +27,8 @@ import {
   setOpenSidenav,
 } from "@/context";
 
+import { useSignOut } from "@/pages/auth";
+
 // import { UserInfo } from ".";
 
 export function DashboardNavbar() {
@@ -33,6 +36,8 @@ export function DashboardNavbar() {
   const { fixedNavbar, openSidenav } = controller;
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
+
+  const signOut = useSignOut();
 
   return (
     <Navbar
@@ -167,10 +172,17 @@ export function DashboardNavbar() {
           <IconButton
             variant="text"
             color="blue-gray"
+            onClick={signOut}>
+            <ArrowRightOnRectangleIcon className="h-5 w-5 text-blue-gray-500" />
+          </IconButton>
+          {/* Settings */}
+          {/* <IconButton
+            variant="text"
+            color="blue-gray"
             onClick={() => setOpenConfigurator(dispatch, true)}
           >
             <Cog6ToothIcon className="h-5 w-5 text-blue-gray-500" />
-          </IconButton>
+          </IconButton> */}
         </div>
       </div>
     </Navbar>
