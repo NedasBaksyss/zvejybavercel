@@ -101,7 +101,7 @@ const player = point(state.player);
         remotePoint.x,
         remotePoint.y,
         time,
-        remote.moving ?? false,
+        false,
         remote.direction ?? "down",
       );
       

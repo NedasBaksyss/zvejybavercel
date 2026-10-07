@@ -12,7 +12,8 @@ function createPlayer(id, name) {
     y: SPAWN.y,
     moving: false,
     direction: "down",
-    name
+    name,
+    fishing: null,
   };
 
   players.set(id, player);

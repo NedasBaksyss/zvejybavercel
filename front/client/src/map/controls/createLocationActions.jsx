@@ -19,6 +19,7 @@ export function createLocationActions({
   clearInput,
   save,
   publish,
+  socket,
 }) {
   function enterLocation(id) {
     if (
@@ -35,12 +36,30 @@ export function createLocationActions({
       publish(true);
       return false;
     }
+    if (place.type === "lake") {
+      const platform = chooseLakePlatform(place.id);
+
+      runtime.state.platformId = platform?.id || null;
+
+      runtime.fishing = createFishingState(
+        platform ? { ...platform.target } : null,
+      );
+
+      socket.emit("player:fishing", {
+        fishing: {
+          active: true,
+          lakeId: place.id,
+          platformId: runtime.state.platformId,
+          x: platform?.angler.x ?? 0,
+          y: platform?.angler.y ?? 0,
+          direction: platform?.angler.direction ?? "down",
+          scale: platform?.scale ?? 1,
+        },
+      });
+    }
     clearInput();
     runtime.state.player = { ...place.entry };
     runtime.state.destination = place;
-    const platform = place.type === "lake" ? chooseLakePlatform(place.id) : null;
-    runtime.state.platformId = platform?.id || null;
-    runtime.fishing = createFishingState(platform ? { ...platform.target } : null);
     save();
     publish(true);
     emit("enterLocation", {
@@ -106,6 +125,7 @@ export function createLocationActions({
     runtime.state.platformId = null;
     runtime.fishing = createFishingState();
     runtime.state.camera = { ...runtime.state.player };
+    publishFishingState(null);
     clearInput();
     save();
     publish(true);
@@ -118,4 +138,12 @@ export function createLocationActions({
     return true;
   }
   return { enterLocation, toggleFishing, interact, leaveLocation };
+
+  function publishFishingState(fishing) {
+    socket.emit("player:fishing", {
+      fishing,
+    });
+  }
 }
+
+

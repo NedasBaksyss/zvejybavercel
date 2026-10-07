@@ -31,7 +31,7 @@ export function createMapRenderer(canvas, getLanguage, remotePlayers) {
       ctx.clearRect(0, 0, VIEW.width, VIEW.height);
       ctx.imageSmoothingEnabled = false;
       if (state.destination) {
-        drawDestination(ctx, state.destination, time, state);
+        drawDestination(ctx, state.destination, time, state, remotePlayers);
         return;
       }
       ctx.fillStyle = "#091922";

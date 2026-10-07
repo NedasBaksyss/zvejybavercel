@@ -547,7 +547,37 @@ function drawReeds(ctx, start, end, baseY, height, color) {
   }
 }
 
-export function drawFishingScene(ctx, location, time, fishing, platformId, playerName) {
+function drawRemoteFishingPlayer(ctx, remotePlayer, time) {
+  const fishing = remotePlayer?.fishing;
+
+  if (!fishing?.active) return;
+
+  const x = Number(fishing.x);
+  const y = Number(fishing.y);
+
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+
+  drawCharacter(
+    ctx,
+    x,
+    y,
+    time,
+    false,
+    fishing.direction || "down",
+    true,
+  );
+
+  drawPlayerName(
+    ctx,
+    remotePlayer.name || "Player",
+    x,
+    y,
+    fishing.scale || 1,
+  );
+}
+
+
+export function drawFishingScene(ctx, location, time, fishing, platformId, playerName, remotePlayers) {
   const scene = sceneFor(location?.id);
   const selected = getLakePlatform(location?.id, platformId) || LAKE_PLATFORMS["quiet-lake"][0];
   drawSky(ctx, scene, time);
@@ -561,7 +591,20 @@ export function drawFishingScene(ctx, location, time, fishing, platformId, playe
   drawPlatforms(ctx, scene, location?.id, selected, time);
   drawFishingGear(ctx, { ...scene, ...selected }, time, fishing);
   drawWeather(ctx, scene, time);
+
+    // Local player
   drawPlayerName(ctx, playerName, selected.angler.x, selected.angler.y, selected.scale);
+
+// Remote players who are fishing in this lake.
+if (remotePlayers) {
+  for (const remotePlayer of remotePlayers.values()) {
+    if (remotePlayer.fishing?.lakeId !== location?.id) {
+      continue;
+    }
+
+    drawRemoteFishingPlayer(ctx, remotePlayer, time);
+  }
+}
 }
 
 export function canCastAt(x, y, locationId = "quiet-lake") {

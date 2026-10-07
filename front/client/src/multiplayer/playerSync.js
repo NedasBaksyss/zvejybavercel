@@ -23,6 +23,7 @@ export function createPlayerSync(socket, runtime, publish) {
 
       runtime.remotePlayers.set(player.id, {
         ...player,
+        fishing: player.fishing || null,
       });
     }
 
@@ -34,6 +35,7 @@ export function createPlayerSync(socket, runtime, publish) {
 
     runtime.remotePlayers.set(player.id, {
       ...player,
+      fishing: player.fishing || null,
     });
 
     publish(true);
@@ -47,9 +49,26 @@ export function createPlayerSync(socket, runtime, publish) {
       existing.y = player.y;
       existing.moving = player.moving;
       existing.direction = player.direction;
+      existing.name = player.name;
     } else {
       runtime.remotePlayers.set(player.id, {
         ...player,
+        fishing: player.fishing || null,
+      });
+    }
+
+    publish(true);
+  }
+
+  function handleFishing(player) {
+    const existing = runtime.remotePlayers.get(player.id);
+
+    if (existing) {
+      existing.fishing = player.fishing || null;
+    } else {
+      runtime.remotePlayers.set(player.id, {
+        ...player,
+        fishing: player.fishing || null,
       });
     }
 
@@ -58,7 +77,6 @@ export function createPlayerSync(socket, runtime, publish) {
 
   function handleLeft(id) {
     runtime.remotePlayers.delete(id);
-
     publish(true);
   }
 
@@ -66,6 +84,7 @@ export function createPlayerSync(socket, runtime, publish) {
   socket.on("players:init", handleInit);
   socket.on("player:joined", handleJoined);
   socket.on("player:moved", handleMoved);
+  socket.on("player:fishing", handleFishing);
   socket.on("player:left", handleLeft);
 
   return {
@@ -74,6 +93,7 @@ export function createPlayerSync(socket, runtime, publish) {
       socket.off("players:init", handleInit);
       socket.off("player:joined", handleJoined);
       socket.off("player:moved", handleMoved);
+      socket.off("player:fishing", handleFishing);
       socket.off("player:left", handleLeft);
     },
   };

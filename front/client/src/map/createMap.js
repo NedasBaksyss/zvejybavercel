@@ -81,6 +81,7 @@ export function createMap({
     clearInput,
     save,
     publish,
+    socket,
   });
   const view = createViewActions({
     runtime,

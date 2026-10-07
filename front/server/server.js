@@ -59,6 +59,20 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("player:fishing", (fishing) => {
+  const player = getPlayer(socket.id);
+
+  if (!player) return;
+
+  player.fishing = fishing?.fishing || null;
+
+  socket.broadcast.emit("player:fishing", {
+    id: player.id,
+    name: player.name,
+    fishing: player.fishing,
+  });
+});
+
 
   socket.on("disconnect", () => {
     console.log("Player disconnected:", socket.id);

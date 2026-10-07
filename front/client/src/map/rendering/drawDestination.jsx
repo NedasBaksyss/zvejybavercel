@@ -3,9 +3,9 @@ import { drawTree, drawShop } from "../terrain/terrainSprites.jsx";
 import { drawCharacter, drawPlayerName } from "./mapSprites.jsx";
 import { drawFishingScene } from "./drawFishingScene.js";
 
-export function drawDestination(ctx, location, time, state) {
+export function drawDestination(ctx, location, time, state, remotePlayers) {
   if (location.type === "lake") {
-    drawFishingScene(ctx, location, time, state.fishing, state.platformId, state.playerName);
+    drawFishingScene(ctx, location, time, state.fishing, state.platformId, state.playerName, remotePlayers);
     return;
   }
   const sky = ctx.createLinearGradient(0, 0, 0, 320);
