@@ -14,9 +14,24 @@ export const getGuestProgress = async (req, res) => {
     const filter = { guestTokenHash: req.guestTokenHash };
     let user;
     try {
-      user = await User.findOneAndUpdate(filter, { $setOnInsert: {
-        ...filter, username: `guest-${randomUUID().slice(0, 18)}`, role: "guest",
-      } }, { upsert: true, new: true, runValidators: true });
+        user = await User.findOneAndUpdate(
+          filter,
+          {
+            $set: {
+              lastLogin: new Date(),
+            },
+            $setOnInsert: {
+              ...filter,
+              username: `guest-${randomUUID().slice(0, 18)}`,
+              role: "guest",
+            },
+          },
+          {
+            upsert: true,
+            new: true,
+            runValidators: true,
+          }
+        );
     } catch (error) {
       // Two tabs may initialize the same profile at once.
       if (error.code !== 11000) throw error;
