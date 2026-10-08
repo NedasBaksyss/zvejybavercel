@@ -1,9 +1,14 @@
 const KEY = "zvejyba.guest-progress.v1";
 
-export function createGuestProgress({ onChange, accountId = null, onSessionExpired,
-  storage = localStorage, request = fetch }) {
+export function createGuestProgress({
+  onChange,
+  accountId = null,
+  onSessionExpired,
+  storage = localStorage,
+  request = fetch,
+}) {
   const storageKey = accountId ? `zvejyba.account-progress.${accountId}` : KEY;
-  let state = { profile: null, status: "loading", pending: 0, leveledUp: false };
+  let state = { profile: null, status: "loading", pending: 0, leveledUp: false, lastAward: null };
   let running = null;
   let stopped = false;
   let controller = null;
@@ -15,10 +20,16 @@ export function createGuestProgress({ onChange, accountId = null, onSessionExpir
       if ((!accountId && !/^[a-f0-9]{64}$/.test(data.token)) || !Array.isArray(data.pending)) {
         throw new Error("Invalid saved guest profile");
       }
+      data.pending = data.pending.map((item) =>
+        typeof item === "string" ? { catchId: item, fish: null } : item,
+      );
       return data;
     }
-    const token = accountId ? null : Array.from(crypto.getRandomValues(new Uint8Array(32)),
-      (byte) => byte.toString(16).padStart(2, "0")).join("");
+    const token = accountId
+      ? null
+      : Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) =>
+          byte.toString(16).padStart(2, "0"),
+        ).join("");
     const data = { token, pending: [] };
     storage.setItem(storageKey, JSON.stringify(data));
     return data;
@@ -34,9 +45,14 @@ export function createGuestProgress({ onChange, accountId = null, onSessionExpir
     const timeout = setTimeout(() => controller?.abort(), 10000);
     try {
       const response = await request(`/api/progress/${path}`, {
-        method: "POST", signal: controller.signal, credentials: "same-origin",
-        headers: { "Content-Type": "application/json", "X-Requested-With": "zvejyba",
-          ...(!accountId ? { Authorization: `Bearer ${token}` } : {}) },
+        method: "POST",
+        signal: controller.signal,
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "zvejyba",
+          ...(!accountId ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ ...body, ...(accountId ? { accountId } : {}) }),
       });
       if (accountId && [401, 409].includes(response.status) && !stopped) onSessionExpired?.();
@@ -50,20 +66,31 @@ export function createGuestProgress({ onChange, accountId = null, onSessionExpir
   async function sync() {
     try {
       const data = read();
-      publish({ status: "saving", pending: data.pending.length, leveledUp: false });
+      publish({ status: "saving", pending: data.pending.length, leveledUp: false, lastAward: null });
       const profile = await post(accountId ? "account" : "guest", {}, data.token);
       if (stopped) return;
       publish({ profile });
       while (!stopped) {
         const next = read().pending[0];
         if (!next) break;
-        const result = await post(accountId ? "account/catches" : "catches", { catchId: next }, data.token);
-        // Remove only the acknowledged receipt, preserving catches added during the request.
+        const result = await post(
+          accountId ? "account/catches" : "catches",
+          { catchId: next.catchId, fish: next.fish },
+          data.token,
+        );
         const current = read();
-        current.pending = current.pending.filter((id) => id !== next);
+        current.pending = current.pending.filter((item) => item.catchId !== next.catchId);
         storage.setItem(storageKey, JSON.stringify(current));
-        publish({ profile: result, pending: current.pending.length,
-          leveledUp: state.leveledUp || result.stats.level > state.profile.stats.level });
+        publish({
+          profile: result,
+          pending: current.pending.length,
+          leveledUp: state.leveledUp || Boolean(result.leveledUp) || result.stats.level > state.profile.stats.level,
+          lastAward: {
+            xp: result.awardedXp || 0,
+            coins: result.awardedCoins || 0,
+            fishPayout: result.fishPayout || 0,
+          },
+        });
       }
       publish({ status: "saved" });
     } catch {
@@ -79,10 +106,10 @@ export function createGuestProgress({ onChange, accountId = null, onSessionExpir
 
   return {
     refresh,
-    recordCatch() {
+    recordCatch(fish = null) {
       try {
         const data = read();
-        data.pending.push(crypto.randomUUID());
+        data.pending.push({ catchId: crypto.randomUUID(), fish: fish || null });
         storage.setItem(storageKey, JSON.stringify(data));
         publish({ pending: data.pending.length });
         return refresh();
@@ -91,6 +118,9 @@ export function createGuestProgress({ onChange, accountId = null, onSessionExpir
         return Promise.resolve();
       }
     },
-    stop() { stopped = true; controller?.abort(); },
+    stop() {
+      stopped = true;
+      controller?.abort();
+    },
   };
 }

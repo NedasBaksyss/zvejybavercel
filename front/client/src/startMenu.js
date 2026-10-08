@@ -189,7 +189,7 @@ function makeProgress() {
     $("f-pass").value = "";
     Hooks.emit("signOut");
   }
-  Hooks.on("fishCaught", () => progress.recordCatch());
+  Hooks.on("fishCaught", (data) => progress.recordCatch(data?.fish || null));
   Hooks.on("start", () => progress.refresh());
   const refreshProgress = () => { if (current === "game") progress.refresh(); };
   addEventListener("online", refreshProgress);
