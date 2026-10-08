@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import busboy from "busboy";
 import { fileURLToPath } from "url";
+import { startGuestCleanup } from "./services/guestCleanup.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -106,6 +107,8 @@ app.use(apiError);
 async function startServer() {
   await connectDB();
   await Promise.all([User.init(), Session.init()]);
+
+  startGuestCleanup();
 
   app.listen(port, () => {
     console.log(`API listening on port ${port}`);

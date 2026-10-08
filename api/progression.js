@@ -1,5 +1,20 @@
 export const XP_PER_CATCH = 25;
 export const XP_PER_LEVEL = 100;
+export const COINS_PER_LEVEL = 50;
+export const DEFAULT_FISH_VALUE = 5;
+
+export const FISH_VALUES = {
+  carp: 8,
+  perch: 12,
+  pike: 20,
+  trout: 18,
+  salmon: 30,
+};
+
+export function fishValue(fishType) {
+  if (typeof fishType !== "string") return DEFAULT_FISH_VALUE;
+  return FISH_VALUES[fishType] ?? DEFAULT_FISH_VALUE;
+}
 
 export function validateStats(input) {
   const update = {};
@@ -17,17 +32,30 @@ export function validateStats(input) {
   return update;
 }
 
-// A single MongoDB update awards XP and records the receipt atomically.
-export function catchUpdate(catchId) {
+export function catchUpdate(catchId, fishType) {
+  const payout = fishValue(fishType);
   const experience = { $add: [{ $ifNull: ["$stats.experience", 0] }, XP_PER_CATCH] };
-  return [{ $set: {
-    "stats.level": { $add: [
-      { $max: [1, { $ifNull: ["$stats.level", 1] }] },
-      { $floor: { $divide: [experience, XP_PER_LEVEL] } },
-    ] },
-    "stats.experience": { $mod: [experience, XP_PER_LEVEL] },
-    "stats.totalFishCaught": { $add: [{ $ifNull: ["$stats.totalFishCaught", 0] }, 1] },
-    "stats.coins": { $ifNull: ["$stats.coins", 0] },
-    catchReceipts: { $concatArrays: [{ $ifNull: ["$catchReceipts", []] }, [catchId]] },
-  } }];
+  const levelsGained = { $floor: { $divide: [experience, XP_PER_LEVEL] } };
+  return [{
+    $set: {
+      "stats.level": {
+        $add: [
+          { $max: [1, { $ifNull: ["$stats.level", 1] }] },
+          levelsGained,
+        ],
+      },
+      "stats.experience": { $mod: [experience, XP_PER_LEVEL] },
+      "stats.totalFishCaught": { $add: [{ $ifNull: ["$stats.totalFishCaught", 0] }, 1] },
+      "stats.coins": {
+        $add: [
+          { $ifNull: ["$stats.coins", 0] },
+          payout,
+          { $multiply: [levelsGained, COINS_PER_LEVEL] },
+        ],
+      },
+      catchReceipts: {
+        $concatArrays: [{ $ifNull: ["$catchReceipts", []] }, [catchId]],
+      },
+    },
+  }];
 }

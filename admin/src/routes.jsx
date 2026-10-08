@@ -66,7 +66,7 @@ export const routes = [
       }
       ]
   },
-  {
+    {
     title: "Autentifikacija",
     layout: "auth",
     pages: [

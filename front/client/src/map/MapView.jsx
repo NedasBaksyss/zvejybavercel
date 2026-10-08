@@ -48,7 +48,9 @@ export default function MapView({ ref }) {
         onGlobe={actions.showGlobe}
         onPause={actions.pause}
       />
-      <ProgressHud progress={snapshot.progress} language={snapshot.language} onRetry={actions.retryProgress} />
+      {snapshot.active && (
+        <ProgressHud progress={snapshot.progress} language={snapshot.language} onRetry={actions.retryProgress} />
+      )}
       {!inLocation && !snapshot.globe && snapshot.nearby && (
         <MapEnterButton place={snapshot.place} language={snapshot.language} onEnter={actions.enterLocation} />
       )}
