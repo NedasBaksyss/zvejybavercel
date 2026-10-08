@@ -105,6 +105,21 @@
 }
 .zv .atlas .atlas-settings:hover { background: #28483c; border-color: #d7b77c; }
 .zv .atlas .atlas-settings:active { transform: translate(1px, 1px); box-shadow: none; }
+.zv .atlas .atlas-enter {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  z-index: 3;
+  padding: 4px 10px;
+  font-size: 7px;
+  color: #182d28;
+  background: #d7b77c;
+  border: 1px solid #ead3a5;
+  box-shadow: 2px 2px #07191c;
+}
+.zv .atlas .atlas-enter:hover { background: #ead3a5; }
+.zv .atlas .atlas-enter:active { bottom: 5px; box-shadow: none; }
 .zv .atlas {
   position: absolute;
   inset: 0;
@@ -306,40 +321,6 @@
   border-top: 1px solid #35544c7a;
   flex-shrink: 0;
 }
-.zv .atlas-context {
-  position: absolute;
-  left: 7px;
-  bottom: 6px;
-  min-width: 144px;
-  max-width: 285px;
-  padding: 6px 9px;
-  background: #0a2229ed;
-  border: 1px solid #608372;
-  box-shadow: 2px 2px #091b1d44;
-}
-.zv .atlas-context > span {
-  display: block;
-  font-size: 6px;
-  letter-spacing: 1.3px;
-  color: #aebd8e;
-}
-.zv .atlas-context strong {
-  display: block;
-  font-size: 10px;
-  font-weight: 500;
-}
-.zv .atlas-context p {
-  color: #a5c1b0;
-  font-size: 6px;
-  margin-top: 2px;
-}
-.zv .atlas-context button {
-  margin-top: 5px;
-  padding: 4px 12px;
-  background: #d7b77c;
-  color: #14292a;
-  border-color: #d7b77c;
-}
 .zv .atlas-destination {
   position: absolute;
   inset: 37px 0 0;
@@ -413,22 +394,23 @@
   text-shadow: 1px 1px #07171c;
 }
 .zv .fishing-message {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  pointer-events: none;
+  text-align: center;
+  color: #f4e8c9;
+  text-shadow: 1px 1px #07171c, -1px -1px #07171c;
   font-size: 9px;
   line-height: 1.5;
-  padding: 4px 8px;
-  background: #0b2127e8;
-  border: 1px solid #56756a;
 }
-.zv .fishing-hud.fighting .fishing-message {
-  width: 50%;
-  margin: 0 auto;
-  padding: 3px 5px;
+.zv .fishing-message.fighting {
   font-size: 7px;
 }
-.zv .fishing-hud.bite .fishing-message {
+.zv .fishing-message.bite {
   color: #ffe0a0;
-  border-color: #f2b45c;
-  box-shadow: 0 0 10px #f2b45c44;
 }
 .zv .fishing-track {
   position: relative;
@@ -550,6 +532,6 @@
       #67ad80 5px 7px
     );
 }
-.zv .fishing-hud.caught .fishing-message { color: #a9e4ae; }
-.zv .fishing-hud.lost .fishing-message { color: #f0ae95; }
+.zv .fishing-message.caught { color: #a9e4ae; }
+.zv .fishing-message.lost { color: #f0ae95; }
 .zv .fishing-again { font-size: 8px; margin-top: 3px; }

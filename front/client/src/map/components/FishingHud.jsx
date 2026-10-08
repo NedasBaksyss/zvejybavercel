@@ -32,10 +32,11 @@ export default function FishingHud({ fishing, language, fishNames }) {
   } = fishing;
   const result = phase === "caught" || phase === "lost";
   return (
-    <div className={`fishing-hud ${phase}`}>
-      <p className="fishing-message" role="status" aria-live="polite">
+    <>
+      <p className={`fishing-message ${phase}`} role="status" aria-live="polite">
         {text[phase]}{phase === "caught" ? ` · ${fishNames[fish] || fish}` : ""}
       </p>
+      <div className={`fishing-hud ${phase}`}>
       {phase === "fighting" && (
         <>
           <div
@@ -76,6 +77,7 @@ export default function FishingHud({ fishing, language, fishNames }) {
         </>
       )}
       {result && <p className="fishing-again">{text.again}</p>}
-    </div>
+      </div>
+    </>
   );
 }

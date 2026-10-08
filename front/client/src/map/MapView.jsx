@@ -3,11 +3,11 @@ import { MAP_TEXT, VIEW } from "./mapData.js";
 import { useMap } from "./useMap.js";
 import MapHeader from "./components/MapHeader.jsx";
 import MapLocations from "./components/MapLocations.jsx";
-import MapContext from "./components/MapContext.jsx";
 import MapDestination from "./components/MapDestination.jsx";
 import ProgressHud from "./components/ProgressHud.jsx";
 import FishingHud from "./components/FishingHud.jsx";
 import MapSettingsButton from "./components/MapSettingsButton.jsx";
+import MapEnterButton from "./components/MapEnterButton.jsx";
 import "./map.css";
 
 export default function MapView({ ref }) {
@@ -48,8 +48,9 @@ export default function MapView({ ref }) {
         onGlobe={actions.showGlobe}
         onPause={actions.pause}
       />
-      {snapshot.destination?.type === "lake" && (
-        <ProgressHud progress={snapshot.progress} language={snapshot.language} onRetry={actions.retryProgress} />
+      <ProgressHud progress={snapshot.progress} language={snapshot.language} onRetry={actions.retryProgress} />
+      {!inLocation && !snapshot.globe && snapshot.nearby && (
+        <MapEnterButton place={snapshot.place} language={snapshot.language} onEnter={actions.enterLocation} />
       )}
       <MapLocations
         text={text}
@@ -61,15 +62,6 @@ export default function MapView({ ref }) {
         onToggle={actions.toggleLocations}
         onClose={actions.closeLocations}
         onSelect={actions.selectLocation}
-      />
-      <MapContext
-        text={text}
-        language={snapshot.language}
-        hidden={inLocation || snapshot.globe}
-        place={snapshot.place}
-        nearby={snapshot.nearby}
-        distance={snapshot.distance}
-        onEnter={actions.enterLocation}
       />
       <MapDestination
         text={text}
