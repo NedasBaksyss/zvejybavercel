@@ -10,7 +10,7 @@ import {
   TrophyIcon
 } from "@heroicons/react/24/solid";
 import { Home, Profile, UserList, FishList, FishingSpotList, AchievementList} from "@/pages/dashboard";
-// import { SignIn, SignUp, SignOut } from "@/pages/auth";
+import { SignIn, SignUp, SignOut } from "@/pages/auth";
 import { Notifications, Components, ProfileExample, Tables, Sorting } from "@/pages/demo";
 
 const icon = {
@@ -66,6 +66,30 @@ export const routes = [
       }
       ]
   },
+    {
+    title: "Autentifikacija",
+    layout: "auth",
+    pages: [
+      {
+        icon: <ServerStackIcon {...icon} />,
+        name: "Prisijungti",
+        path: "/prisijungti",
+        element: <SignIn />,
+      },
+      {
+        icon: <RectangleStackIcon {...icon} />,
+        name: "Registruotis",
+        path: "/registruotis",
+        element: <SignUp />,
+      },
+      {
+        icon: <RectangleStackIcon {...icon} />,
+        name: "Atsijungti",
+        path: "/atsijungti",
+        element: <SignOut />,
+      },
+    ],
+  }
   // {
   //   title: "deomo puslapiai",
   //   layout: "demo",
