@@ -200,6 +200,10 @@ function makeProgress() {
     getSlot: () => slot,
     emit: (event, data) => Hooks.emit(event, data),
     onPause: () => UI.go("pause"),
+    onSettings: () => {
+      settingsBack = "game";
+      UI.go("settings");
+    },
     retryProgress: () => progress.refresh(),
   });
   let pendingOwner = null;

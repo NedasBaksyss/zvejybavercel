@@ -8,6 +8,7 @@ import MapContext from "./components/MapContext.jsx";
 import MapDestination from "./components/MapDestination.jsx";
 import ProgressHud from "./components/ProgressHud.jsx";
 import FishingHud from "./components/FishingHud.jsx";
+import MapSettingsButton from "./components/MapSettingsButton.jsx";
 import "./map.css";
 
 export default function MapView({ ref }) {
@@ -97,6 +98,7 @@ export default function MapView({ ref }) {
       {snapshot.destination?.type === "lake" && (
         <FishingHud fishing={snapshot.fishing} language={snapshot.language} fishNames={text.fishNames} />
       )}
+      <MapSettingsButton language={snapshot.language} onOpen={actions.openSettings} />
     </div>
   );
 }

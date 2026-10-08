@@ -20,6 +20,7 @@ export function useMap() {
       getSlot: () => bindingsRef.current.getSlot?.(),
       emit: (event, data) => bindingsRef.current.emit?.(event, data),
       onPause: () => bindingsRef.current.onPause?.(),
+      onSettings: () => bindingsRef.current.onSettings?.(),
       onChange: setSnapshot,
       onFocus: (target) => setFocusRequest({ target }),
     });
@@ -68,6 +69,7 @@ export function useMap() {
       zoomIn: () => controllerRef.current?.zoomIn(),
       zoomOut: () => controllerRef.current?.zoomOut(),
       pause: () => controllerRef.current?.pause(),
+      openSettings: () => controllerRef.current?.openSettings(),
       selectLocation: (id) => controllerRef.current?.selectLocation(id),
       toggleLocations: () => controllerRef.current?.toggleLocations(),
       closeLocations: () => controllerRef.current?.closeLocations(),

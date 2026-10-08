@@ -20,6 +20,7 @@ export function createMap({
   getSlot,
   emit,
   onPause,
+  onSettings,
   onChange,
   onFocus,
 }) {
@@ -124,6 +125,9 @@ export function createMap({
     closeLocations: view.closeLocations,
     pause() {
       if (runtime.active && !runtime.stopped) onPause();
+    },
+    openSettings() {
+      if (runtime.active && !runtime.stopped) onSettings();
     },
     reset() {
       if (runtime.stopped) return;

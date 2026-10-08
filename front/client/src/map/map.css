@@ -85,6 +85,26 @@
   pointer-events: auto;
 }
 .zv .atlas-progress:has(button) [role="status"] { bottom: 34px; }
+.zv .atlas .atlas-settings {
+  position: absolute;
+  right: 7px;
+  bottom: 6px;
+  z-index: 3;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  padding: 3px;
+  border: 1px solid #7d9782;
+  background: #102b2ded;
+  box-shadow: inset 1px 1px #36574e, 2px 2px #07191c;
+}
+.zv .atlas-settings svg {
+  width: 16px;
+  height: 16px;
+}
+.zv .atlas .atlas-settings:hover { background: #28483c; border-color: #d7b77c; }
+.zv .atlas .atlas-settings:active { transform: translate(1px, 1px); box-shadow: none; }
 .zv .atlas {
   position: absolute;
   inset: 0;
