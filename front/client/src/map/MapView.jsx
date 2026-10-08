@@ -69,7 +69,6 @@ export default function MapView({ ref }) {
       <MapControls
         text={text}
         hidden={inLocation}
-        globe={snapshot.globe}
         zoomPercent={snapshot.zoomPercent}
         canZoomIn={snapshot.canZoomIn}
         canZoomOut={snapshot.canZoomOut}

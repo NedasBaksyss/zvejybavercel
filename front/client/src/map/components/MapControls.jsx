@@ -1,7 +1,6 @@
 export default function MapControls({
   text,
   hidden,
-  globe,
   zoomPercent,
   canZoomIn,
   canZoomOut,
@@ -52,13 +51,6 @@ export default function MapControls({
           ⌖
         </button>
       </div>
-      <footer className="atlas-footer" id="map-footer" hidden={hidden}>
-        <span id="map-move-hint">{globe ? text.rotate : text.move}</span>
-        <span id="map-scroll-hint">{text.zoom}</span>
-        <span id="map-action-hint">
-          {globe ? text.returnMap : text.interact}
-        </span>
-      </footer>
     </>
   );
 }

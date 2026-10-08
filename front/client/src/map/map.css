@@ -362,8 +362,8 @@
 }
 .zv .atlas-context {
   position: absolute;
-  left: 42px;
-  bottom: 48px;
+  left: 7px;
+  bottom: 6px;
   min-width: 144px;
   max-width: 285px;
   padding: 6px 9px;
@@ -393,21 +393,6 @@
   background: #d7b77c;
   color: #14292a;
   border-color: #d7b77c;
-}
-.zv .atlas-footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  padding: 6px 6px 6px 140px;
-  font-size: 6px;
-  color: #c2d2b7;
-  background: #0b2127f2;
-  border-top: 1px solid #496c5d;
-  pointer-events: none;
 }
 .zv .atlas-destination {
   position: absolute;
