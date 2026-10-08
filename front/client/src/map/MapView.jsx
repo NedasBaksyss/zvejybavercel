@@ -3,7 +3,6 @@ import { MAP_TEXT, VIEW } from "./mapData.js";
 import { useMap } from "./useMap.js";
 import MapHeader from "./components/MapHeader.jsx";
 import MapLocations from "./components/MapLocations.jsx";
-import MapControls from "./components/MapControls.jsx";
 import MapContext from "./components/MapContext.jsx";
 import MapDestination from "./components/MapDestination.jsx";
 import ProgressHud from "./components/ProgressHud.jsx";
@@ -44,10 +43,7 @@ export default function MapView({ ref }) {
       />
       <MapHeader
         text={text}
-        language={snapshot.language}
-        destination={snapshot.destination}
         globe={snapshot.globe}
-        region={snapshot.region}
         onMap={actions.showLocal}
         onGlobe={actions.showGlobe}
         onPause={actions.pause}
@@ -65,16 +61,6 @@ export default function MapView({ ref }) {
         onToggle={actions.toggleLocations}
         onClose={actions.closeLocations}
         onSelect={actions.selectLocation}
-      />
-      <MapControls
-        text={text}
-        hidden={inLocation}
-        zoomPercent={snapshot.zoomPercent}
-        canZoomIn={snapshot.canZoomIn}
-        canZoomOut={snapshot.canZoomOut}
-        onZoomIn={actions.zoomIn}
-        onZoomOut={actions.zoomOut}
-        onCenter={actions.showLocal}
       />
       <MapContext
         text={text}

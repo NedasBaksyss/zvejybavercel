@@ -148,51 +148,42 @@
 }
 .zv .atlas-header {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 37px;
+  top: 7px;
+  left: 7px;
+  right: 7px;
+  height: 24px;
   display: flex;
+  justify-content: flex-end;
   align-items: center;
-  gap: 8px;
-  padding: 6px 11px;
-  background: #0b2127f2;
-  border-bottom: 1px solid #56756a;
-}
-.zv .atlas-heading {
-  flex: 1;
-  display: grid;
-  gap: 1px;
-}
-.zv .atlas-heading > span {
-  font-size: 6px;
-  letter-spacing: 2px;
-  color: #b9b886;
-}
-.zv .atlas-heading strong {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
+  gap: 5px;
+  pointer-events: none;
 }
 .zv .atlas-modes {
   display: flex;
-  gap: 2px;
-  padding: 2px;
-  border: 1px solid #38574f;
+  gap: 4px;
 }
 .zv .atlas-modes button {
-  padding: 4px 8px;
-  background: transparent;
-  border-color: transparent;
+  width: 24px;
+  height: 24px;
+  padding: 3px;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  background: #102b2ded;
+  border-color: #7d9782;
+  box-shadow: 1px 1px #07191c;
 }
+.zv .atlas-modes svg { width: 16px; height: 16px; }
 .zv .atlas-modes button[aria-pressed="true"] {
   color: #16272b;
-  background: #d7b77c;
+  background: #385647;
+  border-color: #d7b77c;
 }
 .zv .atlas .atlas-icon {
   width: 22px;
   height: 23px;
   font-size: 11px;
+  pointer-events: auto;
 }
 .zv .atlas .atlas-places-toggle {
   position: absolute;
@@ -314,51 +305,6 @@
   padding: 4px 5px;
   border-top: 1px solid #35544c7a;
   flex-shrink: 0;
-}
-.zv .atlas-compass {
-  position: absolute;
-  left: 12px;
-  top: 46px;
-  display: grid;
-  justify-items: center;
-  color: #e7e3b6;
-  text-shadow: 1px 1px #17392d;
-}
-.zv .atlas-compass b {
-  font-size: 6px;
-  font-weight: 400;
-}
-.zv .atlas-compass span {
-  font-size: 23px;
-  line-height: 1;
-}
-.zv .atlas-zoom {
-  position: absolute;
-  left: 11px;
-  top: 99px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: 21px;
-  background: #0a242ae8;
-  border: 1px solid #4f7266;
-}
-.zv .atlas-zoom button {
-  height: 21px;
-  font-size: 14px;
-  border: 0;
-  background: transparent;
-}
-.zv .atlas-zoom output {
-  text-align: center;
-  font-size: 6px;
-  color: #adc8b5;
-  padding: 2px 0;
-  border-block: 1px solid #35544c;
-}
-.zv .atlas-zoom #map-center {
-  border-top: 1px solid #35544c;
-  font-size: 15px;
 }
 .zv .atlas-context {
   position: absolute;
