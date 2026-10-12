@@ -1,1 +1,1 @@
-export const fishRarities = ["common", "uncommon", "rare", "epic", "legendary"];
+export const baitRarities = ["common", "uncommon", "rare", "epic", "legendary"];

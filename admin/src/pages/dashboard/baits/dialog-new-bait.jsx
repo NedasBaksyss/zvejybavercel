@@ -14,15 +14,15 @@ import {
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { useContext } from "react";
 import { AuthContext, AlertContext } from "@/context";
-import { fishRarities } from "./bait-fields";
+import { baitRarities } from "./bait-fields";
 
-export function DialogNewFish({loadData}) {
+export function DialogNewBait({loadData}) {
   const [open, setOpen] = useState(false);
 
   const { token } = useContext(AuthContext);
 
   // formos laukelių duomenys
-  const [fishId, setFishId] = useState("");
+  const [baitId, setBaitId] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [sprite, setSprite] = useState(null);
@@ -30,9 +30,9 @@ export function DialogNewFish({loadData}) {
 
   const {addAlert, hideAllAlerts} = useContext(AlertContext);
 
-  const [fishSprite, setFishSprite] = useState(sprite ? `/api/images/fish/` + sprite : null);
+  const [baitSprite, setBaitSprite] = useState(sprite ? `/api/images/bait/` + sprite : null);
 
-    const sprite_element = fishSprite ? (<img src={fishSprite} alt="Sprite" className="h-[160px] w-[160px] [image-rendering:pixelated] m-5 border-2 border-gray-600 rounded " /> 
+    const sprite_element = baitSprite ? (<img src={baitSprite} alt="Sprite" className="h-[160px] w-[160px] [image-rendering:pixelated] m-5 border-2 border-gray-600 rounded " /> 
   ) : (
     <div className="h-[160px] w-[160px] flex items-center justify-center bg-gray-200 border-2 border-gray-600 rounded m-5">
       <span className="text-gray-500 text-lg">X</span>
@@ -45,19 +45,19 @@ export function DialogNewFish({loadData}) {
     // atvaizduojame naują nuotrauką iš karto
     const reader = new FileReader();
     reader.onload = (event) => {
-      setFishSprite(event.target.result);
+      setBaitSprite(event.target.result);
     };
     reader.readAsDataURL(e.target.files[0]); 
   }
 
   function handleClear() {
-    setFishId("")
+    setBaitId("")
     setName("");
     setDescription("");
     setRarity("");
 
     setSprite(null);
-    setFishSprite(null);
+    setBaitSprite(null);
 
   }
 
@@ -69,43 +69,43 @@ export function DialogNewFish({loadData}) {
   }
 
   // projekto kūrimo logika čia
-  const handleCreateFish = async () => {
+  const handleCreateBait = async () => {
     // surenkame duomenis iš formos
     // paprastų duomenų siuntimui JSON formatu
-    const fishData = {
-      fishId,
+    const baitData = {
+      baitId,
       name,
       description,
       rarity
     };
     // siunčiame į API
-    const response = await fetch("/api/fishes", {
+    const response = await fetch("/api/baits", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}` 
       },
-      body: JSON.stringify(fishData),
+      body: JSON.stringify(baitData),
     });
     if (!response.ok) {
       // klaidos tvarkymas 
-      addAlert("Error creating the fish", "error");
+      addAlert("Error creating the bait", "error");
       return;
     }
 
-    const createdFish = await response.json();
-    if (!createdFish || !createdFish._id) {
-      addAlert("Error retrieving the created fish", "error");
+    const createdBait = await response.json();
+    if (!createdBait || !createdBait._id) {
+      addAlert("Error retrieving the created bait", "error");
       return;
     }
 
-    addAlert("Fish Created", "success");
+    addAlert("Bait Created", "success");
 
     // jei yra nuotrauka, įkelti ją atskirai
     if (sprite) {
       const formData = new FormData();
       formData.append("sprite", sprite);
-      const responseSprite = await fetch(`/api/fishes/${createdFish._id}/sprite`, {
+      const responseSprite = await fetch(`/api/baits/${createdBait._id}/sprite`, {
         method: "PUT",
         headers: {
         "Authorization": `Bearer ${token}` 
@@ -114,11 +114,11 @@ export function DialogNewFish({loadData}) {
       });
 
       if (!responseSprite.ok) {
-        addAlert("Error uploading the fish photo", "error");
+        addAlert("Error uploading the bait photo", "error");
         return;
       }
 
-      addAlert("Photo of the fish uploaded.", "success");
+      addAlert("Photo of the bait uploaded.", "success");
     }
 
     // atnaujiname projektų sąrašą
@@ -141,7 +141,7 @@ export function DialogNewFish({loadData}) {
         Create
       </Button>
       <Dialog open={open} handler={handleOpen}>
-        <DialogHeader>Add new fish</DialogHeader>
+        <DialogHeader>Add new bait</DialogHeader>
         <DialogBody className="flex flex-col gap-4">
           <div className="flex flex-row p-5 justify-center items-center">
             <div className="font-normal shrink-0 overflow-hidden">
@@ -149,11 +149,11 @@ export function DialogNewFish({loadData}) {
             </div>
             <Input type="file" label="Sprite" size="lg" onChange={handleFileChange} />
           </div>
-          <Input label="ID" size="md" value={fishId} onChange={(e) => setFishId(e.target.value)} />
+          <Input label="ID" size="md" value={baitId} onChange={(e) => setBaitId(e.target.value)} />
           <Input label="Name" size="md" value={name} onChange={(e) => setName(e.target.value)} />
           <Textarea label="Description" size="md" value={description} onChange={(e) => setDescription(e.target.value)} />
           <Select label="Rarity" size="md" value={rarity} onChange={(value) => setRarity(value)}>
-            {fishRarities.map((r) => (
+            {baitRarities.map((r) => (
               <Option key={r} value={r} >{r}</Option>
             ))}
           </Select>
@@ -167,7 +167,7 @@ export function DialogNewFish({loadData}) {
           >
             <span>Cancel</span>
           </Button>
-          <Button variant="gradient" color="green" onClick={handleCreateFish}>
+          <Button variant="gradient" color="green" onClick={handleCreateBait}>
             <span>Confirm</span>
           </Button>
         </DialogFooter>
@@ -176,4 +176,4 @@ export function DialogNewFish({loadData}) {
   );
 }
 
-export default DialogNewFish;
+export default DialogNewBait;
