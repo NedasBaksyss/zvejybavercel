@@ -9,11 +9,12 @@ import {
   Textarea,
 } from "@material-tailwind/react";
 
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { AuthContext, AlertContext } from "@/context";
 import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon, FingerPrintIcon } from "@heroicons/react/24/outline";
-import { baitRarities } from "./bait-fields";
+import { baitRarities, baitTypes } from "./bait-fields";
 import DialogViewId from "./dialog-view-id";
+import DialogViewBaits from "./dialog-view-bait";
 
 export function BaitListItem({data, isLast, rows, setRows, error, setError, loadData}) {
   const { _id, sprite} = data;
@@ -23,6 +24,15 @@ export function BaitListItem({data, isLast, rows, setRows, error, setError, load
   const [name, setName] = useState(data.name);
   const [description, setDescription] = useState(data.description);
   const [rarity, setRarity] = useState(data.rarity);
+  const [baitType, setBaitType] = useState(data.baitType);
+
+  const [price, setPrice] = useState(data.price);
+  const [stackable, setStackable] = useState(data.stackable);
+  const [maxStack, setMaxStack] = useState(data.maxStack);
+  const [attraction, setAttraction] = useState(data.attraction);
+  const [preferredFish, setPreferredFish] = useState(data.preferredFish);
+  const [effectiveness, setEffectiveness] = useState(data.effectiveness);
+  const [uses, setUses] = useState(data.uses);
 
   const [spriteName, setSpriteName] = useState("");
   const [spriteFile, setSpriteFile] = useState();
@@ -78,9 +88,17 @@ export function BaitListItem({data, isLast, rows, setRows, error, setError, load
     // surenkame duomenis
     const updatedData = {
       baitId,
-      name,
-      description,
-      rarity
+      name: name.trim(),
+      description: description.trim(),
+      rarity,
+      baitType,
+      price: Number(price),
+      stackable,
+      maxStack: Number(maxStack),
+      attraction: Number(attraction),
+      preferredFish,
+      effectiveness: Number(effectiveness),
+      uses: Number(uses),
     };
 
     // jei laukeliai tušti, pranešame klaidą
@@ -133,11 +151,30 @@ export function BaitListItem({data, isLast, rows, setRows, error, setError, load
     }
   };
 
+  useEffect(() => {
+    setPrice(data.price);
+    setStackable(data.stackable);
+    setMaxStack(data.maxStack);
+    setAttraction(data.attraction);
+    setEffectiveness(data.effectiveness);
+    setUses(data.uses);
+}, [data]);
+
   const cancelEdit = () => {
     setBaitId(data.baitId);
     setName(data.name);
     setDescription(data.description);
     setRarity(data.rarity);
+    setBaitType(data.baitType)
+
+    setPrice(data.price)
+    setStackable(data.stackable)
+    setMaxStack(data.maxStack)
+    setAttraction(data.attraction)
+    setPreferredFish(data.preferredFish)
+    setEffectiveness(data.effectiveness)
+    setUses(data.uses)
+
     setEditMode(false);
 
     setSpriteName('');
@@ -214,6 +251,7 @@ export function BaitListItem({data, isLast, rows, setRows, error, setError, load
           )}
         </div>
       </td>
+
       <td className={classes}>
         <div className=""> 
           {editMode ? (
@@ -227,6 +265,40 @@ export function BaitListItem({data, isLast, rows, setRows, error, setError, load
               {rarity}
             </Typography>
           )}
+        </div>
+      </td>
+
+      <td className={classes}>
+        <div className=""> 
+          {editMode ? (
+              <Select label="Type" size="lg" value={baitType} onChange={(value) => setBaitType(value)}>
+                {baitTypes.map((r) => (
+                  <Option key={r} value={r} >{r}</Option>
+                ))}
+              </Select>
+          ) : (
+            <Typography variant="small" color="blue-gray" className="font-normal">
+              {baitType}
+            </Typography>
+          )}
+        </div>
+      </td>
+
+      <td className={classes}>
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+            <DialogViewBaits
+              data={data}
+              editMode={editMode}
+              onSaved={(updated) => {
+                setRows((rows) =>
+                  rows.map((row) =>
+                    row._id === updated._id ? updated : row
+                  )
+                );
+              }}
+            />
+          </div>
         </div>
       </td>
 
