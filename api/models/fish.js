@@ -4,6 +4,7 @@ const fishSchema = new mongoose.Schema(
   {
     fishId: {
       type: String,
+      required: true,
     },
 
     name: {
@@ -17,6 +18,7 @@ const fishSchema = new mongoose.Schema(
 
     rarity: {
       type: String,
+      enum: ["common", "uncommon", "rare", "epic", "legendary"],
       default: "common",
     },
 
