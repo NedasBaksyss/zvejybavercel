@@ -53,9 +53,9 @@ export const LAKE_PLATFORMS = {
   ],
 };
 
-export function chooseLakePlatform(lakeId, random = Math.random) {
-  const platforms = LAKE_PLATFORMS[lakeId];
-  return platforms ? platforms[Math.floor(random() * platforms.length)] : null;
+export function chooseLakePlatform(lakeId, random = Math.random, occupied = []) {
+  const platforms = LAKE_PLATFORMS[lakeId]?.filter((item) => !occupied.includes(item.id));
+  return platforms?.length ? platforms[Math.floor(random() * platforms.length)] : null;
 }
 
 export function getLakePlatform(lakeId, platformId) {

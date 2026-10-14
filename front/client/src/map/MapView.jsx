@@ -52,7 +52,8 @@ export default function MapView({ ref }) {
         <ProgressHud progress={snapshot.progress} language={snapshot.language} onRetry={actions.retryProgress} />
       )}
       {!inLocation && !snapshot.globe && snapshot.nearby && (
-        <MapEnterButton place={snapshot.place} language={snapshot.language} onEnter={actions.enterLocation} />
+        <MapEnterButton place={snapshot.place} language={snapshot.language} onEnter={actions.enterLocation}
+          pending={snapshot.entryPending} error={snapshot.entryError} />
       )}
       <MapLocations
         text={text}

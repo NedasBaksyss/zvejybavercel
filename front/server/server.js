@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const { reservePlatform } = require("./game/lakePlatforms");
 
 const {
   createPlayer,
@@ -63,12 +64,26 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("player:reserve-platform", (request, reply) => {
+    if (typeof reply !== "function") return;
+    const player = getPlayer(socket.id);
+    if (!player) return reply({ error: "unavailable" });
+    const platformId = reservePlatform(getPlayers(), player, request?.lakeId, request?.platformId);
+    reply(platformId ? { platformId } : { error: "full" });
+  });
+
   socket.on("player:fishing", (fishing) => {
   const player = getPlayer(socket.id);
 
   if (!player) return;
 
-  player.fishing = fishing?.fishing || null;
+  const presence = fishing?.fishing || null;
+  if (presence && player.platformReservation && (
+    presence.lakeId !== player.platformReservation.lakeId ||
+    presence.platformId !== player.platformReservation.platformId
+  )) return;
+  player.fishing = presence;
+  if (!presence) player.platformReservation = null;
 
   socket.broadcast.emit("player:fishing", {
     id: player.id,

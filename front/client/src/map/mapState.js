@@ -64,6 +64,8 @@ export function createMapSnapshot(
     destination: state.destination,
     place,
     nearby,
+    entryPending: Boolean(state.entryPending),
+    entryError: state.entryError?.id === place?.id ? state.entryError.reason : null,
     distance: Math.round(distanceTo(state.player, place)),
     fishingCast,
     fishing,

@@ -58,6 +58,7 @@ export function createLocationActions({
   function enterLocation(id) {
     if (
       !runtime.active ||
+      runtime.state.entryPending ||
       runtime.state.destination ||
       runtime.state.zoom < GLOBE_START ||
       isGlobe()
@@ -69,12 +70,49 @@ export function createLocationActions({
       publish(true);
       return false;
     }
+    runtime.state.entryError = null;
+    if (place.type !== "lake") return completeEntry(place, null);
+
+    const occupied = [...runtime.remotePlayers.values()]
+      .filter((player) => player.fishing?.lakeId === place.id)
+      .map((player) => player.fishing.platformId);
+    const platform = chooseLakePlatform(place.id, Math.random, occupied);
+    if (!platform) {
+      runtime.state.entryError = { id: place.id, reason: "full" };
+      publish(true);
+      return false;
+    }
+    if (!socket.connected) return completeEntry(place, platform);
+
+    runtime.state.entryPending = true;
+    clearInput();
+    publish(true);
+    socket.timeout(5000).emit("player:reserve-platform", {
+      lakeId: place.id, platformId: platform.id,
+    }, (error, result) => {
+      runtime.state.entryPending = false;
+      if (!runtime.active || runtime.stopped || runtime.state.destination ||
+        distanceTo(runtime.state.player, place) > INTERACTION_DISTANCE) {
+        if (!error && result?.platformId) publishFishingState(null);
+        publish(true);
+        return;
+      }
+      if (error || !result?.platformId) {
+        runtime.state.entryError = { id: place.id, reason: result?.error === "full" ? "full" : "unavailable" };
+        publish(true);
+        return;
+      }
+      completeEntry(place, getLakePlatform(place.id, result.platformId));
+    });
+    return true;
+  }
+
+  function completeEntry(place, platform) {
     clearInput();
     runtime.state.player = { ...place.entry };
     runtime.state.destination = place;
 
     if (place.type === "lake") {
-      const platform = chooseLakePlatform(place.id);
       runtime.state.platformId = platform?.id || null;
       runtime.fishing = createFishingState(
         platform ? { ...platform.target } : null,
