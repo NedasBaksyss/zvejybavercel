@@ -42,6 +42,7 @@ const fishingSpotSchema = new mongoose.Schema(
   {
     mapId: {
       type: String,
+      required: true,
     },
 
     name: {

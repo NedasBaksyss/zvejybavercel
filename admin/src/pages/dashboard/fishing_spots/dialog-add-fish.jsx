@@ -14,7 +14,6 @@ import {
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { useContext } from "react";
 import { AuthContext, AlertContext } from "@/context";
-import { fishingWorld } from "./fishing-spot-fields";
 import AddFishListItem from "./fish-list-item";
 
 export function DialogAddFish({handleSelect, selectedFish}) {
@@ -79,7 +78,7 @@ export function DialogAddFish({handleSelect, selectedFish}) {
       </Button>
       <Dialog open={open}>
         <DialogHeader>Select possible fish</DialogHeader>
-        <DialogBody className="flex flex-row gap-4">
+        <DialogBody className="flex flex-row gap-4 flex-wrap justify-center h-[400px] overflow-y-scroll">
           {rows.map((data) => {
 
             return(
