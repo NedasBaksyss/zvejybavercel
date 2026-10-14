@@ -12,21 +12,21 @@ import {
 import { useState, useContext } from "react";
 import { AuthContext, AlertContext } from "@/context";
 import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon, FingerPrintIcon } from "@heroicons/react/24/outline";
-import { fishRarities } from "./fishing-rod-fields";
+import { fishingRodRarities } from "./fishing-rod-fields";
 import DialogViewId from "./dialog-view-id";
 
-export function FishListItem({data, isLast, rows, setRows, error, setError, loadData}) {
+export function FishingRodListItem({data, isLast, rows, setRows, error, setError, loadData}) {
   const { _id, sprite} = data;
 
   const [id, setId] = useState(data._id)
-  const [fishId, setFishId] = useState(data.fishId)
+  const [fishingRodId, setFishingRodId] = useState(data.fishingRodId)
   const [name, setName] = useState(data.name);
   const [description, setDescription] = useState(data.description);
   const [rarity, setRarity] = useState(data.rarity);
 
   const [spriteName, setSpriteName] = useState("");
   const [spriteFile, setSpriteFile] = useState();
-  const [fishSprite, setFishSprite] = useState(sprite ? `/api/images/fish/` + sprite : null);
+  const [fishingRodSprite, setFishingRodSprite] = useState(sprite ? `/api/images/fishingRods/` + sprite : null);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -34,7 +34,7 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
   const { token } = useContext(AuthContext);
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
-  const sprite_element = fishSprite ? (<img src={fishSprite} alt="Sprite" className="h-12 w-12 object-cover" /> 
+  const sprite_element = fishingRodSprite ? (<img src={fishingRodSprite} alt="Sprite" className="h-12 w-12 object-cover" /> 
   ) : (
     <div className="h-12 w-12 flex items-center justify-center bg-gray-200">
       <span className="text-gray-500 text-sm">X</span>
@@ -48,14 +48,14 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
     // atvaizduojame naują nuotrauką iš karto
     const reader = new FileReader();
     reader.onload = (event) => {
-      setFishSprite(event.target.result);
+      setFishingRodSprite(event.target.result);
     };
     reader.readAsDataURL(e.target.files[0]);    
   }
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`/api/fishes/${id}`, {
+      const res = await fetch(`/api/fishing-rods/${id}`, {
         method: "DELETE",
         headers: { 
           "Content-Type": "application/json",
@@ -65,9 +65,9 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       loadData();
-      addAlert("Fish successfully deleted.", "success");
+      addAlert("Fishing rod successfully deleted.", "success");
     } catch (e) {
-      addAlert(e.message || "Failed to delete the fish.", "error");
+      addAlert(e.message || "Failed to delete the fishing rod.", "error");
     } 
   };
 
@@ -77,21 +77,21 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
 
     // surenkame duomenis
     const updatedData = {
-      fishId,
+      fishingRodId,
       name,
       description,
       rarity
     };
 
     // jei laukeliai tušti, pranešame klaidą
-    if (!updatedData.fishId || !updatedData.name || !updatedData.description || !updatedData.rarity) {
+    if (!updatedData.fishingRodId || !updatedData.name || !updatedData.description || !updatedData.rarity) {
       addAlert("Fill in all fields before submitting.", "error");
       return;
     }
 
     // dumenų siuntimas
     try {
-      const res = await fetch(`/api/fishes/${id}`, {
+      const res = await fetch(`/api/fishing-rods/${id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -100,10 +100,10 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
         body: JSON.stringify(updatedData),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      addAlert("The fish has been successfully updated.", "success");
+      addAlert("The fishing rod has been successfully updated.", "success");
       dataSendSuccess = true;
     } catch (e) {
-      addAlert(e.message || "Failed to update fish", "error");
+      addAlert(e.message || "Failed to update fishing rod", "error");
     }
 
     // nuotraukos siuntimas, jei pasirinkta
@@ -112,7 +112,7 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
       const formData = new FormData();
       formData.append("sprite", spriteFile);  
       try {
-        const res = await fetch(`/api/fishes/${id}/sprite`, {
+        const res = await fetch(`/api/fishing-rods/${id}/sprite`, {
           method: "PUT",
           headers: { 
             "Authorization": `Bearer ${token}` 
@@ -121,9 +121,9 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         spriteSendSuccess = true;
-        addAlert("The fish photo has been successfully updated.", "success");
+        addAlert("The fishing rod photo has been successfully updated.", "success");
       } catch (e) {
-        addAlert(e.message || "Failed to update the fish photo.", "error");
+        addAlert(e.message || "Failed to update the fishing rod photo.", "error");
       }
     }
 
@@ -134,7 +134,7 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
   };
 
   const cancelEdit = () => {
-    setFishId(data.fishId);
+    setFishingRodId(data.fishingRodId);
     setName(data.name);
     setDescription(data.description);
     setRarity(data.rarity);
@@ -142,7 +142,7 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
 
     setSpriteName('');
     setSpriteFile(null);
-    setFishSprite(sprite ? `/api/images/fish/` + sprite : null);
+    setFishingRodSprite(sprite ? `/api/images/fishingRods/` + sprite : null);
   }
 
   const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
@@ -155,12 +155,12 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
             <Input 
               type="text" 
               label="Id"
-              value={fishId} 
-              onChange={(e) => setFishId(e.target.value)} 
+              value={fishingRodId} 
+              onChange={(e) => setFishingRodId(e.target.value)} 
             />
           ) : (
             <Typography variant="small" color="blue-gray" className="font-normal">
-              {fishId}
+              {fishingRodId}
             </Typography>
           )}
         </div>
@@ -218,7 +218,7 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
         <div className=""> 
           {editMode ? (
               <Select label="Rarity" size="lg" value={rarity} onChange={(value) => setRarity(value)}>
-                {fishRarities.map((r) => (
+                {fishingRodRarities.map((r) => (
                   <Option key={r} value={r} >{r}</Option>
                 ))}
               </Select>
@@ -277,4 +277,4 @@ export function FishListItem({data, isLast, rows, setRows, error, setError, load
   );
 }
 
-export default FishListItem;
+export default FishingRodListItem;

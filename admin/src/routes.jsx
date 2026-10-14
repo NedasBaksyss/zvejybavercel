@@ -9,8 +9,9 @@ import {
   RectangleStackIcon,
   TrophyIcon,
   BugAntIcon,
+  ArrowTrendingUpIcon,
 } from "@heroicons/react/24/solid";
-import { Home, Profile, UserList, FishList, FishingSpotList, AchievementList, BaitList} from "@/pages/dashboard";
+import { Home, Profile, UserList, FishList, FishingSpotList, AchievementList, BaitList, FishingRodList} from "@/pages/dashboard";
 import { SignIn, SignUp, SignOut } from "@/pages/auth";
 import { Notifications, Components, ProfileExample, Tables, Sorting } from "@/pages/demo";
 
@@ -71,12 +72,18 @@ export const routes = [
       title: "Items",
       layout: "admin",
       pages: [
-      {
-        icon: <BugAntIcon {...icon} />,
-        name: "Baits",
-        path: "/baits",
-        element: <BaitList />,
-      }
+        {
+          icon: <ArrowTrendingUpIcon {...icon} />,
+          name: "Fishing Rods",
+          path: "/fishingrods",
+          element: <FishingRodList />,
+        },
+        {
+          icon: <BugAntIcon {...icon} />,
+          name: "Baits",
+          path: "/baits",
+          element: <BaitList />,
+        },
       ]
   },
     {

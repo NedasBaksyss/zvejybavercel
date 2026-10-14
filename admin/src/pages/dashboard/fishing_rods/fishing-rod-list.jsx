@@ -14,8 +14,8 @@ import {
   Tab,
 } from "@material-tailwind/react";
 import { AuthContext, AlertContext } from "@/context";
-import FishListItem from "./fishing-rod-list-item";
-import DialogNewFish from "./dialog-new-fishing-rod";
+import FishingRodListItem from "./fishing-rod-list-item";
+import DialogNewFishingRod from "./dialog-new-fishing-rod";
 
 const TABS = [
   { label: "All", value: "all" },
@@ -26,9 +26,9 @@ const TABS = [
   { label: "Legendary", value: "legendary" }
 ];
 
-const TABLE_HEAD = ["Fish Id", "Sprite", "Name", "Description", "Rarity", "Edit"];
+const TABLE_HEAD = ["Fishing Rod Id", "Sprite", "Name", "Description", "Rarity", "Edit"];
 
-export function FishList() {
+export function FishingRodList() {
   const [rows, setRows] = useState([]);            // fetched members
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -40,11 +40,11 @@ export function FishList() {
   const { addAlert, hideAllAlerts } = useContext(AlertContext);
 
 
-  // Loading the fish list
+  // Loading the fishingrod list
   const loadData = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/fishes", {
+      const res = await fetch("/api/fishing-rods", {
         method: "GET",
         headers: { 
           "Content-Type": "application/json", 
@@ -64,7 +64,7 @@ export function FishList() {
 
       setRows(data);
     } catch (e) {
-      addAlert(e.message || "Failed to load fishes", "error");
+      addAlert(e.message || "Failed to load fishing rods", "error");
     } finally {
       setLoading(false);
     }
@@ -86,7 +86,7 @@ export function FishList() {
     if (!term) return byTab;
 
     return byTab.filter((r) =>
-      [r.fishId]
+      [r.fishingRodId]
         .filter(Boolean)
         .some((v) => v.toLowerCase().includes(term))
     );
@@ -99,13 +99,13 @@ export function FishList() {
         <div className="mb-3 flex items-center justify-between gap-8">
           <div>
             <Typography variant="h5" color="blue-gray">
-              Fishes
+              Fishing Rods
             </Typography>
             <Typography color="gray" className="mt-1 font-normal">
-              View and manage fishes
+              View and manage fishing rods
             </Typography>
           </div>
-          <DialogNewFish loadData={loadData} />
+          <DialogNewFishingRod loadData={loadData} />
         </div>
 
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
@@ -133,7 +133,7 @@ export function FishList() {
       <CardBody className="overflow-scroll px-0">
         {loading && (
           <div className="p-6 text-center text-sm text-blue-gray-500">
-            Loading fishes…
+            Loading fishing rods...
           </div>
         )}
         {error && (
@@ -168,7 +168,7 @@ export function FishList() {
                   const isLast = index === filtered.length - 1;
                   
                   return (
-                    <FishListItem 
+                    <FishingRodListItem 
                       key={data._id} 
                       data={data} 
                       isLast={isLast} 
@@ -184,7 +184,7 @@ export function FishList() {
               {filtered.length === 0 && (
                 <tr>
                   <td className="p-4 text-sm text-blue-gray-500" colSpan={TABLE_HEAD.length}>
-                    The fish list is empty.
+                    The fishing rod list is empty.
                   </td>
                 </tr>
               )}
@@ -199,4 +199,4 @@ export function FishList() {
   );
 }
 
-export default FishList;
+export default FishingRodList;
