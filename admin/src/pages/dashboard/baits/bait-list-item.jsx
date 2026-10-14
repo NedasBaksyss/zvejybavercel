@@ -15,6 +15,7 @@ import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon, FingerPrintIcon } from "@h
 import { baitRarities, baitTypes } from "./bait-fields";
 import DialogViewId from "./dialog-view-id";
 import DialogViewBaits from "./dialog-view-bait";
+import DialogAddFish from "./dialog-add-fish";
 
 export function BaitListItem({data, isLast, rows, setRows, error, setError, loadData}) {
   const { _id, sprite} = data;
@@ -85,6 +86,10 @@ export function BaitListItem({data, isLast, rows, setRows, error, setError, load
     let dataSendSuccess = false;
     let spriteSendSuccess = true;
 
+    const preferredFishes = preferredFish.map((fish) => ({
+      _id: fish._id,
+    }));
+
     // surenkame duomenis
     const updatedData = {
       baitId,
@@ -96,7 +101,7 @@ export function BaitListItem({data, isLast, rows, setRows, error, setError, load
       stackable,
       maxStack: Number(maxStack),
       attraction: Number(attraction),
-      preferredFish,
+      preferredFish : preferredFishes,
       effectiveness: Number(effectiveness),
       uses: Number(uses),
     };
@@ -181,6 +186,23 @@ export function BaitListItem({data, isLast, rows, setRows, error, setError, load
     setSpriteFile(null);
     setBaitSprite(sprite ? `/api/images/bait/` + sprite : null);
   }
+
+  const handleSelectFish = (fish) => {
+  setPreferredFish((prev) => {
+    const exists = prev.some((item) => item._id === fish._id);
+
+    if (exists) {
+      return prev.filter((item) => item._id !== fish._id);
+    }
+
+    return [
+      ...prev,
+      {
+        ...fish
+      },
+    ];
+  });
+};
 
   const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
 
@@ -298,6 +320,14 @@ export function BaitListItem({data, isLast, rows, setRows, error, setError, load
                 );
               }}
             />
+          </div>
+        </div>
+      </td>
+
+      <td>
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+            <DialogAddFish handleSelect={handleSelectFish} selectedFish={preferredFish} editMode={editMode} />
           </div>
         </div>
       </td>

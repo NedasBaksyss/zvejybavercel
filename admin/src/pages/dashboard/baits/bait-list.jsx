@@ -26,7 +26,7 @@ const TABS = [
   { label: "Legendary", value: "legendary" }
 ];
 
-const TABLE_HEAD = ["Bait Id", "Sprite", "Name", "Description", "Rarity", "Type", "Info", "Edit"];
+const TABLE_HEAD = ["Bait Id", "Sprite", "Name", "Description", "Rarity", "Type", "Info", "Preferred Fish", "Edit"];
 
 export function BaitList() {
   const [rows, setRows] = useState([]);            // fetched members

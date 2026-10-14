@@ -1,29 +1,9 @@
-import {
-  Typography,
-  IconButton,
-  Tooltip,
-  Select,
-  Option,
-  Switch,
-  Input,
-  Textarea,
-} from "@material-tailwind/react";
-
-import { useState, useContext } from "react";
-import { AuthContext, AlertContext } from "@/context";
-import { CheckIcon, XMarkIcon, PencilIcon, TrashIcon, FingerPrintIcon } from "@heroicons/react/24/outline";
-import { fishingWorld } from "./fishing-spot-fields";
-import DialogViewId from "./dialog-view-id";
-import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/solid";
-import DialogViewPossibleFishes from "./dialog-view-possible-fishes";
-import DialogEditPossible from "./dialog-edit-possible";
+import { useState } from "react";
 
 export function AddFishListItem({data, handleSelect, selectedFish}) {
   const { _id, sprite} = data;
   
   const [fishId, setFishId] = useState(data.fishId)
-  const [selected, setSelected] = useState(false)
-
   const [fishSprite, setFishSprite] = useState(sprite ? `/api/images/fish/` + sprite : null);
 
   const isSelected = selectedFish.some(
