@@ -10,8 +10,9 @@ import {
   TrophyIcon,
   BugAntIcon,
   ArrowTrendingUpIcon,
+  WrenchIcon,
 } from "@heroicons/react/24/solid";
-import { Home, Profile, UserList, FishList, FishingSpotList, AchievementList, BaitList, FishingRodList} from "@/pages/dashboard";
+import { Home, Profile, UserList, FishList, FishingSpotList, AchievementList, BaitList, FishingRodList, ItemList} from "@/pages/dashboard";
 import { SignIn, SignUp, SignOut } from "@/pages/auth";
 import { Notifications, Components, ProfileExample, Tables, Sorting } from "@/pages/demo";
 
@@ -83,6 +84,12 @@ export const routes = [
           name: "Baits",
           path: "/baits",
           element: <BaitList />,
+        },
+        {
+          icon: <WrenchIcon {...icon} />,
+          name: "Items",
+          path: "/items",
+          element: <ItemList />,
         },
       ]
   },

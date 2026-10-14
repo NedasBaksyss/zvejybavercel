@@ -14,25 +14,26 @@ import {
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { useContext } from "react";
 import { AuthContext, AlertContext } from "@/context";
-import { fishRarities } from "./item-fields";
+import { itemRarities, itemTypes } from "./item-fields";
 
-export function DialogNewFish({loadData}) {
+export function DialogNewItem({loadData}) {
   const [open, setOpen] = useState(false);
 
   const { token } = useContext(AuthContext);
 
   // formos laukelių duomenys
-  const [fishId, setFishId] = useState("");
+  const [itemId, setItemId] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [sprite, setSprite] = useState(null);
   const [rarity, setRarity] = useState("");
+  const [category, setCategory] = useState("");
 
   const {addAlert, hideAllAlerts} = useContext(AlertContext);
 
-  const [fishSprite, setFishSprite] = useState(sprite ? `/api/images/fish/` + sprite : null);
+  const [itemSprite, setItemSprite] = useState(sprite ? `/api/images/item/` + sprite : null);
 
-    const sprite_element = fishSprite ? (<img src={fishSprite} alt="Sprite" className="h-[160px] w-[160px] [image-rendering:pixelated] m-5 border-2 border-gray-600 rounded " /> 
+    const sprite_element = itemSprite ? (<img src={itemSprite} alt="Sprite" className="h-[160px] w-[160px] [image-rendering:pixelated] m-5 border-2 border-gray-600 rounded " /> 
   ) : (
     <div className="h-[160px] w-[160px] flex items-center justify-center bg-gray-200 border-2 border-gray-600 rounded m-5">
       <span className="text-gray-500 text-lg">X</span>
@@ -45,19 +46,20 @@ export function DialogNewFish({loadData}) {
     // atvaizduojame naują nuotrauką iš karto
     const reader = new FileReader();
     reader.onload = (event) => {
-      setFishSprite(event.target.result);
+      setItemSprite(event.target.result);
     };
     reader.readAsDataURL(e.target.files[0]); 
   }
 
   function handleClear() {
-    setFishId("")
+    setItemId("")
     setName("");
     setDescription("");
     setRarity("");
+    setCategory("");
 
     setSprite(null);
-    setFishSprite(null);
+    setItemSprite(null);
 
   }
 
@@ -69,43 +71,44 @@ export function DialogNewFish({loadData}) {
   }
 
   // projekto kūrimo logika čia
-  const handleCreateFish = async () => {
+  const handleCreateItem = async () => {
     // surenkame duomenis iš formos
     // paprastų duomenų siuntimui JSON formatu
-    const fishData = {
-      fishId,
+    const itemData = {
+      itemId,
       name,
       description,
-      rarity
+      rarity,
+      category
     };
     // siunčiame į API
-    const response = await fetch("/api/fishes", {
+    const response = await fetch("/api/items", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}` 
       },
-      body: JSON.stringify(fishData),
+      body: JSON.stringify(itemData),
     });
     if (!response.ok) {
       // klaidos tvarkymas 
-      addAlert("Error creating the fish", "error");
+      addAlert("Error creating the item", "error");
       return;
     }
 
-    const createdFish = await response.json();
-    if (!createdFish || !createdFish._id) {
-      addAlert("Error retrieving the created fish", "error");
+    const createdItem = await response.json();
+    if (!createdItem || !createdItem._id) {
+      addAlert("Error retrieving the created item", "error");
       return;
     }
 
-    addAlert("Fish Created", "success");
+    addAlert("Item Created", "success");
 
     // jei yra nuotrauka, įkelti ją atskirai
     if (sprite) {
       const formData = new FormData();
       formData.append("sprite", sprite);
-      const responseSprite = await fetch(`/api/fishes/${createdFish._id}/sprite`, {
+      const responseSprite = await fetch(`/api/items/${createdItem._id}/sprite`, {
         method: "PUT",
         headers: {
         "Authorization": `Bearer ${token}` 
@@ -114,11 +117,11 @@ export function DialogNewFish({loadData}) {
       });
 
       if (!responseSprite.ok) {
-        addAlert("Error uploading the fish photo", "error");
+        addAlert("Error uploading the item photo", "error");
         return;
       }
 
-      addAlert("Photo of the fish uploaded.", "success");
+      addAlert("Photo of the item uploaded.", "success");
     }
 
     // atnaujiname projektų sąrašą
@@ -141,7 +144,7 @@ export function DialogNewFish({loadData}) {
         Create
       </Button>
       <Dialog open={open} handler={handleOpen}>
-        <DialogHeader>Add new fish</DialogHeader>
+        <DialogHeader>Add new item</DialogHeader>
         <DialogBody className="flex flex-col gap-4">
           <div className="flex flex-row p-5 justify-center items-center">
             <div className="font-normal shrink-0 overflow-hidden">
@@ -149,11 +152,16 @@ export function DialogNewFish({loadData}) {
             </div>
             <Input type="file" label="Sprite" size="lg" onChange={handleFileChange} />
           </div>
-          <Input label="ID" size="md" value={fishId} onChange={(e) => setFishId(e.target.value)} />
+          <Input label="ID" size="md" value={itemId} onChange={(e) => setItemId(e.target.value)} />
           <Input label="Name" size="md" value={name} onChange={(e) => setName(e.target.value)} />
           <Textarea label="Description" size="md" value={description} onChange={(e) => setDescription(e.target.value)} />
           <Select label="Rarity" size="md" value={rarity} onChange={(value) => setRarity(value)}>
-            {fishRarities.map((r) => (
+            {itemRarities.map((r) => (
+              <Option key={r} value={r} >{r}</Option>
+            ))}
+          </Select>
+          <Select label="Category" size="md" value={rarity} onChange={(value) => setCategory(value)}>
+            {itemTypes.map((r) => (
               <Option key={r} value={r} >{r}</Option>
             ))}
           </Select>
@@ -167,7 +175,7 @@ export function DialogNewFish({loadData}) {
           >
             <span>Cancel</span>
           </Button>
-          <Button variant="gradient" color="green" onClick={handleCreateFish}>
+          <Button variant="gradient" color="green" onClick={handleCreateItem}>
             <span>Confirm</span>
           </Button>
         </DialogFooter>
@@ -176,4 +184,4 @@ export function DialogNewFish({loadData}) {
   );
 }
 
-export default DialogNewFish;
+export default DialogNewItem;
