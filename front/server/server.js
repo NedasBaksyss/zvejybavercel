@@ -18,7 +18,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_ORIGIN || ["http://localhost:5173", "http://localhost:5700"],
     methods: ["GET", "POST"],
   },
 });
@@ -83,6 +83,9 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(3001, () => {
-  console.log("Server running on http://localhost:3001");
-});
+if (!process.env.VERCEL) {
+  const port = Number(process.env.PORT || 3001);
+  server.listen(port, () => console.log(`Multiplayer server listening on port ${port}`));
+}
+
+module.exports = server;

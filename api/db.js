@@ -2,11 +2,12 @@ import mongoose from "mongoose";
 
 export const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    if (!process.env.MONGO_URI) throw new Error("MONGO_URI is required");
+    await mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 });
 
     console.log("MongoDB connected");
   } catch (error) {
     console.error("MongoDB connection error:", error);
-    process.exit(1);
+    throw error;
   }
 };

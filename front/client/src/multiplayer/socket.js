@@ -1,7 +1,11 @@
 import { io } from "socket.io-client";
 
-export const socket = io("http://localhost:3001", {
+const socketUrl = import.meta.env.VITE_SOCKET_URL ||
+  (import.meta.env.DEV ? "http://localhost:3001" : window.location.origin);
+
+export const socket = io(socketUrl, {
   autoConnect: false,
+  transports: ["websocket"],
 });
 
 export function connectSocket(username) {

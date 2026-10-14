@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 
 import { connectDB } from "./db.js";
 
-const port = 3000;
+const port = Number(process.env.PORT || 3000);
 
 import authRouter from "./routes/auth.js";
 import fishesRouter from "./routes/fishes.js";
@@ -24,6 +24,27 @@ import Session from "./models/session.js";
 import { notFound, apiError } from "./middleware/apiErrors.js";
 
 var app = express();
+
+let databaseReady;
+function initializeDatabase() {
+  databaseReady ||= connectDB()
+    .then(() => Promise.all([User.init(), Session.init()]))
+    .catch((error) => { databaseReady = undefined; throw error; });
+  return databaseReady;
+}
+
+// Functions connect on the first request and reuse the connection afterward.
+if (process.env.VERCEL) {
+  app.use(async (req, res, next) => {
+    try {
+      await initializeDatabase();
+      next();
+    } catch (error) {
+      console.error("Database unavailable:", error.message);
+      res.status(503).json({ error: "Database unavailable" });
+    }
+  });
+}
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -105,8 +126,7 @@ app.use(notFound);
 app.use(apiError);
 
 async function startServer() {
-  await connectDB();
-  await Promise.all([User.init(), Session.init()]);
+  await initializeDatabase();
 
   startGuestCleanup();
 
@@ -115,6 +135,11 @@ async function startServer() {
   });
 }
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer().catch((error) => {
+    console.error("API startup failed:", error.message);
+    process.exitCode = 1;
+  });
+}
 
 export default app;
