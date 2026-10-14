@@ -14,6 +14,10 @@ const app = express();
 
 app.use(cors());
 
+app.get("/multiplayer/health", (req, res) => {
+  res.json({ service: "multiplayer", status: "ok" });
+});
+
 const server = http.createServer(app);
 
 const io = new Server(server, {

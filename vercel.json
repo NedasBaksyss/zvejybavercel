@@ -35,7 +35,9 @@
     }
   },
   "rewrites": [
-    { "source": "/socket.io/:path*", "destination": { "service": "server" } },
+    { "source": "/socket.io", "destination": { "service": "server" } },
+    { "source": "/socket.io/(.*)", "destination": { "service": "server" } },
+    { "source": "/multiplayer/health", "destination": { "service": "server" } },
     { "source": "/api/:path*", "destination": { "service": "api" } },
     { "source": "/admin/:path*", "destination": { "service": "admin" } },
     { "source": "/auth/:path*", "destination": { "service": "admin" } },
