@@ -18,6 +18,7 @@ export function createMapLoop({
   let lastNetworkUpdate = 0;
 
   let wasMoving = false;
+  let lastFishingPhase = null;
 
   function frame(now) {
     if (!runtime.active || runtime.stopped) return;
@@ -76,11 +77,43 @@ export function createMapLoop({
 
     wasMoving = runtime.state.moving;
 
+    const previousPhase = runtime.fishing.phase;
+
     const outcome = updateFishing(
       runtime.fishing,
       dt,
       runtime.state.destination?.possibleFish || [],
     );
+
+    const phaseChanged = runtime.fishing.phase !== previousPhase;
+
+    if (phaseChanged) {
+      lastFishingPhase = runtime.fishing.phase;
+
+      if (["bite", "fighting"].includes(runtime.fishing.phase)) {
+        publishFishingState({
+          ...buildFishingPresence(true),
+          active: true,
+          phase: runtime.fishing.phase,
+        });
+      }
+    }
+
+    if (phaseChanged) {
+      lastFishingPhase = runtime.fishing.phase;
+
+      if (
+        runtime.fishing.phase === "bite" ||
+        runtime.fishing.phase === "fighting"
+      ) {
+        publishFishingState({
+          ...buildFishingPresence(true),
+          phase: runtime.fishing.phase,
+          active: true,
+          target: runtime.fishing.target,
+        });
+      }
+    }
 
     if (outcome === "caught") {
       const slot = getSlot();
@@ -100,7 +133,6 @@ export function createMapLoop({
         slot,
       });
 
-      // Keep the character visible, but remove the fishing gear.
       publishFishingState({
         ...buildFishingPresence(false),
         active: false,
@@ -113,7 +145,6 @@ export function createMapLoop({
         slot: getSlot(),
       });
 
-      // Keep the character visible, but remove the fishing gear.
       publishFishingState({
         ...buildFishingPresence(false),
         active: false,

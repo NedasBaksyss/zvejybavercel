@@ -33,27 +33,34 @@ export function createLocationActions({
     );
   }
 
-  function buildFishingPresence(active = false) {
-    const destination = runtime.state.destination;
-    if (!destination || destination.type !== "lake") return null;
-    const platform = getCurrentPlatform();
-    if (!platform) return null;
-    return {
-      active,
-      lakeId: destination.id,
-      platformId: platform.id,
-      x: platform.angler.x,
-      y: platform.angler.y,
-      direction: platform.angler.direction || "down",
-      scale: platform.scale || 1,
-      target: active && runtime.fishing?.cast && runtime.fishing?.target
+function buildFishingPresence(active = false) {
+  const destination = runtime.state.destination;
+
+  if (!destination || destination.type !== "lake") return null;
+
+  const platform = getCurrentPlatform();
+  if (!platform) return null;
+
+  return {
+    active,
+    lakeId: destination.id,
+    platformId: platform.id,
+    x: platform.angler.x,
+    y: platform.angler.y,
+    direction: platform.angler.direction || "down",
+    scale: platform.scale || 1,
+
+    phase: runtime.fishing.phase,
+
+    target:
+      active && runtime.fishing.cast && runtime.fishing.target
         ? {
             x: runtime.fishing.target.x,
             y: runtime.fishing.target.y,
           }
         : null,
-    };
-  }
+  };
+}
 
   function enterLocation(id) {
     if (
