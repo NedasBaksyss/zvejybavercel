@@ -4,7 +4,7 @@ import "./playerChat.css";
 
 export default function PlayerChat({ active, language, onReturnToGame }) {
   const chat = usePlayerChat();
-  return active ? <ChatPanel key={String(chat.connected)} {...chat} language={language} onReturnToGame={onReturnToGame} /> : null;
+  return active ? <ChatPanel key={chat.session} {...chat} language={language} onReturnToGame={onReturnToGame} /> : null;
 }
 
 function ChatPanel({ messages, connected, error, sending, send, language, onReturnToGame }) {

@@ -6,6 +6,7 @@ export function usePlayerChat() {
   const [connected, setConnected] = useState(socket.connected);
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
+  const [session, setSession] = useState(0);
   const request = useRef(0);
 
   useEffect(() => {
@@ -14,6 +15,7 @@ export function usePlayerChat() {
     const onDisconnect = () => {
       requests.current++;
       setConnected(false);
+      setSession((value) => value + 1);
       setMessages([]);
       setSending(false);
       setError("");
@@ -49,5 +51,5 @@ export function usePlayerChat() {
     });
   }
 
-  return { messages, connected, error, sending, send };
+  return { messages, connected, error, sending, send, session };
 }
