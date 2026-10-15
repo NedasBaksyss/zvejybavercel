@@ -555,7 +555,7 @@
   width: 34%;
   height: 5px;
   margin: 6px auto 0;
-  padding: 1px;
+  box-sizing: content-box;
   background: #07171c;
   border: 1px solid #6d8c7f;
   box-shadow: 1px 1px 0 #041014;
