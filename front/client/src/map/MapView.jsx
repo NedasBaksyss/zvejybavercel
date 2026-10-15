@@ -8,6 +8,7 @@ import ProgressHud from "./components/ProgressHud.jsx";
 import FishingHud from "./components/FishingHud.jsx";
 import MapSettingsButton from "./components/MapSettingsButton.jsx";
 import MapEnterButton from "./components/MapEnterButton.jsx";
+import PlayerChat from "./components/PlayerChat.jsx";
 import "./map.css";
 
 export default function MapView({ ref }) {
@@ -27,7 +28,7 @@ export default function MapView({ ref }) {
 
   return (
     <div className="atlas" id="atlas" data-view={view} onClickCapture={(event) => {
-      if (snapshot.fishing.phase === "bite") {
+      if (snapshot.fishing.phase === "bite" && !event.target.closest?.("[data-game-chat]")) {
         event.preventDefault();
         event.stopPropagation();
         actions.toggleFishing();
@@ -78,6 +79,7 @@ export default function MapView({ ref }) {
         <FishingHud fishing={snapshot.fishing} language={snapshot.language} fishNames={text.fishNames} />
       )}
       <MapSettingsButton language={snapshot.language} onOpen={actions.openSettings} />
+      <PlayerChat active={snapshot.active} language={snapshot.language} onReturnToGame={() => canvasRef.current?.focus()} />
     </div>
   );
 }

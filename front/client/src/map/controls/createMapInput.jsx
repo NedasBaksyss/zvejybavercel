@@ -97,6 +97,10 @@ export function createMapInput({
   on(window, "keydown", keydown);
   on(window, "keyup", (event) => keys.delete(event.code));
   on(window, "blur", clearInput);
+  on(document, "focusin", (event) => {
+    if (event.target.closest?.("[data-game-chat]") || event.target.isContentEditable ||
+      ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)) clearInput();
+  });
   on(document, "visibilitychange", () => {
     if (document.hidden) clearInput();
   });
