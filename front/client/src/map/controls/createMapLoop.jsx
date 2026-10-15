@@ -134,7 +134,7 @@ export function createMapLoop({
         fishing: runtime.fishing,
         locationsOpen: runtime.locationsOpen,
       },
-      runtime.reducedMotion.matches ? 0 : now / 1000,
+      now / 1000,
     );
 
     if (
