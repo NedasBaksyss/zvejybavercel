@@ -6,6 +6,7 @@ const LAKE_PLATFORMS = {
   "highland-lake": ["near-bank", "west-rocks", "east-rocks"],
   "sunset-lake": ["near-bank", "west-bank", "east-bank"],
 };
+const FISHING_PHASES = new Set(["idle", "waiting", "bite", "fighting", "caught", "lost"]);
 
 function createFishingSpots(getPlayer, getPlayers) {
   return function attachFishingSpots(socket) {
@@ -53,6 +54,7 @@ function createFishingSpots(getPlayer, getPlayers) {
             platformId,
             spotIndex,
             active: false,
+            phase: "idle",
             target: null,
           };
           broadcast(player);
@@ -87,6 +89,7 @@ function createFishingSpots(getPlayer, getPlayers) {
         target.y <= 540;
       player.fishing = {
         ...player.fishing,
+        phase: FISHING_PHASES.has(fishing.phase) ? fishing.phase : player.fishing.phase,
         active: fishing.active === true && validTarget,
         target: validTarget ? { x: target.x, y: target.y } : null,
       };

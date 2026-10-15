@@ -9,6 +9,8 @@ export function createMapLoop({
   getSlot,
   emit,
   socket,
+  buildFishingPresence,
+  publishFishingState,
 }) {
   let frameId = 0;
   let lastTime = 0;
@@ -47,38 +49,56 @@ export function createMapLoop({
      */
     const movementChanged = runtime.state.moving !== wasMoving;
 
-      if (
-        movementRequested &&
-        runtime.state.moving &&
-        now - lastNetworkUpdate >= 50
-      ) {
-        socket.emit("player:move", {
-          x: runtime.state.player.x,
-          y: runtime.state.player.y,
-          moving: true,
-          direction: runtime.state.direction,
-        });
+    if (
+      movementRequested &&
+      runtime.state.moving &&
+      now - lastNetworkUpdate >= 50
+    ) {
+      socket.emit("player:move", {
+        x: runtime.state.player.x,
+        y: runtime.state.player.y,
+        moving: true,
+        direction: runtime.state.direction,
+      });
 
-        lastNetworkUpdate = now;
-      } else if (movementChanged && !runtime.state.moving) {
-        // Tell other players that we stopped.
-        socket.emit("player:move", {
-          x: runtime.state.player.x,
-          y: runtime.state.player.y,
-          moving: false,
-          direction: runtime.state.direction,
-        });
+      lastNetworkUpdate = now;
+    } else if (movementChanged && !runtime.state.moving) {
+      // Tell other players that we stopped.
+      socket.emit("player:move", {
+        x: runtime.state.player.x,
+        y: runtime.state.player.y,
+        moving: false,
+        direction: runtime.state.direction,
+      });
 
-        lastNetworkUpdate = now;
-      }
-      
-      wasMoving = runtime.state.moving;
+      lastNetworkUpdate = now;
+    }
+
+    wasMoving = runtime.state.moving;
+
+    const previousPhase = runtime.fishing.phase;
 
     const outcome = updateFishing(
       runtime.fishing,
       dt,
       runtime.state.destination?.possibleFish || [],
     );
+
+    const phaseChanged = runtime.fishing.phase !== previousPhase;
+
+    if (phaseChanged) {
+      if (
+        runtime.fishing.phase === "bite" ||
+        runtime.fishing.phase === "fighting"
+      ) {
+        publishFishingState({
+          ...buildFishingPresence(true),
+          phase: runtime.fishing.phase,
+          active: true,
+          target: runtime.fishing.target,
+        });
+      }
+    }
 
     if (outcome === "caught") {
       const slot = getSlot();
@@ -97,10 +117,24 @@ export function createMapLoop({
         ...catchData,
         slot,
       });
+
+      publishFishingState({
+        ...buildFishingPresence(false),
+        active: false,
+        target: null,
+        phase: "caught",
+      });
     } else if (outcome === "lost") {
       emit("fishLost", {
         id: runtime.state.destination?.id,
         slot: getSlot(),
+      });
+
+      publishFishingState({
+        ...buildFishingPresence(false),
+        active: false,
+        target: null,
+        phase: "lost",
       });
     }
 
@@ -116,13 +150,13 @@ export function createMapLoop({
         fishing: runtime.fishing,
         locationsOpen: runtime.locationsOpen,
       },
-      runtime.reducedMotion.matches ? 0 : now / 1000,
+      now / 1000,
     );
 
     if (
       outcome ||
       now - lastPublishTime >
-        (runtime.fishing.phase === "fighting" ? 33 : 100)
+      (runtime.fishing.phase === "fighting" ? 33 : 100)
     ) {
       publish();
       lastPublishTime = now;

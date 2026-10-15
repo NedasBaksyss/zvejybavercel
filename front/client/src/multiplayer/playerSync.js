@@ -65,16 +65,18 @@ export function createPlayerSync(socket, runtime, publish) {
   }
 
   function handleFishing(player) {
-    const existing = runtime.remotePlayers.get(player.id);
+    if (!player?.id || player.id === socket.id) return;
 
-    if (existing) {
-      existing.fishing = player.fishing || null;
-    } else {
-      runtime.remotePlayers.set(player.id, {
-        ...player,
-        fishing: player.fishing || null,
-      });
-    }
+    const existing = runtime.remotePlayers.get(player.id) || {};
+
+    runtime.remotePlayers.set(player.id, {
+      ...existing,
+      ...player,
+      fishing:
+        player.fishing === undefined
+          ? existing.fishing ?? null
+          : player.fishing,
+    });
 
     publish(true);
   }

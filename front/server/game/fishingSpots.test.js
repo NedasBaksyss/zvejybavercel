@@ -92,3 +92,22 @@ test("every server bridge has two separated positions inside the matching client
     }
   }
 });
+
+test("all fishing phases are broadcast without losing the reserved spot", () => {
+  const { connect, updates } = setup();
+  const client = connect("angler");
+  const reserved = client.join().fishing;
+  for (const phase of ["waiting", "bite", "fighting", "caught", "lost", "idle"]) {
+    client.update({ lakeId: "quiet-lake", phase, active: ["waiting", "bite", "fighting"].includes(phase),
+      target: { x: 550, y: 390 }, platformId: "east-bank", spotIndex: 1 });
+    const message = updates.at(-1)[1].fishing;
+    assert.equal(message.phase, phase);
+    assert.equal(message.platformId, reserved.platformId);
+    assert.equal(message.spotIndex, reserved.spotIndex);
+  }
+  client.update({ lakeId: "quiet-lake", phase: "invalid" });
+  assert.equal(client.fishing.phase, "idle");
+  const second = connect("second").join().fishing;
+  assert.equal(second.platformId, reserved.platformId);
+  assert.equal(second.spotIndex, 1);
+});
