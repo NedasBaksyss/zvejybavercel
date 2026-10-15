@@ -1,0 +1,378 @@
+[{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d91"
+  },
+  "fishId": "bleak",
+  "name": "Bleak",
+  "rarity": "common",
+  "description": "A small, silvery fish"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d92"
+  },
+  "fishId": "roach",
+  "name": "Roach",
+  "rarity": "common",
+  "description": "A small freshwater fish"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d93"
+  },
+  "fishId": "gudgeon",
+  "name": "Gudgeon",
+  "rarity": "common",
+  "description": "A small bottom-dwelling fish"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d94"
+  },
+  "fishId": "rudd",
+  "name": "Rudd",
+  "rarity": "common",
+  "description": "A shallow-water fish with red fins"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d95"
+  },
+  "fishId": "carp",
+  "name": "Carp",
+  "rarity": "common",
+  "description": "A common lake fish"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d96"
+  },
+  "fishId": "mudskip",
+  "name": "Mudskip",
+  "rarity": "common",
+  "description": "Prefers muddy bottoms"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d97"
+  },
+  "fishId": "bream",
+  "name": "Bream",
+  "rarity": "common",
+  "description": "A flat-bodied bottom-dwelling fish"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d98"
+  },
+  "fishId": "perch",
+  "name": "Perch",
+  "rarity": "common",
+  "description": "A small predatory fish"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d99"
+  },
+  "fishId": "tench",
+  "name": "Tench",
+  "rarity": "uncommon",
+  "description": "A bottom-dwelling fish that prefers calm waters"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d9a"
+  },
+  "fishId": "chub",
+  "name": "Chub",
+  "rarity": "uncommon",
+  "description": "A large river fish"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d9b"
+  },
+  "fishId": "trout",
+  "name": "Trout",
+  "rarity": "uncommon",
+  "description": "A fish found in clean rivers"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d9c"
+  },
+  "fishId": "grayling",
+  "name": "Grayling",
+  "rarity": "uncommon",
+  "description": "Prefers cold, fast-flowing waters"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d9d"
+  },
+  "fishId": "pike",
+  "name": "Pike",
+  "rarity": "uncommon",
+  "description": "A large predator"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d9e"
+  },
+  "fishId": "eel",
+  "name": "Eel",
+  "rarity": "uncommon",
+  "description": "A long fish that glides along the bottom"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2d9f"
+  },
+  "fishId": "mistfin",
+  "name": "Mistfin",
+  "rarity": "uncommon",
+  "description": "Appears only in the mist"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2da0"
+  },
+  "fishId": "glowminnow",
+  "name": "Glowminnow",
+  "rarity": "uncommon",
+  "description": "Glows faintly in the dark"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2da1"
+  },
+  "fishId": "zander",
+  "name": "Zander",
+  "rarity": "rare",
+  "description": "A nocturnal predator"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2da2"
+  },
+  "fishId": "salmon",
+  "name": "Salmon",
+  "rarity": "rare",
+  "description": "A valuable migratory fish"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2da3"
+  },
+  "fishId": "asp",
+  "name": "Asp",
+  "rarity": "rare",
+  "description": "A fast surface predator"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2da4"
+  },
+  "fishId": "catfish",
+  "name": "Catfish",
+  "rarity": "rare",
+  "description": "A large bottom-dwelling predator"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2da5"
+  },
+  "fishId": "embercarp",
+  "name": "Ember Carp",
+  "rarity": "rare",
+  "description": "Scales that glow like embers"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2da6"
+  },
+  "fishId": "crystalperch",
+  "name": "Crystal Perch",
+  "rarity": "rare",
+  "description": "Scales as clear as glass"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2da7"
+  },
+  "fishId": "frosttrout",
+  "name": "Frost Trout",
+  "rarity": "rare",
+  "description": "Cools the water around it"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2da8"
+  },
+  "fishId": "shadowpike",
+  "name": "Shadow Pike",
+  "rarity": "rare",
+  "description": "Hunts from the shadows"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2da9"
+  },
+  "fishId": "stormray",
+  "name": "Storm Ray",
+  "rarity": "epic",
+  "description": "Swims with streaks of lightning"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2daa"
+  },
+  "fishId": "moonbass",
+  "name": "Moon Bass",
+  "rarity": "epic",
+  "description": "Glows at night"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2dab"
+  },
+  "fishId": "ironjaw",
+  "name": "Ironjaw",
+  "rarity": "epic",
+  "description": "Has a bite as strong as metal"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2dac"
+  },
+  "fishId": "ghosteel",
+  "name": "Ghost Eel",
+  "rarity": "epic",
+  "description": "Disappears and reappears"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2dad"
+  },
+  "fishId": "mirrorcarp",
+  "name": "Mirror Carp",
+  "rarity": "epic",
+  "description": "Reflects the water around it"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2dae"
+  },
+  "fishId": "runefish",
+  "name": "Rune Fish",
+  "rarity": "epic",
+  "description": "Ancient symbols cover its scales"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2daf"
+  },
+  "fishId": "firefin",
+  "name": "Firefin",
+  "rarity": "epic",
+  "description": "Scales that resemble flames"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2db0"
+  },
+  "fishId": "thunderfish",
+  "name": "Thunderfish",
+  "rarity": "epic",
+  "description": "Generates a weak electric current"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2db1"
+  },
+  "fishId": "sturgeon",
+  "name": "Sturgeon",
+  "rarity": "legendary",
+  "description": "An ancient and rare fish"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2db2"
+  },
+  "fishId": "starfish",
+  "name": "Starfish",
+  "rarity": "legendary",
+  "description": "Scales that resemble stars"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2db3"
+  },
+  "fishId": "cloudkoi",
+  "name": "Cloud Koi",
+  "rarity": "legendary",
+  "description": "Swims as if floating through the sky"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2db4"
+  },
+  "fishId": "timefish",
+  "name": "Timefish",
+  "rarity": "legendary",
+  "description": "Its scales reveal glimpses of the past"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2db5"
+  },
+  "fishId": "nightfish",
+  "name": "Nightfish",
+  "rarity": "legendary",
+  "description": "Can only be caught at night"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2db6"
+  },
+  "fishId": "leviathan",
+  "name": "Leviathan",
+  "rarity": "legendary",
+  "description": "A gigantic creature of the deep"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2db7"
+  },
+  "fishId": "rainbow_shark",
+  "name": "Rainbow Shark",
+  "rarity": "legendary",
+  "description": "Light splits into colors around it"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2db8"
+  },
+  "fishId": "goldfish_king",
+  "name": "Gold King",
+  "rarity": "legendary",
+  "description": "Shines entirely in gold"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2db9"
+  },
+  "fishId": "abyss_king",
+  "name": "Abyss King",
+  "rarity": "legendary",
+  "description": "Rules the darkest depths"
+},
+{
+  "_id": {
+    "$oid": "6accae41c7e038c6078a2dba"
+  },
+  "fishId": "worldserpent",
+  "name": "World Serpent",
+  "rarity": "legendary",
+  "description": "A mythical creature that is nearly impossible to catch"
+}]

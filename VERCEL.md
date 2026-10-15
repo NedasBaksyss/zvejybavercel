@@ -26,7 +26,9 @@ by your Vercel account.
 
 ## Current limitations
 
-Multiplayer presence is stored in memory. Players on different function instances
+Multiplayer presence, chat history, and fishing spot reservations are stored in
+memory. Each lake has two player spots per bridge, six spots in total. Players
+on different function instances
 may not see each other; reliable shared multiplayer requires an external store
 and a Socket.IO adapter. Vercel WebSocket connections also reconnect when a
 function reaches its duration limit.

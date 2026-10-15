@@ -27,6 +27,9 @@ export function createMapState() {
     selectedId: "quiet-lake",
     destination: null,
     platformId: null,
+    spotIndex: null,
+    enteringLocation: false,
+    locationError: null,
   };
 }
 
@@ -62,10 +65,10 @@ export function createMapSnapshot(
     locationsOpen,
     selectedId: state.selectedId,
     destination: state.destination,
+    enteringLocation: state.enteringLocation,
+    locationError: state.locationError,
     place,
     nearby,
-    entryPending: Boolean(state.entryPending),
-    entryError: state.entryError?.id === place?.id ? state.entryError.reason : null,
     distance: Math.round(distanceTo(state.player, place)),
     fishingCast,
     fishing,

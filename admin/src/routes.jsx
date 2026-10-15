@@ -7,9 +7,12 @@ import {
   InformationCircleIcon,
   ServerStackIcon,
   RectangleStackIcon,
-  TrophyIcon
+  TrophyIcon,
+  BugAntIcon,
+  ArrowTrendingUpIcon,
+  WrenchIcon,
 } from "@heroicons/react/24/solid";
-import { Home, Profile, UserList, FishList, FishingSpotList, AchievementList} from "@/pages/dashboard";
+import { Home, Profile, UserList, FishList, FishingSpotList, AchievementList, BaitList, FishingRodList, ItemList} from "@/pages/dashboard";
 import { SignIn, SignUp, SignOut } from "@/pages/auth";
 import { Notifications, Components, ProfileExample, Tables, Sorting } from "@/pages/demo";
 
@@ -64,6 +67,30 @@ export const routes = [
         path: "/achievements",
         element: <AchievementList />,
       }
+      ]
+  },
+    {
+      title: "Items",
+      layout: "admin",
+      pages: [
+        {
+          icon: <ArrowTrendingUpIcon {...icon} />,
+          name: "Fishing Rods",
+          path: "/fishingrods",
+          element: <FishingRodList />,
+        },
+        {
+          icon: <BugAntIcon {...icon} />,
+          name: "Baits",
+          path: "/baits",
+          element: <BaitList />,
+        },
+        {
+          icon: <WrenchIcon {...icon} />,
+          name: "Items",
+          path: "/items",
+          element: <ItemList />,
+        },
       ]
   },
     {

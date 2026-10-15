@@ -53,14 +53,26 @@ export const LAKE_PLATFORMS = {
   ],
 };
 
-export function chooseLakePlatform(lakeId, random = Math.random, occupied = []) {
-  const platforms = LAKE_PLATFORMS[lakeId]?.filter((item) => !occupied.includes(item.id));
-  return platforms?.length ? platforms[Math.floor(random() * platforms.length)] : null;
+export function chooseLakePlatform(lakeId, random = Math.random) {
+  const platforms = LAKE_PLATFORMS[lakeId];
+  return platforms ? platforms[Math.floor(random() * platforms.length)] : null;
 }
 
 export function getLakePlatform(lakeId, platformId) {
   const platforms = LAKE_PLATFORMS[lakeId];
   return platforms?.find((item) => item.id === platformId) || platforms?.[0];
+}
+
+export function getLakeFishingSpot(lakeId, platformId, spotIndex) {
+  if (spotIndex !== 0 && spotIndex !== 1) return null;
+  const selected = LAKE_PLATFORMS[lakeId]?.find((item) => item.id === platformId);
+  if (!selected) return null;
+  const x = Math.round(selected.x + selected.width * (spotIndex === 0 ? 0.30 : 0.75));
+  return {
+    ...selected,
+    angler: { ...selected.angler, x },
+    rod: { ...selected.rod, tipX: selected.rod.tipX + x - selected.angler.x },
+  };
 }
 
 export function isOnLakePlatform(lakeId, x, y) {

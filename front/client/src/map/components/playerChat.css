@@ -1,0 +1,18 @@
+.zv .player-chat { position: absolute; top: 3px; left: 5px; z-index: 12; color: #e5edcf; font-size: 7px; }
+.zv .player-chat-toggle { display: grid; place-items: center; width: 20px; height: 20px; padding: 2px; border: 1px solid #769480; background: #102d31e8; box-shadow: 2px 2px 0 #06181c; cursor: pointer; }
+.zv .player-chat-toggle[aria-expanded="true"] { border-color: #dfc484; background: #28483d; }
+.zv .player-chat-toggle svg { display: block; width: 14px; height: 14px; }
+.zv .player-chat-panel { width: 150px; max-width: calc(100vw - 28px); margin-top: 3px; border: 1px solid #789581; background: #0a242ae8; box-shadow: 2px 2px 0 #05161b80; }
+.zv .player-chat-panel header { display: flex; justify-content: space-between; gap: 5px; padding: 5px; border-bottom: 1px solid #4c6b60; color: #e3c78a; font-size: 7px; }
+.zv .player-chat-panel header span { color: #a5c5a6; font-size: 6px; }
+.zv .player-chat-log { height: 60px; overflow-y: auto; overscroll-behavior: contain; padding: 5px; scrollbar-width: thin; scrollbar-color: #789581 #102d31; }
+.zv .player-chat-log p { margin: 0 0 5px; line-height: 1.55; overflow-wrap: anywhere; white-space: pre-wrap; user-select: text; }
+.zv .player-chat-log strong { color: #e3c78a; font-weight: normal; }
+.zv .player-chat-empty { color: #a5b9ad; }
+.zv .player-chat-panel form { display: flex; gap: 3px; padding: 4px; border-top: 1px solid #4c6b60; }
+.zv .player-chat-panel input { width: 0; min-width: 0; flex: 1; border: 1px solid #607e6e; border-radius: 0; padding: 4px; background: #061b20; color: #f0efd5; font: inherit; font-size: 8px; user-select: text; }
+.zv .player-chat-panel input::placeholder { color: #9cb2a4; }
+.zv .player-chat-panel form button { width: 20px; padding: 0; border: 1px solid #bba368; background: #d6bb7f; color: #10272a; cursor: pointer; font-size: 10px; }
+.zv .player-chat-panel form button:disabled { opacity: .45; cursor: default; }
+.zv .player-chat-error { margin: 0; padding: 3px 5px; color: #f2b7a0; font-size: 6px; line-height: 1.5; }
+.zv .player-chat :focus-visible { outline: 1px solid #ffe1a0; outline-offset: 1px; }

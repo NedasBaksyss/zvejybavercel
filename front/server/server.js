@@ -2,7 +2,8 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const { reservePlatform } = require("./game/lakePlatforms");
+const { createChat } = require("./game/chat");
+const { createFishingSpots } = require("./game/fishingSpots");
 
 const {
   createPlayer,
@@ -28,12 +29,17 @@ const io = new Server(server, {
   },
 });
 
+const attachChat = createChat(io, getPlayer);
+const attachFishingSpots = createFishingSpots(getPlayer, getPlayers);
+
 io.on("connection", (socket) => {
   console.log("Player connected:", socket.id);
   
   const name = socket.handshake.auth.name
 
   const player = createPlayer(socket.id, name);
+  attachChat(socket);
+  attachFishingSpots(socket);
 
   // Tell the new player where they spawned.
   socket.emit("player:spawn", player);
@@ -63,35 +69,6 @@ io.on("connection", (socket) => {
       name: player.name,
     });
   });
-
-  socket.on("player:reserve-platform", (request, reply) => {
-    if (typeof reply !== "function") return;
-    const player = getPlayer(socket.id);
-    if (!player) return reply({ error: "unavailable" });
-    const platformId = reservePlatform(getPlayers(), player, request?.lakeId, request?.platformId);
-    reply(platformId ? { platformId } : { error: "full" });
-  });
-
-  socket.on("player:fishing", (fishing) => {
-  const player = getPlayer(socket.id);
-
-  if (!player) return;
-
-  const presence = fishing?.fishing || null;
-  if (presence && player.platformReservation && (
-    presence.lakeId !== player.platformReservation.lakeId ||
-    presence.platformId !== player.platformReservation.platformId
-  )) return;
-  player.fishing = presence;
-  if (!presence) player.platformReservation = null;
-
-  socket.broadcast.emit("player:fishing", {
-    id: player.id,
-    name: player.name,
-    fishing: player.fishing,
-  });
-});
-
 
   socket.on("disconnect", () => {
     console.log("Player disconnected:", socket.id);

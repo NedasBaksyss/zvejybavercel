@@ -1,7 +1,7 @@
 import { VIEW, mix } from "../mapData.js";
 import { drawCharacter, drawPlayerName } from "./mapSprites.jsx";
 import { bankHeight, drawBank, drawFarEdge, drawRock, isOnRock, drawLandings, landingWidth } from "./lakeEdges.js";
-import { LAKE_PLATFORMS, getLakePlatform, isOnLakePlatform } from "../lakePlatforms.js";
+import { LAKE_PLATFORMS, getLakeFishingSpot, isOnLakePlatform } from "../lakePlatforms.js";
 import {
   drawLakePine,
   drawLakeCabin,
@@ -357,9 +357,9 @@ function drawPlatforms(ctx, scene, lakeId, selected, time) {
   const platforms = LAKE_PLATFORMS[lakeId] || LAKE_PLATFORMS["quiet-lake"];
   for (const p of [...platforms].sort((a, b) => a.y - b.y)) {
     drawLakeDock(ctx, p.x, p.y, p.width, p.scale);
-    if (p.id === selected.id) {
+    if (p.id === selected?.id) {
       ctx.save();
-      ctx.translate(p.angler.x, p.angler.y);
+      ctx.translate(selected.angler.x, selected.angler.y);
       ctx.scale(p.scale, p.scale);
       drawCharacter(ctx, 0, 0, time, false, p.angler.direction, false);
       ctx.restore();
@@ -419,25 +419,28 @@ function drawFishingGear(ctx, scene, time, fishing) {
 function drawRemoteFishingPlayer(ctx, remotePlayer, time) {
   const fishing = remotePlayer?.fishing;
   if (!fishing) return;
-  const x = Number(fishing.x);
-  const y = Number(fishing.y);
-  if (!Number.isFinite(x) || !Number.isFinite(y)) return;
-  const scale = Number(fishing.scale) || 1;
-  const direction = fishing.direction || "down";
-  drawCharacter(ctx, x, y, time, false, direction, true);
+  const spot = getLakeFishingSpot(fishing.lakeId, fishing.platformId, fishing.spotIndex);
+  if (!spot) return;
+  const { x, y, direction } = spot.angler;
+  const scale = spot.scale;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  drawCharacter(ctx, 0, 0, time, false, direction, true);
+  ctx.restore();
   drawPlayerName(ctx, remotePlayer.name || "Player", x, y, scale);
 }
 
 function drawRemoteFishingGear(ctx, remotePlayer, time) {
   const fishing = remotePlayer?.fishing;
   if (!fishing?.active || !fishing.target) return;
-  const playerX = Number(fishing.x);
-  const playerY = Number(fishing.y);
+  const spot = getLakeFishingSpot(fishing.lakeId, fishing.platformId, fishing.spotIndex);
+  if (!spot) return;
+  const { x: playerX, y: playerY, direction } = spot.angler;
   const targetX = Number(fishing.target.x);
   const targetY = Number(fishing.target.y);
   if (!Number.isFinite(playerX) || !Number.isFinite(playerY) || !Number.isFinite(targetX) || !Number.isFinite(targetY)) return;
-  const scale = Number(fishing.scale) || 1;
-  const direction = fishing.direction || "right";
+  const scale = spot.scale;
   const handX = playerX + (direction === "right" ? 9 : -9) * scale;
   const handY = playerY - scale;
   const bobberX = targetX;
@@ -491,9 +494,9 @@ function drawReeds(ctx, start, end, baseY, height, color) {
   }
 }
 
-export function drawFishingScene(ctx, location, time, fishing, platformId, playerName, remotePlayers) {
+export function drawFishingScene(ctx, location, time, fishing, platformId, playerName, remotePlayers, spotIndex) {
   const scene = sceneFor(location?.id);
-  const selected = getLakePlatform(location?.id, platformId) || LAKE_PLATFORMS["quiet-lake"][0];
+  const selected = getLakeFishingSpot(location?.id, platformId, spotIndex);
   drawSky(ctx, scene, time);
   drawSun(ctx, scene);
   drawBackdrop(ctx, scene);
@@ -503,10 +506,10 @@ export function drawFishingScene(ctx, location, time, fishing, platformId, playe
   drawSceneDetails(ctx, scene);
   drawForeground(ctx, scene, time);
   drawPlatforms(ctx, scene, location?.id, selected, time);
-  drawFishingGear(ctx, { ...scene, ...selected }, time, fishing);
+  if (selected) drawFishingGear(ctx, { ...scene, ...selected }, time, fishing);
   drawWeather(ctx, scene, time);
 
-  drawPlayerName(ctx, playerName, selected.angler.x, selected.angler.y, selected.scale);
+  if (selected) drawPlayerName(ctx, playerName, selected.angler.x, selected.angler.y, selected.scale);
 
   if (remotePlayers) {
     for (const remotePlayer of remotePlayers.values()) {
