@@ -113,6 +113,7 @@ export function createMap({
    });
 
   function exit() {
+    locations.cancelEntry();
     runtime.active = false;
     loop.stop();
     clearInput();
@@ -141,6 +142,7 @@ export function createMap({
     },
     reset() {
       if (runtime.stopped) return;
+      locations.releaseSpot();
       clearInput();
       runtime.state = createMapState();
       runtime.fishing = createFishingState();
@@ -193,6 +195,7 @@ export function createMap({
       exit();
 
       playerSync.dispose();
+      locations.dispose();
 
       input.stop();
       runtime.renderer?.dispose();

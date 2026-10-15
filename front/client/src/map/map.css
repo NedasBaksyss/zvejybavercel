@@ -157,6 +157,21 @@
   box-shadow: 2px 2px #07191c;
 }
 .zv .atlas .atlas-enter:hover { background: #ead3a5; }
+.zv .atlas .atlas-enter:disabled { opacity: .6; cursor: wait; }
+.zv .atlas-entry-status {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  max-width: 65%;
+  margin: 0;
+  padding: 3px 5px;
+  font-size: 7px;
+  text-align: center;
+  color: #f3dfb6;
+  background: #0a242ae8;
+  z-index: 4;
+}
 .zv .atlas .atlas-enter:active { bottom: 5px; box-shadow: none; }
 .zv .atlas {
   position: absolute;

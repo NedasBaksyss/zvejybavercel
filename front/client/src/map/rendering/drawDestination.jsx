@@ -5,7 +5,7 @@ import { drawFishingScene } from "./drawFishingScene.js";
 
 export function drawDestination(ctx, location, time, state, remotePlayers) {
   if (location.type === "lake") {
-    drawFishingScene(ctx, location, time, state.fishing, state.platformId, state.playerName, remotePlayers);
+    drawFishingScene(ctx, location, time, state.fishing, state.platformId, state.playerName, remotePlayers, state.spotIndex);
     return;
   }
   const sky = ctx.createLinearGradient(0, 0, 0, 320);

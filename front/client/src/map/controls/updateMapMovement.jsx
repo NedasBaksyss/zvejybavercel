@@ -18,7 +18,7 @@ export function updateMapMovement(state, keys, terrain, dt, reducedMotion) {
     state.zoom = state.targetZoom;
   state.moving = false;
   if (
-    !state.destination &&
+    !state.destination && !state.enteringLocation &&
     state.zoom >= GLOBE_START &&
     state.targetZoom >= GLOBE_SWITCH
   ) {
