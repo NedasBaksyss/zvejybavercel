@@ -63,6 +63,18 @@ export function getLakePlatform(lakeId, platformId) {
   return platforms?.find((item) => item.id === platformId) || platforms?.[0];
 }
 
+export function getLakeFishingSpot(lakeId, platformId, spotIndex) {
+  if (spotIndex !== 0 && spotIndex !== 1) return null;
+  const selected = LAKE_PLATFORMS[lakeId]?.find((item) => item.id === platformId);
+  if (!selected) return null;
+  const x = Math.round(selected.x + selected.width * (spotIndex === 0 ? 0.30 : 0.75));
+  return {
+    ...selected,
+    angler: { ...selected.angler, x },
+    rod: { ...selected.rod, tipX: selected.rod.tipX + x - selected.angler.x },
+  };
+}
+
 export function isOnLakePlatform(lakeId, x, y) {
   return (LAKE_PLATFORMS[lakeId] || []).some(
     (p) =>

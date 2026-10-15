@@ -7,7 +7,7 @@ import MapDestination from "./components/MapDestination.jsx";
 import ProgressHud from "./components/ProgressHud.jsx";
 import FishingHud from "./components/FishingHud.jsx";
 import MapSettingsButton from "./components/MapSettingsButton.jsx";
-import MapEnterButton from "./components/MapEnterButton.jsx";
+import MapEnterButton, { MapEntryStatus } from "./components/MapEnterButton.jsx";
 import PlayerChat from "./components/PlayerChat.jsx";
 import "./map.css";
 
@@ -53,8 +53,9 @@ export default function MapView({ ref }) {
         <ProgressHud progress={snapshot.progress} language={snapshot.language} onRetry={actions.retryProgress} />
       )}
       {!inLocation && !snapshot.globe && snapshot.nearby && (
-        <MapEnterButton place={snapshot.place} language={snapshot.language} onEnter={actions.enterLocation} />
+        <MapEnterButton place={snapshot.place} language={snapshot.language} onEnter={actions.enterLocation} pending={snapshot.enteringLocation} />
       )}
+      {snapshot.active && <MapEntryStatus language={snapshot.language} error={snapshot.locationError} pending={snapshot.enteringLocation} />}
       <MapLocations
         text={text}
         language={snapshot.language}

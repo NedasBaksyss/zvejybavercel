@@ -3,6 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const { createChat } = require("./game/chat");
+const { createFishingSpots } = require("./game/fishingSpots");
 
 const {
   createPlayer,
@@ -25,6 +26,7 @@ const io = new Server(server, {
 });
 
 const attachChat = createChat(io, getPlayer);
+const attachFishingSpots = createFishingSpots(getPlayer, getPlayers);
 
 io.on("connection", (socket) => {
   console.log("Player connected:", socket.id);
@@ -33,6 +35,7 @@ io.on("connection", (socket) => {
 
   const player = createPlayer(socket.id, name);
   attachChat(socket);
+  attachFishingSpots(socket);
 
   // Tell the new player where they spawned.
   socket.emit("player:spawn", player);
@@ -62,21 +65,6 @@ io.on("connection", (socket) => {
       name: player.name,
     });
   });
-
-  socket.on("player:fishing", (fishing) => {
-  const player = getPlayer(socket.id);
-
-  if (!player) return;
-
-  player.fishing = fishing?.fishing || null;
-
-  socket.broadcast.emit("player:fishing", {
-    id: player.id,
-    name: player.name,
-    fishing: player.fishing,
-  });
-});
-
 
   socket.on("disconnect", () => {
     console.log("Player disconnected:", socket.id);

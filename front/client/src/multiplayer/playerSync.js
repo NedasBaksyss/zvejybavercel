@@ -1,5 +1,9 @@
 export function createPlayerSync(socket, runtime, publish) {
   function handleSpawn(player) {
+    if (runtime.state.destination) {
+      runtime.state.playerName = player.name;
+      return;
+    }
     runtime.state.player = {
       x: player.x,
       y: player.y,
@@ -80,12 +84,18 @@ export function createPlayerSync(socket, runtime, publish) {
     publish(true);
   }
 
+  function handleDisconnect() {
+    runtime.remotePlayers.clear();
+    publish(true);
+  }
+
   socket.on("player:spawn", handleSpawn);
   socket.on("players:init", handleInit);
   socket.on("player:joined", handleJoined);
   socket.on("player:moved", handleMoved);
   socket.on("player:fishing", handleFishing);
   socket.on("player:left", handleLeft);
+  socket.on("disconnect", handleDisconnect);
 
   return {
     dispose() {
@@ -95,6 +105,7 @@ export function createPlayerSync(socket, runtime, publish) {
       socket.off("player:moved", handleMoved);
       socket.off("player:fishing", handleFishing);
       socket.off("player:left", handleLeft);
+      socket.off("disconnect", handleDisconnect);
     },
   };
 }
