@@ -67,10 +67,10 @@ export function createMap({
   }
 
   const playerSync = createPlayerSync(
-  socket,
-  runtime,
-  publish,
-);
+    socket,
+    runtime,
+    publish,
+  );
 
   const locations = createLocationActions({
     runtime,
@@ -100,7 +100,17 @@ export function createMap({
     actions: { ...locations, ...view },
     onFocus,
   });
-  const loop = createMapLoop({ runtime, keys, save, publish, getSlot, emit, socket });
+  const loop = createMapLoop({ 
+    runtime,
+    keys,
+    save,
+    publish,
+    getSlot,
+    emit,
+    socket,
+    buildFishingPresence: locations.buildFishingPresence,
+    publishFishingState: locations.publishFishingState,
+   });
 
   function exit() {
     runtime.active = false;

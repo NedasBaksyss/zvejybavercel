@@ -430,33 +430,104 @@ function drawRemoteFishingPlayer(ctx, remotePlayer, time) {
 
 function drawRemoteFishingGear(ctx, remotePlayer, time) {
   const fishing = remotePlayer?.fishing;
-  if (!fishing?.active || !fishing.target) return;
+  if (!fishing) return;
+
   const playerX = Number(fishing.x);
   const playerY = Number(fishing.y);
-  const targetX = Number(fishing.target.x);
-  const targetY = Number(fishing.target.y);
-  if (!Number.isFinite(playerX) || !Number.isFinite(playerY) || !Number.isFinite(targetX) || !Number.isFinite(targetY)) return;
+
+  if (!Number.isFinite(playerX) || !Number.isFinite(playerY)) return;
+
   const scale = Number(fishing.scale) || 1;
   const direction = fishing.direction || "right";
-  const handX = playerX + (direction === "right" ? 9 : -9) * scale;
-  const handY = playerY - scale;
-  const bobberX = targetX;
-  const bobberY = targetY + Math.sin(time * 1.8) * 2;
+  const pulling = fishing.phase === "bite" || fishing.phase === "fighting";
+  const tug = pulling ? 10 + Math.sin(time * 14) * 7 : 0;
+  const pullDirection = direction === "right" ? -0.45 : 0.45;
+
+  // Match the local player's hand position.
+  const hand = {
+    x: playerX + (direction === "right" ? 9 : -9) * scale,
+    y: playerY - scale,
+  };
+
+  // Use synchronized rod tip coordinates if available.
+  // Otherwise, calculate a reasonable tip position.
+  const rodTip = {
+    x: Number.isFinite(Number(fishing.rodTipX))
+      ? Number(fishing.rodTipX) + tug * pullDirection
+      : hand.x + (direction === "right" ? 115 : -115) * scale + tug * pullDirection,
+    y: Number.isFinite(Number(fishing.rodTipY))
+      ? Number(fishing.rodTipY) + tug
+      : hand.y - 85 * scale + tug,
+  };
+
+  // Always draw the rod, even before casting.
+  ctx.strokeStyle = "#241c30";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(hand.x, hand.y);
+  ctx.quadraticCurveTo(
+    (hand.x + rodTip.x) / 2,
+    rodTip.y + 30 * scale - tug,
+    rodTip.x,
+    rodTip.y
+  );
+  ctx.stroke();
+
+  // No line or bobber until the remote player casts.
+  if (!fishing.active || !fishing.target) return;
+
+  const targetX = Number(fishing.target.x);
+  const targetY = Number(fishing.target.y);
+
+  if (!Number.isFinite(targetX) || !Number.isFinite(targetY)) return;
+
+  const bobberX = targetX + Math.sin(time * 0.7) * 7;
+  const bobberY =
+    targetY +
+    Math.sin(time * 1.8) * 2 +
+    (pulling ? Math.sin(time * 14) * 5 : 0);
+
   ctx.strokeStyle = "#cfe0f0aa";
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(handX, handY);
-  ctx.quadraticCurveTo((handX + bobberX) / 2, (handY + bobberY) / 2 + 18, bobberX, bobberY);
+  ctx.moveTo(rodTip.x, rodTip.y);
+  ctx.quadraticCurveTo(
+    (rodTip.x + bobberX) / 2,
+    (rodTip.y + bobberY) / 2 + 18,
+    bobberX,
+    bobberY
+  );
   ctx.stroke();
+
   const ripple = (time * 18) % 38;
   ctx.strokeStyle = "#cfe0f080";
   ctx.beginPath();
-  ctx.ellipse(bobberX, bobberY + 4, 12 + ripple, 4 + ripple * 0.22, 0, 0, Math.PI * 2);
+  ctx.ellipse(
+    bobberX,
+    bobberY + 4,
+    12 + ripple,
+    4 + ripple * 0.22,
+    0,
+    0,
+    Math.PI * 2
+  );
   ctx.stroke();
+
   ctx.fillStyle = "#d4574e";
   ctx.fillRect(bobberX - 2, bobberY - 6, 4, 10);
   ctx.fillStyle = "#ffdca8";
   ctx.fillRect(bobberX - 2, bobberY - 8, 4, 3);
+
+  if (fishing.phase === "bite") {
+    ctx.font = "bold 26px ui-monospace, monospace";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#ffdca8";
+    ctx.fillText(
+      "!",
+      bobberX,
+      bobberY - 20 - Math.abs(Math.sin(time * 7)) * 7
+    );
+  }
 }
 
 function drawRoundTree(ctx, x, y, size) {
@@ -523,18 +594,8 @@ export function drawFishingScene(ctx, location, time, fishing, platformId, playe
        */
       if (remoteFishing.lakeId !== location?.id) continue;
 
-      /*
-       * Draw player immediately when they enter.
-       * This does NOT depend on active === true.
-       */
       drawRemoteFishingPlayer(ctx, remotePlayer, time);
-
-      /*
-       * Bobber/line only exists after an actual cast.
-       */
-      if (remoteFishing.active) {
-        drawRemoteFishingGear(ctx, remotePlayer, time);
-      }
+      drawRemoteFishingGear(ctx, remotePlayer, time);
     }
   }
 }

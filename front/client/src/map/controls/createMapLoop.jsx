@@ -9,6 +9,8 @@ export function createMapLoop({
   getSlot,
   emit,
   socket,
+  buildFishingPresence,
+  publishFishingState,
 }) {
   let frameId = 0;
   let lastTime = 0;
@@ -47,32 +49,32 @@ export function createMapLoop({
      */
     const movementChanged = runtime.state.moving !== wasMoving;
 
-      if (
-        movementRequested &&
-        runtime.state.moving &&
-        now - lastNetworkUpdate >= 50
-      ) {
-        socket.emit("player:move", {
-          x: runtime.state.player.x,
-          y: runtime.state.player.y,
-          moving: true,
-          direction: runtime.state.direction,
-        });
+    if (
+      movementRequested &&
+      runtime.state.moving &&
+      now - lastNetworkUpdate >= 50
+    ) {
+      socket.emit("player:move", {
+        x: runtime.state.player.x,
+        y: runtime.state.player.y,
+        moving: true,
+        direction: runtime.state.direction,
+      });
 
-        lastNetworkUpdate = now;
-      } else if (movementChanged && !runtime.state.moving) {
-        // Tell other players that we stopped.
-        socket.emit("player:move", {
-          x: runtime.state.player.x,
-          y: runtime.state.player.y,
-          moving: false,
-          direction: runtime.state.direction,
-        });
+      lastNetworkUpdate = now;
+    } else if (movementChanged && !runtime.state.moving) {
+      // Tell other players that we stopped.
+      socket.emit("player:move", {
+        x: runtime.state.player.x,
+        y: runtime.state.player.y,
+        moving: false,
+        direction: runtime.state.direction,
+      });
 
-        lastNetworkUpdate = now;
-      }
-      
-      wasMoving = runtime.state.moving;
+      lastNetworkUpdate = now;
+    }
+
+    wasMoving = runtime.state.moving;
 
     const outcome = updateFishing(
       runtime.fishing,
@@ -97,10 +99,26 @@ export function createMapLoop({
         ...catchData,
         slot,
       });
+
+      // Keep the character visible, but remove the fishing gear.
+      publishFishingState({
+        ...buildFishingPresence(false),
+        active: false,
+        target: null,
+        phase: "caught",
+      });
     } else if (outcome === "lost") {
       emit("fishLost", {
         id: runtime.state.destination?.id,
         slot: getSlot(),
+      });
+
+      // Keep the character visible, but remove the fishing gear.
+      publishFishingState({
+        ...buildFishingPresence(false),
+        active: false,
+        target: null,
+        phase: "lost",
       });
     }
 
@@ -122,7 +140,7 @@ export function createMapLoop({
     if (
       outcome ||
       now - lastPublishTime >
-        (runtime.fishing.phase === "fighting" ? 33 : 100)
+      (runtime.fishing.phase === "fighting" ? 33 : 100)
     ) {
       publish();
       lastPublishTime = now;

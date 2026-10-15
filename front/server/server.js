@@ -59,19 +59,24 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("player:fishing", (fishing) => {
-  const player = getPlayer(socket.id);
+  socket.on("player:fishing", (payload) => {
+    const player = getPlayer(socket.id);
 
-  if (!player) return;
+    if (!player) return;
 
-  player.fishing = fishing?.fishing || null;
+    // null means the player has left the lake.
+    // active: false means they are still there, but aren't fishing.
+    player.fishing =
+      payload && Object.prototype.hasOwnProperty.call(payload, "fishing")
+        ? payload.fishing
+        : null;
 
-  socket.broadcast.emit("player:fishing", {
-    id: player.id,
-    name: player.name,
-    fishing: player.fishing,
+    socket.broadcast.emit("player:fishing", {
+      id: player.id,
+      name: player.name,
+      fishing: player.fishing,
+    });
   });
-});
 
 
   socket.on("disconnect", () => {

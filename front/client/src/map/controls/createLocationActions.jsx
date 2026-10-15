@@ -120,7 +120,9 @@ export function createLocationActions({
 
     if (runtime.fishing.phase === "bite") {
       hookFish(runtime.fishing);
+
       publishFishingState(buildFishingPresence(true));
+
       clearInput();
       onFocus("canvas");
       publish(true);
@@ -209,5 +211,7 @@ export function createLocationActions({
     toggleFishing,
     interact,
     leaveLocation,
+    buildFishingPresence,
+    publishFishingState,
   };
 }
